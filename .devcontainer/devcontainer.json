@@ -34,7 +34,8 @@
         "tekumara.typos-vscode",
         "davidlday.languagetool-linter",
         "rust-lang.rust-analyzer",
-        "vadimcn.vscode-lldb"
+        "vadimcn.vscode-lldb",
+        "Vercel.turbo-vsc"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "build": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./Cargo.toml",
+        "../../Cargo.lock",
+        "./scripts/build.sh",
+        "./src/**/*.rs"
+      ],
+      "outputs": ["../npm/*.js", "../npm/*.d.ts", "../npm/*.wasm"]
+    },
+
+    "test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./Cargo.toml",
+        "../../Cargo.lock",
+        "./src/**/*.rs",
+        "./tests/**/*.rs"
+      ]
+    }
+  },
+  "extends": ["//"]
+}

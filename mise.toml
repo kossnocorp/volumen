@@ -10,6 +10,7 @@ cargo-binstall = "latest"
 "cargo:wasm-pack" = "latest"
 # TODO: Will include with latest Mothership image, so can remove after updating
 "cargo:jaq" = "latest"
+"npm:turbo" = "latest"
 
 [settings]
 # Enable extra features
