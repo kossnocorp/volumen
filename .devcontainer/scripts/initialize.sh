@@ -48,11 +48,11 @@ echo
 
 echo -e "🌀 Ensuring host files\n"
 
-ensure_file () {
+ensure_file() {
 	file="$HOME/$1"
 	content="$2"
 	echo "🔹 $file"
-	echo "$content" > "$file"
+	[ -f "$file" ] || echo "$content" >"$file"
 }
 
 ensure_file ".cargo/credentials.toml"
