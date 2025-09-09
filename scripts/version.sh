@@ -25,7 +25,7 @@ for pkg in ./pkgs/*; do
 	jaq -e '.private == true' "$package_json" >/dev/null && continue
 
 	pkg_name=$(jaq -r ".name" "$package_json")
-	echo "🔷 Setting $pkg_name..."
+	echo "🔹 Setting $pkg_name..."
 	pnpm version $version --no-git-tag-version --allow-same-version >/dev/null
 done
 echo
