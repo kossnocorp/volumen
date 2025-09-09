@@ -1,6 +1,9 @@
 [package]
 edition = "2024"
+description = "Volumen types"
+license = "MIT"
 name = "volumen_types"
+repository = "https://github.com/kossnocorp/volumen"
 version = "0.1.0"
 
 [dependencies]

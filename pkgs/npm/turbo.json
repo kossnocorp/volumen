@@ -2,7 +2,7 @@
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
     "package": {
-      "dependsOn": ["@wrkspc/wasm#build"],
+      "dependsOn": ["@wrkspc/wasm#package"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "./package.json",

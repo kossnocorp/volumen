@@ -2,6 +2,9 @@
 name = "volumen_parser_ts"
 version = "0.1.0"
 edition = "2024"
+description = "Volumen TypeScript parser crate"
+repository = "https://github.com/kossnocorp/volumen"
+license = "MIT"
 
 [dependencies]
 serde = "1.0.219"

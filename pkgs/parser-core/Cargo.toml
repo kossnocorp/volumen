@@ -2,6 +2,9 @@
 name = "volumen_parser_core"
 version = "0.1.0"
 edition = "2024"
+description = "Volumen parser core crate"
+repository = "https://github.com/kossnocorp/volumen"
+license = "MIT"
 
 [dependencies]
 volumen_types = { version = "0.1.0", path = "../types-crate" }

@@ -1,5 +1,8 @@
 {
   "types": "src/index.ts",
-  "name": "volumen-types",
+  "description": "Volumen types",
+  "license": "MIT",
+  "name": "@volumen/types",
+  "repository": "https://github.com/kossnocorp/volumen",
   "version": "0.1.0"
 }

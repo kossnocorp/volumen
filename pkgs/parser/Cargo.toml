@@ -2,6 +2,9 @@
 name = "volumen_parser"
 version = "0.1.0"
 edition = "2024"
+description = "Volumen parser crate"
+repository = "https://github.com/kossnocorp/volumen"
+license = "MIT"
 
 [dependencies]
 # Volumen

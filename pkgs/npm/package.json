@@ -1,8 +1,12 @@
 {
   "name": "volumen",
-  "description": "WIP",
+  "description": "Volumen Wasm crate",
   "version": "0.1.0",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kossnocorp/volumen"
+  },
   "files": [
     "volumen_bg.wasm",
     "volumen.js",

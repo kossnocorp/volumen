@@ -1,6 +1,7 @@
 [package]
 name = "volumen"
-description = "WIP"
 version = "0.1.0"
 edition = "2024"
+description = "In-code prompts parser for TypeScript and Python"
+repository = "https://github.com/kossnocorp/volumen"
 license = "MIT"
