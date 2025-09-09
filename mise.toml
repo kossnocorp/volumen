@@ -1,0 +1,20 @@
+[tools]
+## Stack
+rust = "latest"
+node = { version = "lts", postinstall = "corepack enable && node -v > .nvmrc" }
+"cargo:genotype_cli" = "latest"
+
+## Tools
+# Install Rust-based binaries instead of compiling
+cargo-binstall = "latest"
+"cargo:wasm-pack" = "latest"
+# TODO: Will include with latest Mothership image, so can remove after updating
+"cargo:jaq" = "latest"
+
+[settings]
+# Enable extra features
+experimental = true
+# Enable cargo binstall
+cargo.binstall = true
+# Consume Rust toolchain settings from rust-toolchain.toml
+idiomatic_version_file_enable_tools = ["rust"]

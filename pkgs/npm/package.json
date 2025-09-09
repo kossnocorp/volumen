@@ -1,0 +1,20 @@
+{
+  "name": "volumen",
+  "description": "WIP",
+  "version": "0.1.0",
+  "license": "MIT",
+  "files": [
+    "volumen_bg.wasm",
+    "volumen.js",
+    "volumen.d.ts"
+  ],
+  "main": "volumen.js",
+  "types": "volumen.d.ts",
+  "dependencies": {
+    "volumen-types": "workspace:^"
+  },
+  "scripts": {
+    "publish": "pnpm publish",
+    "publish:next": "pnpm publish --tag next"
+  }
+}

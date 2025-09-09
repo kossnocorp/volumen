@@ -1,0 +1,23 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .: {}
+
+  pkgs/crate: {}
+
+  pkgs/npm:
+    dependencies:
+      volumen-types:
+        specifier: workspace:^
+        version: link:../types-npm
+
+  pkgs/types: {}
+
+  pkgs/types-npm: {}
+
+  pkgs/wasm: {}

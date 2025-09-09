@@ -1,0 +1,7 @@
+# Rust
+/target/
+# Node.js
+node_modules/
+.pnpm-store/
+# Dev Container
+.devcontainer/state

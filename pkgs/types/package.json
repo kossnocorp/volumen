@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "@wrkspc/types",
+  "version": "0.1.0",
+  "description": "Types package",
+  "scripts": {
+    "build": "gt build"
+  },
+  "dependencies": {}
+}

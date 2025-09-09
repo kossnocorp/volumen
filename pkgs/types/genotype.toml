@@ -1,0 +1,25 @@
+name = "volumen-types"
+root = ""
+out = ".."
+src = "src"
+entry = "**/*.type"
+
+[ts]
+enabled = true
+out = "types-npm"
+
+[ts.manifest]
+name = "volumen-types"
+version = "0.1.0"
+
+[rs]
+derive = ["Debug", "Clone", "PartialEq"]
+enabled = true
+out = "types-crate"
+
+[rs.manifest]
+
+[rs.manifest.package]
+name = "volumen_types"
+version = "0.1.0"
+edition = "2024"

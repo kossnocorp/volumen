@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "@wrkspc/wasm",
+  "version": "0.1.0",
+  "description": "Wasm crate",
+  "scripts": {
+    "build": "./scripts/build.sh"
+  },
+  "dependencies": {}
+}
