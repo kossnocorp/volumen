@@ -1,3 +1,10 @@
 [workspace]
 resolver = "2"
-members = ["pkgs/crate", "pkgs/types-crate", "pkgs/wasm"]
+members = [
+  "pkgs/crate",
+  "pkgs/types-crate",
+  "pkgs/wasm",
+  "pkgs/parser",
+  "pkgs/parser-ts",
+  "pkgs/parser-py",
+]

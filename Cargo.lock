@@ -151,6 +151,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "volumen_parser"
+version = "0.1.0"
+
+[[package]]
+name = "volumen_parser_py"
+version = "0.1.0"
+
+[[package]]
+name = "volumen_parser_ts"
+version = "0.1.0"
+
+[[package]]
 name = "volumen_types"
 version = "0.1.0"
 dependencies = [
