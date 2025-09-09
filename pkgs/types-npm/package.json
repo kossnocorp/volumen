@@ -1,5 +1,9 @@
 {
   "types": "src/index.ts",
   "name": "volumen-types",
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "scripts": {
+    "ship": "pnpm publish",
+    "ship:next": "pnpm publish --tag next"
+  }
 }

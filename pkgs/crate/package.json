@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Lib crate",
   "scripts": {
-    "publish": "cargo publish --allow-dirty"
+    "ship": "cargo publish --allow-dirty"
   },
   "dependencies": {}
 }

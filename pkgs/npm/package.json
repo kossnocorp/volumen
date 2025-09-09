@@ -14,7 +14,7 @@
     "volumen-types": "workspace:^"
   },
   "scripts": {
-    "publish": "pnpm publish",
-    "publish:next": "pnpm publish --tag next"
+    "ship": "pnpm publish",
+    "ship:next": "pnpm publish --tag next"
   }
 }
