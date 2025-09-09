@@ -1130,6 +1130,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "volumen_parser_py_ruff"
+version = "0.1.0"
+dependencies = [
+ "indoc",
+ "insta",
+ "ruff_python_ast",
+ "ruff_python_parser",
+ "ruff_python_trivia",
+ "ruff_text_size",
+ "serde",
+ "volumen_parser_core",
+ "volumen_parser_test",
+ "volumen_types",
+]
+
+[[package]]
 name = "volumen_parser_test"
 version = "0.1.0"
 dependencies = [
