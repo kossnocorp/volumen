@@ -1,0 +1,16 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "package": {
+      "dependsOn": ["@wrkspc/wasm#build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "./package.json",
+        "./*.md",
+        "./*.js",
+        "./*.wasm"
+      ]
+    }
+  },
+  "extends": ["//"]
+}

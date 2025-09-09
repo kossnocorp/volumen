@@ -3,8 +3,6 @@
   "name": "@wrkspc/crate",
   "version": "0.1.0",
   "description": "Lib crate",
-  "scripts": {
-    "ship": "cargo publish --allow-dirty"
-  },
+  "scripts": {},
   "dependencies": {}
 }

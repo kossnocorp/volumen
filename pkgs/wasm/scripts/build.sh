@@ -7,8 +7,9 @@ echo -e "⚡️ Building Wasm package\n"
 dir="../npm"
 
 find $dir -type f \
-  ! -name 'package.json' \
-  -delete
+	! -name 'package.json' \
+	! -name 'turbo.json' \
+	-delete
 
 wasm-pack build --target nodejs --out-name volumen --out-dir $dir
 
@@ -19,9 +20,9 @@ echo -e "$(cat "$dir/package.json" | jaq '
   .scripts["ship"] = "pnpm publish" |
   .scripts["ship:next"] = "pnpm publish --tag next" |
   .name = "volumen"
-')" > "$dir/package.json"
+')" >"$dir/package.json"
 
-cat > "$dir/.gitignore" <<'EOF'
+cat >"$dir/.gitignore" <<'EOF'
 *.js
 *.d.ts
 *.wasm

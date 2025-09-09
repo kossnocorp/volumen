@@ -1,9 +1,8 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
-    "ship": {
-      "dependsOn": ["@wrkspc/types#build"],
-      "inputs": ["$TURBO_DEFAULT$", "./Cargo.toml", "./src/**/*"]
+    "package": {
+      "dependsOn": ["@wrkspc/types#package"]
     }
   },
   "extends": ["//"]

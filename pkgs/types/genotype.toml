@@ -11,9 +11,6 @@ out = "types-npm"
 [ts.manifest]
 name = "volumen-types"
 version = "0.1.0"
-[ts.manifest.scripts]
-ship = "pnpm publish"
-"ship:next" = "pnpm publish --tag next"
 
 [rs]
 derive = ["Debug", "Clone", "PartialEq"]

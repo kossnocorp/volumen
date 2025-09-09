@@ -1,6 +1,10 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
+    "package": {
+      "dependsOn": ["build"]
+    },
+
     "build": {
       "inputs": ["$TURBO_DEFAULT$", "./src/**/*.type", "./genotype.toml"],
       "outputs": ["../types-crate/**", "../types-npm/**"]
