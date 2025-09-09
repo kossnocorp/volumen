@@ -1,0 +1,10 @@
+[package]
+name = "volumen_parser_core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+volumen_types = { version = "0.1.0", path = "../types-crate" }
+
+[dev-dependencies]
+pretty_assertions = "1.4.1"

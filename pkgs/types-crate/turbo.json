@@ -2,7 +2,7 @@
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
     "ship": {
-      "dependsOn": ["@wrkspc/types:build"],
+      "dependsOn": ["@wrkspc/types#build"],
       "inputs": ["$TURBO_DEFAULT$", "./Cargo.toml", "./src/**/*"]
     }
   },

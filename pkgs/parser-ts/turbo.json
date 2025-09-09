@@ -1,17 +1,13 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
-    "build": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "./Cargo.toml",
-        "./scripts/build.sh",
-        "./src/**/*.rs"
-      ],
-      "outputs": ["../npm/*.js", "../npm/*.d.ts", "../npm/*.wasm"]
+    "ship": {
+      "dependsOn": ["@wrkspc/types#build"],
+      "inputs": ["$TURBO_DEFAULT$", "./Cargo.toml", "./src/**/*.rs"]
     },
 
     "test": {
+      "dependsOn": ["@wrkspc/types#build"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "./Cargo.toml",

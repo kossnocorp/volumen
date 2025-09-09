@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "name": "@wrkspc/parser-py",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "cargo test"
+  }
+}

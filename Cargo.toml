@@ -5,6 +5,8 @@ members = [
   "pkgs/types-crate",
   "pkgs/wasm",
   "pkgs/parser",
+  "pkgs/parser-core",
   "pkgs/parser-ts",
   "pkgs/parser-py",
+  "pkgs/parser-test",
 ]

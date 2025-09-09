@@ -2,19 +2,13 @@
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
     "build": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "./Cargo.toml",
-        "../../Cargo.lock",
-        "./src/**/*.rs"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "./Cargo.toml", "./src/**/*.rs"]
     },
 
     "test": {
       "inputs": [
         "$TURBO_DEFAULT$",
         "./Cargo.toml",
-        "../../Cargo.lock",
         "./src/**/*.rs",
         "./tests/**/*.rs"
       ]

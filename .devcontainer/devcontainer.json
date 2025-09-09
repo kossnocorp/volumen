@@ -12,13 +12,14 @@
     "source=${localEnv:HOME}/.cargo/credentials.toml,target=/home/vscode/.cargo/credentials.toml,type=bind,readonly",
     "source=${localEnv:HOME}/.codex/auth.json,target=/home/vscode/.codex/auth.json,type=bind,readonly",
     // Mount state directories from local directory:
-    "source=${localWorkspaceFolder}/.devcontainer/state/.cache,target=/home/vscode/.cache,type=bind",
-    "source=${localWorkspaceFolder}/.devcontainer/state/.local/share,target=/home/vscode/.local/share,type=bind",
-    "source=${localWorkspaceFolder}/.devcontainer/state/.local/state,target=/home/vscode/.local/state,type=bind",
-    "source=${localWorkspaceFolder}/.devcontainer/state/.codex/sessions,target=/home/vscode/.codex/sessions,type=bind"
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.cache,target=/home/vscode/.cache,type=bind",
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.local/share,target=/home/vscode/.local/share,type=bind",
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.local/state,target=/home/vscode/.local/state,type=bind",
+    "source=${localEnv:HOME}/.local/state/mothership/containers/${devcontainerId}/.codex/sessions,target=/home/vscode/.codex/sessions,type=bind"
     // NOTE: When adding new mounts, make sure to also update ./Dockerfile to ensure the directories
   ],
 
+  "initializeCommand": ".devcontainer/scripts/initialize.sh ${devcontainerId}",
   "onCreateCommand": ".devcontainer/scripts/on-create.sh",
   "postCreateCommand": ".devcontainer/scripts/post-create.sh",
   "updateContentCommand": ".devcontainer/scripts/on-update.sh",
@@ -35,7 +36,8 @@
         "davidlday.languagetool-linter",
         "rust-lang.rust-analyzer",
         "vadimcn.vscode-lldb",
-        "Vercel.turbo-vsc"
+        "Vercel.turbo-vsc",
+        "mkhl.shfmt"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",

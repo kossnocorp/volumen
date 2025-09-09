@@ -11,6 +11,7 @@ cargo-binstall = "latest"
 # TODO: Will include with latest Mothership image, so can remove after updating
 "cargo:jaq" = "latest"
 "npm:turbo" = "latest"
+"cargo:cargo-release" = "latest"
 
 [settings]
 # Enable extra features

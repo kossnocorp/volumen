@@ -1,0 +1,11 @@
+ParseResult = ParseResultError | ParseResultSuccess
+
+ParseResultError = {
+  state: "error"
+  error: string
+}
+
+ParseResultSuccess = {
+  state: "success"
+  prompts: [./prompt/Prompt]
+}

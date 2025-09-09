@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "@wrkspc/parser",
+  "version": "0.1.0",
+  "scripts": {
+    "ship": "cargo publish --allow-dirty",
+    "test": "cargo test"
+  }
+}
