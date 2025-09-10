@@ -4,7 +4,7 @@ description = "Volumen types"
 license = "MIT"
 name = "volumen_types"
 repository = "https://github.com/kossnocorp/volumen"
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

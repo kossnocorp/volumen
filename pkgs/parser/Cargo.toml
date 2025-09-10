@@ -1,6 +1,6 @@
 [package]
 name = "volumen_parser"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 description = "Volumen parser crate"
 repository = "https://github.com/kossnocorp/volumen"
@@ -8,10 +8,10 @@ license = "MIT"
 
 [dependencies]
 # Volumen
-volumen_types = { version = "0.1.0", path = "../types-crate" }
-volumen_parser_ts = { version = "0.1.0", path = "../parser-ts" }
-volumen_parser_py = { version = "0.1.0", path = "../parser-py" }
+volumen_types = { version = "0.2.0", path = "../types-crate" }
+volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }
+volumen_parser_py = { version = "0.2.0", path = "../parser-py" }
 
 [dev-dependencies]
 indoc = "2.0.6"
-volumen_parser_test = { version = "0.1.0", path = "../parser-test" }
+volumen_parser_test = { version = "0.2.0", path = "../parser-test" }

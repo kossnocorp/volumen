@@ -1,7 +1,7 @@
 [package]
 publish = false
 name = "volumen-wasm"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 description = "Volumen Wasm crate"
 repository = "https://github.com/kossnocorp/volumen"
@@ -13,8 +13,8 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 wasm-bindgen = "0.2.101"
 # Volumen
-volumen_types = { version = "0.1.0", path = "../types-crate" }
-volumen_parser = { version = "0.1.0", path = "../parser" }
+volumen_types = { version = "0.2.0", path = "../types-crate" }
+volumen_parser = { version = "0.2.0", path = "../parser" }
 serde-wasm-bindgen = "0.6.5"
 
 [dev-dependencies]
