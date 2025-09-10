@@ -9,7 +9,7 @@ pnpm turbo run package
 echo
 
 echo -e "🌀 Publishing crates...\n"
-cargo release publish --no-confirm --no-verify
+cargo release publish --workspace --no-confirm --no-verify --execute
 echo
 
 echo -e "🌀 Publishing npm packages...\n"
