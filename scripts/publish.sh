@@ -13,5 +13,5 @@ cargo release publish --workspace --no-confirm --no-verify --execute
 echo
 
 echo -e "🌀 Publishing npm packages...\n"
-pnpm publish --recursive --no-git-checks
+pnpm publish --recursive --no-git-checks --access public
 echo
