@@ -57,6 +57,7 @@ ensure_file() {
 
 ensure_file ".cargo/credentials.toml"
 ensure_file ".codex/auth.json" "{}"
+ensure_file ".npmrc"
 
 echo
 
