@@ -4,6 +4,8 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen(typescript_custom_section)]
 const TYPES_IMPORTS: &'static str = r#"
 import type { ParseResult } from "@volumen/types";
+
+export * from "@volumen/types";
 "#;
 
 #[wasm_bindgen(js_name = parsePrompts, unchecked_return_type = "ParseResult")]
