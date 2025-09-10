@@ -11,3 +11,8 @@ members = [
   "pkgs/parser-py-ruff",
   "pkgs/parser-test",
 ]
+
+[profile.test]
+# Wasm tests fail with ``, so we enable size optimization for tests, to
+# workaround the issue. See: https://github.com/wasm-bindgen/wasm-bindgen/issues/3451#issuecomment-1562982835
+opt-level = "s"

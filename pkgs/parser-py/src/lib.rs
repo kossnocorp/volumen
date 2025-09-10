@@ -1,9 +1,12 @@
 use std::collections::HashSet;
 
-use ruff_python_ast as ast;
-use ruff_python_ast::visitor::{self, Visitor};
-use ruff_python_parser::{self as parser, TokenKind};
-use ruff_text_size::{Ranged, TextRange};
+use rustpython_ast as ast;
+use rustpython_ast::Ranged;
+use rustpython_ast::Visitor;
+use rustpython_ast::text_size::TextRange;
+use rustpython_parser::Parse;
+use rustpython_parser::lexer::lex;
+use rustpython_parser::{Mode, Tok};
 use volumen_parser_core::*;
 use volumen_types::*;
 
@@ -11,8 +14,8 @@ pub struct ParserPy {}
 
 impl ParserPy {
     pub fn parse(source: &str, filename: &str) -> ParseResult {
-        let parsed = match parser::parse_module(source) {
-            Ok(parsed) => parsed,
+        let suite = match ast::Suite::parse(source, filename) {
+            Ok(suite) => suite,
             Err(err) => {
                 return ParseResult::ParseResultError(ParseResultError {
                     state: ParseResultErrorStateError,
@@ -21,10 +24,12 @@ impl ParserPy {
             }
         };
 
-        let comments = ParserPy::parse_comments(source, &parsed);
+        let comments = ParserPy::parse_comments(source);
 
         let mut visitor = PyPromptVisitor::new(source, filename.to_string(), comments);
-        visitor.visit_body(parsed.suite());
+        for stmt in suite {
+            visitor.visit_stmt(stmt);
+        }
 
         ParseResult::ParseResultSuccess(ParseResultSuccess {
             state: ParseResultSuccessStateSuccess,
@@ -32,20 +37,15 @@ impl ParserPy {
         })
     }
 
-    fn parse_comments(source: &str, parsed: &parser::Parsed<ast::ModModule>) -> Vec<TextRange> {
+    fn parse_comments(source: &str) -> Vec<TextRange> {
         let mut comments: Vec<TextRange> = Vec::new();
-
-        for token in parsed.tokens() {
-            let kind = token.kind();
-            let range = token.range();
-            match kind {
-                TokenKind::Comment => {
-                    let chunk = &source[range];
-                    if parse_comment(chunk).unwrap_or(false) {
+        for result in lex(source, Mode::Module) {
+            match result {
+                Ok((Tok::Comment(text), range)) => {
+                    if parse_comment(&text).unwrap_or(false) {
                         comments.push(range);
                     }
                 }
-
                 _ => {}
             }
         }
@@ -66,6 +66,8 @@ struct PyPromptVisitor<'a> {
     comments: Vec<TextRange>,
     /// Cursor to track position in comments array.
     comment_cursor: usize,
+    /// Whether the current statement has a preceding @prompt comment.
+    prompt_stmt_stack: Vec<bool>,
 }
 
 impl<'a> PyPromptVisitor<'a> {
@@ -77,6 +79,7 @@ impl<'a> PyPromptVisitor<'a> {
             prompt_idents_stack: vec![HashSet::new()],
             comments,
             comment_cursor: 0,
+            prompt_stmt_stack: Vec::new(),
         }
     }
 
@@ -130,44 +133,53 @@ impl<'a> PyPromptVisitor<'a> {
         SpanShape { outer, inner }
     }
 
-    fn parse_fstr_vars(&self, fstr: &ast::ExprFString) -> Vec<PromptVar> {
-        let mut vars: Vec<PromptVar> = Vec::new();
-        for part in fstr.value.as_slice() {
-            if let ast::FStringPart::FString(inner) = part {
-                for element in &inner.elements {
-                    if let ast::InterpolatedStringElement::Interpolation(interp) = element {
-                        let range = interp.range();
-                        vars.push(PromptVar {
-                            exp: self.code[range].to_string(),
-                            span: SpanShape {
-                                outer: self.span(range),
-                                inner: Span {
-                                    start: self.span(range).start + 1,
-                                    end: self.span(range).end.saturating_sub(1),
-                                },
-                            },
-                        });
+    fn collect_vars_from_joined_str(&self, joined: &ast::ExprJoinedStr) -> Vec<PromptVar> {
+        let mut vars = Vec::new();
+        for value in &joined.values {
+            if let ast::Expr::FormattedValue(formatted) = value {
+                // Use the inner expression range as a stable anchor.
+                let inner_r = formatted.value.range();
+                let mut outer_start = inner_r.start().to_usize();
+                let mut outer_end = inner_r.end().to_usize();
+
+                let bytes = self.code.as_bytes();
+
+                // Seek left to the opening '{'
+                let mut i = outer_start;
+                while i > 0 {
+                    i -= 1;
+                    if bytes[i] == b'{' {
+                        outer_start = i;
+                        break;
                     }
                 }
-            }
-        }
-        vars
-    }
 
-    fn parse_tstr_vars(&self, tstr: &ast::ExprTString) -> Vec<PromptVar> {
-        let mut vars: Vec<PromptVar> = Vec::new();
-        for element in tstr.value.elements() {
-            if let ast::InterpolatedStringElement::Interpolation(interp) = element {
-                let r = interp.range();
+                // Seek right to the closing '}'
+                let mut j = outer_end;
+                while j < bytes.len() {
+                    if bytes[j] == b'}' {
+                        outer_end = j + 1;
+                        break;
+                    }
+                    j += 1;
+                }
+
+                let outer = Span {
+                    start: outer_start as u32,
+                    end: outer_end as u32,
+                };
+                let inner = Span {
+                    start: outer.start + 1,
+                    end: outer.end.saturating_sub(1),
+                };
+                let exp_range = TextRange::new(
+                    rustpython_ast::text_size::TextSize::from(outer.start),
+                    rustpython_ast::text_size::TextSize::from(outer.end),
+                );
+
                 vars.push(PromptVar {
-                    exp: self.code[r].to_string(),
-                    span: SpanShape {
-                        outer: self.span(r),
-                        inner: Span {
-                            start: self.span(r).start + 1,
-                            end: self.span(r).end.saturating_sub(1),
-                        },
-                    },
+                    exp: self.code[exp_range].to_string(),
+                    span: SpanShape { outer, inner },
                 });
             }
         }
@@ -226,26 +238,20 @@ impl<'a> PyPromptVisitor<'a> {
 
         if let Some(val) = val {
             match val {
-                ast::Expr::FString(expr) => self.process_fstr(ident, expr),
-                ast::Expr::StringLiteral(expr) => self.process_str_literal(ident, expr),
-                ast::Expr::TString(expr) => self.process_tstr(ident, expr),
+                // f"...{expr}..."
+                ast::Expr::JoinedStr(joined) => {
+                    let vars = self.collect_vars_from_joined_str(joined);
+                    self.process_range(ident, joined.range(), vars);
+                }
+                // "..."
+                ast::Expr::Constant(c) => {
+                    if matches!(c.value, ast::Constant::Str(_)) {
+                        self.process_range(ident, c.range(), Vec::new());
+                    }
+                }
                 _ => {}
             }
         }
-    }
-
-    fn process_str_literal(&mut self, ident_name: &str, str: &ast::ExprStringLiteral) {
-        self.process_range(ident_name, str.range(), Vec::new());
-    }
-
-    fn process_tstr(&mut self, ident_name: &str, tstr: &ast::ExprTString) {
-        let vars = self.parse_tstr_vars(tstr);
-        self.process_range(ident_name, tstr.range(), vars);
-    }
-
-    fn process_fstr(&mut self, ident_name: &str, fstr: &ast::ExprFString) {
-        let vars = self.parse_fstr_vars(fstr);
-        self.process_range(ident_name, fstr.range(), vars);
     }
 
     fn process_range(&mut self, ident: &str, node_range: TextRange, vars: Vec<PromptVar>) {
@@ -268,7 +274,7 @@ impl<'a> PyPromptVisitor<'a> {
         self.prompts.push(prompt);
     }
 
-    fn detect_prompt_stmt(&mut self, stmt: &'a ast::Stmt) -> bool {
+    fn detect_prompt_stmt(&mut self, stmt: &ast::Stmt) -> bool {
         let stmt_start = stmt.range().start();
 
         let mut last_idx: Option<usize> = None;
@@ -295,38 +301,44 @@ impl<'a> PyPromptVisitor<'a> {
     }
 }
 
-impl<'a> Visitor<'a> for PyPromptVisitor<'a> {
-    fn visit_stmt(&mut self, stmt: &'a ast::Stmt) {
-        let is_prompt = self.detect_prompt_stmt(stmt);
+impl<'a> Visitor for PyPromptVisitor<'a> {
+    fn visit_stmt(&mut self, node: ast::Stmt) {
+        let is_prompt = self.detect_prompt_stmt(&node);
+        self.prompt_stmt_stack.push(is_prompt);
+        self.generic_visit_stmt(node);
+        self.prompt_stmt_stack.pop();
+    }
 
-        // Process assignments.
-        match stmt {
-            ast::Stmt::Assign(assign) => {
-                for target in &assign.targets {
-                    self.process_assign_target(is_prompt, target, Some(&assign.value));
-                }
-            }
-
-            ast::Stmt::AnnAssign(assign) => {
-                self.process_assign_target(is_prompt, &*assign.target, assign.value.as_deref());
-            }
-
-            _ => {}
+    fn visit_stmt_assign(&mut self, node: ast::StmtAssign) {
+        let is_prompt = *self.prompt_stmt_stack.last().unwrap_or(&false);
+        for target in &node.targets {
+            self.process_assign_target(is_prompt, target, Some(&node.value));
         }
+        self.generic_visit_stmt_assign(node);
+    }
 
-        // Check if we are entering a new scope.
-        let new_scope = matches!(stmt, ast::Stmt::FunctionDef(_) | ast::Stmt::ClassDef(_));
-        if new_scope {
-            self.prompt_idents_stack.push(HashSet::new());
-        }
+    fn visit_stmt_ann_assign(&mut self, node: ast::StmtAnnAssign) {
+        let is_prompt = *self.prompt_stmt_stack.last().unwrap_or(&false);
+        self.process_assign_target(is_prompt, &node.target, node.value.as_deref());
+        self.generic_visit_stmt_ann_assign(node);
+    }
 
-        // Visit nested statements.
-        visitor::walk_stmt(self, stmt);
+    fn visit_stmt_function_def(&mut self, node: ast::StmtFunctionDef) {
+        self.prompt_idents_stack.push(HashSet::new());
+        self.generic_visit_stmt_function_def(node);
+        self.prompt_idents_stack.pop();
+    }
 
-        // If we opened a scope, pop it off the stack.
-        if new_scope {
-            self.prompt_idents_stack.pop();
-        }
+    fn visit_stmt_async_function_def(&mut self, node: ast::StmtAsyncFunctionDef) {
+        self.prompt_idents_stack.push(HashSet::new());
+        self.generic_visit_stmt_async_function_def(node);
+        self.prompt_idents_stack.pop();
+    }
+
+    fn visit_stmt_class_def(&mut self, node: ast::StmtClassDef) {
+        self.prompt_idents_stack.push(HashSet::new());
+        self.generic_visit_stmt_class_def(node);
+        self.prompt_idents_stack.pop();
     }
 }
 

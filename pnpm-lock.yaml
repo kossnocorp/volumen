@@ -26,6 +26,8 @@ importers:
 
   pkgs/parser-py: {}
 
+  pkgs/parser-py-ruff: {}
+
   pkgs/parser-test: {}
 
   pkgs/parser-ts: {}
