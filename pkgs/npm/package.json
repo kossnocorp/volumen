@@ -15,10 +15,6 @@
   "main": "volumen.js",
   "types": "volumen.d.ts",
   "dependencies": {
-    "volumen-types": "workspace:^"
-  },
-  "scripts": {
-    "ship": "pnpm publish",
-    "ship:next": "pnpm publish --tag next"
+    "@volumen/types": "workspace:^"
   }
 }

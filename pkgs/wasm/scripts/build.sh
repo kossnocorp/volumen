@@ -15,10 +15,7 @@ wasm-pack build --target nodejs --out-name volumen --out-dir $dir
 
 echo -e "$(cat "$dir/package.json" | jaq '
   .dependencies //= {} |
-  .dependencies["volumen-types"] = "workspace:^" |
-  .scripts //= {} |
-  .scripts["ship"] = "pnpm publish" |
-  .scripts["ship:next"] = "pnpm publish --tag next" |
+  .dependencies["@volumen/types"] = "workspace:^" |
   .name = "volumen"
 ')" >"$dir/package.json"
 
