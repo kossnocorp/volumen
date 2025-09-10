@@ -13,10 +13,13 @@ find $dir -type f \
 
 wasm-pack build --target nodejs --out-name volumen --out-dir $dir
 
+version=$(jaq -r ".version" "$package_json")
+
 echo -e "$(cat "$dir/package.json" | jaq '
   .dependencies //= {} |
   .dependencies["@volumen/types"] = "workspace:^" |
-  .name = "volumen"
+  .name = "volumen" |
+  .version = "'"$version"'" |
 ')" >"$dir/package.json"
 
 cat >"$dir/.gitignore" <<'EOF'

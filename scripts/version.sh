@@ -15,18 +15,20 @@ cargo release version $version --execute --no-confirm
 echo
 
 echo -e "🌀 Setting npm packages versions...\n"
-for pkg in ./pkgs/*; do
+for pkg in ./pkgs/* .; do
 	package_json="$pkg/package.json"
 
-	# Skip ignored, ensure that's not a dir, has package.json and it's not private.
-	[ "$pkg" = "./pkgs/types" ] && continue
+	# Ignore files
 	[ -d "$dir" ] && continue
+	# Ignore packages without package.json
 	[ -f "$package_json" ] || continue
-	jaq -e '.private == true' "$package_json" >/dev/null && continue
 
 	pkg_name=$(jaq -r ".name" "$package_json")
+
 	echo "🔹 Setting $pkg_name..."
+	cd "$pkg"
 	pnpm version $version --no-git-tag-version --allow-same-version >/dev/null
+	cd - >/dev/null
 done
 echo
 
