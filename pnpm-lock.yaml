@@ -16,7 +16,7 @@ importers:
 
   pkgs/npm:
     dependencies:
-      volumen-types:
+      '@volumen/types':
         specifier: workspace:^
         version: link:../types-npm
 
