@@ -21,8 +21,13 @@ fn parse_js_value() {
                     outer: Span { start: 27, end: 40 },
                     inner: Span { start: 28, end: 39 },
                 },
+                enclosure: Span { start: 0, end: 41 },
                 exp: "\"Hello world\"".into(),
                 vars: vec![],
+                annotations: vec![PromptAnnotation {
+                    span: Span { start: 12, end: 26 },
+                    exp: "/** @prompt */".into(),
+                }]
             }]
         })
     );
@@ -46,6 +51,7 @@ fn parse_py_value() {
                     outer: Span { start: 16, end: 32 },
                     inner: Span { start: 18, end: 31 }
                 },
+                enclosure: Span { start: 0, end: 32 },
                 exp: "f\"Hello {name}!\"".into(),
                 vars: vec![PromptVar {
                     exp: "{name}".into(),
@@ -54,6 +60,10 @@ fn parse_py_value() {
                         inner: Span { start: 25, end: 29 },
                     }
                 }],
+                annotations: vec![PromptAnnotation {
+                    span: Span { start: 0, end: 9 },
+                    exp: "# @prompt".into(),
+                }]
             }]
         })
     );

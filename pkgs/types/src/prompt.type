@@ -6,6 +6,13 @@ PromptVar = {
 Prompt = {
   file: string
   span: ./span/SpanShape,
+  enclosure: ./span/Span
   exp: string,
-  vars: [PromptVar]
+  vars: [PromptVar],
+  annotations: [PromptAnnotation]
+}
+
+PromptAnnotation = {
+  span: ./span/Span
+  exp: string
 }
