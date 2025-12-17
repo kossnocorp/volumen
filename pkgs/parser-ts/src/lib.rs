@@ -1,8 +1,8 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use oxc_allocator::Allocator;
 use oxc_allocator::Vec as OxcVec;
-use oxc_ast::{ast, Comment, Visit};
+use oxc_ast::{Comment, Visit, ast};
 use oxc_parser::{ParseOptions, Parser};
 use oxc_span::{GetSpan, SourceType};
 use volumen_parser_core::*;
@@ -59,8 +59,14 @@ struct PromptVisitor<'a> {
     prompt_idents_stack: Vec<HashSet<String>>,
     /// Parsed comments.
     comments: &'a OxcVec<'a, Comment>,
-    /// Cursor to track position in comments vector.
-    comment_cursor: usize,
+    /// Stack of current statement spans (VariableDeclaration/ExpressionStatement)
+    stmt_span_stack: Vec<oxc_span::Span>,
+    /// Stack of annotations collected for the current statement
+    stmt_annotations_stack: Vec<Vec<PromptAnnotation>>,
+    /// Earliest leading annotation start for current statement
+    stmt_leading_start_stack: Vec<Option<u32>>,
+    /// Per-scope map of identifier -> def-time annotations
+    def_prompt_annotations_stack: Vec<HashMap<String, Vec<PromptAnnotation>>>,
 }
 
 impl<'a> PromptVisitor<'a> {
@@ -71,7 +77,10 @@ impl<'a> PromptVisitor<'a> {
             prompts: Vec::new(),
             prompt_idents_stack: vec![HashSet::new()],
             comments,
-            comment_cursor: 0,
+            stmt_span_stack: Vec::new(),
+            stmt_annotations_stack: Vec::new(),
+            stmt_leading_start_stack: Vec::new(),
+            def_prompt_annotations_stack: vec![HashMap::new()],
         }
     }
 
@@ -96,18 +105,52 @@ impl<'a> PromptVisitor<'a> {
     fn process_variable_declarator(
         &mut self,
         declarator: &ast::VariableDeclarator<'a>,
-        prompt_comment: Option<&'a Comment>,
+        has_stmt_prompt: bool,
     ) {
-        if let ast::BindingPatternKind::BindingIdentifier(ident) = &declarator.id.kind {
-            if prompt_comment.is_some() {
-                if let Some(scope) = self.prompt_idents_stack.last_mut() {
-                    scope.insert(ident.name.to_string());
-                }
+        if let ast::BindingPatternKind::BindingIdentifier(ident) = &declarator.id.kind
+            && has_stmt_prompt
+        {
+            if let Some(scope) = self.prompt_idents_stack.last_mut() {
+                scope.insert(ident.name.to_string());
+            }
+            // Persist definition-time annotations for later reassignments
+            if let Some(ann) = self.stmt_annotations_stack.last()
+                && !ann.is_empty()
+                && let Some(scope) = self.def_prompt_annotations_stack.last_mut()
+            {
+                scope.insert(ident.name.to_string(), ann.clone());
             }
         }
 
-        if let Some(init) = &declarator.init {
-            if let ast::BindingPatternKind::BindingIdentifier(ident) = &declarator.id.kind {
+        // Detect type annotation regardless of initializer presence
+        if let ast::BindingPatternKind::BindingIdentifier(ident) = &declarator.id.kind {
+            let id_span = declarator.id.span();
+            let decl_span = self
+                .stmt_span_stack
+                .last()
+                .copied()
+                .unwrap_or(declarator.span);
+            let mut has_type_annotation = false;
+            if id_span.start < id_span.end && decl_span.start < decl_span.end {
+                let start = id_span.start as usize;
+                let end = std::cmp::min(declarator.span.end as usize, self.code.len());
+                if start < end {
+                    let slice = &self.code[start..end];
+                    if slice.contains(':') {
+                        has_type_annotation = true;
+                    }
+                }
+            }
+
+            if has_type_annotation
+                && let Some(ann) = self.stmt_annotations_stack.last()
+                && !ann.is_empty()
+                && let Some(scope) = self.def_prompt_annotations_stack.last_mut()
+            {
+                scope.insert(ident.name.to_string(), ann.clone());
+            }
+
+            if let Some(init) = &declarator.init {
                 match init {
                     ast::Expression::TemplateLiteral(template) => {
                         self.process_template_literal(&ident.name, template);
@@ -179,35 +222,39 @@ impl<'a> PromptVisitor<'a> {
     }
 
     fn process_template_literal(&mut self, ident_name: &str, template: &ast::TemplateLiteral<'a>) {
-        let prompt_comment = self.find_prompt_comment(&template.span());
-
-        if self.is_prompt(ident_name, prompt_comment) {
+        let (has_prompt, annotations, enclosure) =
+            self.resolve_prompt_meta(ident_name, &template.span);
+        if has_prompt {
             let prompt = Prompt {
                 file: self.file.clone(),
                 span: self.span_shape_literal(&template.span),
+                enclosure,
                 exp: self.get_template_text(template),
                 vars: self.extract_template_vars(template),
+                annotations,
             };
             self.prompts.push(prompt);
         }
     }
 
     fn process_string_literal(&mut self, ident_name: &str, string: &ast::StringLiteral<'a>) {
-        let prompt_comment = self.find_prompt_comment(&string.span());
-
-        if self.is_prompt(ident_name, prompt_comment) {
+        let (has_prompt, annotations, enclosure) =
+            self.resolve_prompt_meta(ident_name, &string.span);
+        if has_prompt {
             let prompt = Prompt {
                 file: self.file.clone(),
                 span: self.span_shape_literal(&string.span),
+                enclosure,
                 exp: string.span().source_text(self.code).to_string(),
                 vars: Vec::new(),
+                annotations,
             };
             self.prompts.push(prompt);
         }
     }
 
-    fn is_prompt(&self, ident_name: &str, prompt_comment: Option<&'a Comment>) -> bool {
-        if ident_name.to_lowercase().contains("prompt") || prompt_comment.is_some() {
+    fn is_prompt(&self, ident_name: &str, has_stmt_prompt: bool) -> bool {
+        if ident_name.to_lowercase().contains("prompt") || has_stmt_prompt {
             return true;
         }
 
@@ -220,46 +267,182 @@ impl<'a> PromptVisitor<'a> {
         false
     }
 
-    fn find_prompt_comment(&mut self, node_span: &oxc_span::Span) -> Option<&'a Comment> {
-        let mut prompt_comment = None;
+    /// Collect the block of leading comments immediately adjacent to the statement,
+    /// and merge them into a single annotation if any line contains @prompt.
+    fn collect_adjacent_leading_comments(
+        &self,
+        stmt_span: &oxc_span::Span,
+    ) -> Vec<PromptAnnotation> {
+        let mut block: Vec<&Comment> = Vec::new();
+        let mut comment_idx: isize = (self.comments.len() as isize) - 1;
+        while comment_idx >= 0 {
+            let comment = &self.comments.get(comment_idx as usize);
+            let comment = match comment {
+                Some(comment) => comment,
+                None => panic!("Unexpected missing comment at index {}", comment_idx),
+            };
 
-        while self.comment_cursor < self.comments.len() {
-            let comment = &self.comments[self.comment_cursor];
+            if comment.span.end <= stmt_span.start {
+                let start = comment.span.end as usize;
+                let end = stmt_span.start as usize;
+                let between = if start <= end && end <= self.code.len() {
+                    &self.code[start..end]
+                } else {
+                    ""
+                };
 
-            // We're past the node span.
-            if comment.span.start >= node_span.start {
+                if between.trim().is_empty() {
+                    let mut j = comment_idx;
+                    let mut last_start = stmt_span.start;
+                    while j >= 0 {
+                        let cj = &self.comments[j as usize];
+                        if cj.span.end <= last_start {
+                            let s = cj.span.end as usize;
+                            let e = last_start as usize;
+                            let between_ce = if s <= e && e <= self.code.len() {
+                                &self.code[s..e]
+                            } else {
+                                ""
+                            };
+                            if between_ce.trim().is_empty() {
+                                block.push(cj);
+                                last_start = cj.span.start;
+                                j -= 1;
+                                continue;
+                            }
+                        }
+                        break;
+                    }
+                    block.reverse();
+                }
                 break;
             }
 
-            // Check if this is a prompt comment
-            let comment_text = comment.content_span().source_text(self.code);
-            if let Some(is_prompt_comment) = parse_comment(comment_text) {
-                if is_prompt_comment {
-                    prompt_comment = Some(comment);
-                } else {
-                    prompt_comment = None;
-                }
-            }
-
-            self.comment_cursor += 1;
+            comment_idx -= 1;
         }
 
-        prompt_comment
+        if block.is_empty() {
+            return Vec::new();
+        }
+
+        let first = block.first().unwrap();
+        let last = block.last().unwrap();
+        let start = first.span.start;
+        let end = last.span.end;
+        let block_text = &self.code[start as usize..end as usize];
+
+        vec![PromptAnnotation {
+            span: Span { start, end },
+            exp: block_text.to_string(),
+        }]
+    }
+
+    /// Collect inline @prompt comments within the statement range, optionally before a node.
+    fn collect_inline_prompt_comments(
+        &self,
+        stmt_span: &oxc_span::Span,
+        before: Option<&oxc_span::Span>,
+    ) -> Vec<PromptAnnotation> {
+        let mut out: Vec<PromptAnnotation> = Vec::new();
+        let end_limit = before.map(|s| s.start).unwrap_or(stmt_span.end);
+        for c in self.comments.iter() {
+            if c.span.start >= stmt_span.start && c.span.start < end_limit {
+                let full = c.span.source_text(self.code);
+                if parse_annotation(full).unwrap_or(false) {
+                    out.push(PromptAnnotation {
+                        span: Span {
+                            start: c.span.start,
+                            end: c.span.end,
+                        },
+                        exp: full.to_string(),
+                    });
+                }
+            }
+        }
+        out
+    }
+
+    fn current_stmt_span(&self) -> Option<oxc_span::Span> {
+        self.stmt_span_stack.last().copied()
+    }
+
+    /// Resolve if we should treat expression as a prompt, capture comments and enclosure span.
+    fn resolve_prompt_meta(
+        &mut self,
+        ident_name: &str,
+        node_span: &oxc_span::Span,
+    ) -> (bool, Vec<PromptAnnotation>, Span) {
+        let mut annotations: Vec<PromptAnnotation> = self
+            .stmt_annotations_stack
+            .last()
+            .cloned()
+            .unwrap_or_default();
+        if annotations.is_empty() {
+            for scope in self.def_prompt_annotations_stack.iter().rev() {
+                if let Some(def) = scope.get(ident_name) {
+                    annotations = def.clone();
+                    break;
+                }
+            }
+        }
+        let has_stmt_prompt = annotations
+            .iter()
+            .any(|a| parse_annotation(&a.exp).unwrap_or(false));
+        let is_prompt = self.is_prompt(ident_name, has_stmt_prompt);
+
+        let stmt_span = self.current_stmt_span().unwrap_or(*node_span);
+        let leading_start = self
+            .stmt_leading_start_stack
+            .last()
+            .copied()
+            .flatten()
+            .unwrap_or(stmt_span.start);
+        let enclosure = Span {
+            start: leading_start,
+            end: stmt_span.end,
+        };
+
+        (is_prompt, annotations, enclosure)
     }
 }
 
 impl<'a> Visit<'a> for PromptVisitor<'a> {
     fn enter_node(&mut self, kind: oxc_ast::AstKind<'a>) {
-        let prompt_comment = self.find_prompt_comment(&kind.span());
-
         match kind {
+            oxc_ast::AstKind::ExpressionStatement(expr) => {
+                self.stmt_span_stack.push(expr.span);
+                let leading = self.collect_adjacent_leading_comments(&expr.span);
+                let inline = self.collect_inline_prompt_comments(&expr.span, None);
+                let mut annotations: Vec<PromptAnnotation> = Vec::new();
+                let leading_start = leading.first().map(|first| first.span.start);
+                for a in leading.into_iter().chain(inline.into_iter()) {
+                    annotations.push(a);
+                }
+                self.stmt_annotations_stack.push(annotations);
+                self.stmt_leading_start_stack.push(leading_start);
+            }
+
             oxc_ast::AstKind::Function(_) | oxc_ast::AstKind::ArrowFunctionExpression(_) => {
                 self.prompt_idents_stack.push(HashSet::new());
+                self.def_prompt_annotations_stack.push(HashMap::new());
             }
 
             oxc_ast::AstKind::VariableDeclaration(decl) => {
+                self.stmt_span_stack.push(decl.span);
+                let leading = self.collect_adjacent_leading_comments(&decl.span);
+                let inline = self.collect_inline_prompt_comments(&decl.span, None);
+                let mut annotations: Vec<PromptAnnotation> = Vec::new();
+                let leading_start = leading.first().map(|first| first.span.start);
+                for a in leading.into_iter().chain(inline.into_iter()) {
+                    annotations.push(a);
+                }
+                let has_stmt_prompt = annotations
+                    .iter()
+                    .any(|a| parse_annotation(&a.exp).unwrap_or(false));
+                self.stmt_annotations_stack.push(annotations);
+                self.stmt_leading_start_stack.push(leading_start);
                 for declarator in &decl.declarations {
-                    self.process_variable_declarator(declarator, prompt_comment);
+                    self.process_variable_declarator(declarator, has_stmt_prompt);
                 }
             }
 
@@ -273,8 +456,19 @@ impl<'a> Visit<'a> for PromptVisitor<'a> {
 
     fn leave_node(&mut self, kind: oxc_ast::AstKind<'a>) {
         match kind {
+            oxc_ast::AstKind::ExpressionStatement(_) => {
+                self.stmt_span_stack.pop();
+                self.stmt_annotations_stack.pop();
+                self.stmt_leading_start_stack.pop();
+            }
             oxc_ast::AstKind::Function(_) | oxc_ast::AstKind::ArrowFunctionExpression(_) => {
                 self.prompt_idents_stack.pop();
+                self.def_prompt_annotations_stack.pop();
+            }
+            oxc_ast::AstKind::VariableDeclaration(_) => {
+                self.stmt_span_stack.pop();
+                self.stmt_annotations_stack.pop();
+                self.stmt_leading_start_stack.pop();
             }
             _ => {}
         }
@@ -308,8 +502,13 @@ mod tests {
                                 end: 48,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 50,
+                        },
                         exp: "\"You are a helpful assistant.\"",
                         vars: [],
+                        annotations: [],
                     },
                 ],
             },
@@ -337,8 +536,13 @@ mod tests {
                                 end: 46,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 48,
+                        },
                         exp: "\"You are a helpful assistant.\"",
                         vars: [],
+                        annotations: [],
                     },
                 ],
             },
@@ -366,8 +570,13 @@ mod tests {
                                 end: 46,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 48,
+                        },
                         exp: "\"You are a helpful assistant.\"",
                         vars: [],
+                        annotations: [],
                     },
                 ],
             },
@@ -395,6 +604,10 @@ mod tests {
                                 end: 48,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 50,
+                        },
                         exp: "`Welcome ${user}!`",
                         vars: [
                             PromptVar {
@@ -409,6 +622,15 @@ mod tests {
                                         end: 46,
                                     },
                                 },
+                            },
+                        ],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 17,
+                                    end: 30,
+                                },
+                                exp: "/* @prompt */",
                             },
                         ],
                     },
@@ -438,8 +660,21 @@ mod tests {
                                 end: 39,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 41,
+                        },
                         exp: "\"Hello world\"",
                         vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 12,
+                                    end: 26,
+                                },
+                                exp: "/** @prompt */",
+                            },
+                        ],
                     },
                 ],
             },
@@ -483,8 +718,21 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
                                 end: 39,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 41,
+                        },
                         exp: "`Hello, world!`",
                         vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 0,
+                                    end: 10,
+                                },
+                                exp: "// @prompt",
+                            },
+                        ],
                     },
                 ],
             },
@@ -515,8 +763,21 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
                                 end: 42,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 44,
+                        },
                         exp: "`Hello, world!`",
                         vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 0,
+                                    end: 13,
+                                },
+                                exp: "/* @prompt */",
+                            },
+                        ],
                     },
                 ],
             },
@@ -547,8 +808,21 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
                                 end: 43,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 45,
+                        },
                         exp: "`Hello, world!`",
                         vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 0,
+                                    end: 14,
+                                },
+                                exp: "/** @prompt */",
+                            },
+                        ],
                     },
                 ],
             },
@@ -586,8 +860,21 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
                                 end: 41,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 43,
+                        },
                         exp: "`Hello, world!`",
                         vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 0,
+                                    end: 10,
+                                },
+                                exp: "// @prompt",
+                            },
+                        ],
                     },
                 ],
             },
@@ -603,8 +890,14 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
 
             const hello = "Hello, world!"
         "#};
-        let var_comment_mixed_result = ParserTs::parse(var_comment_mixed_src, "prompts.ts");
-        assert_prompts_size(var_comment_mixed_result, 0);
+        assert_debug_snapshot!(ParserTs::parse(var_comment_mixed_src, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [],
+            },
+        )
+        "#);
     }
 
     #[test]
@@ -624,9 +917,62 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
 
             hello = "Hello, world!";
         "#};
-        let var_comment_mixed_nested_result =
-            ParserTs::parse(var_comment_mixed_nested_src, "prompts.ts");
-        assert_prompts_size(var_comment_mixed_nested_result, 1);
+        assert_debug_snapshot!(ParserTs::parse(var_comment_mixed_nested_src, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        span: SpanShape {
+                            outer: Span {
+                                start: 130,
+                                end: 135,
+                            },
+                            inner: Span {
+                                start: 131,
+                                end: 134,
+                            },
+                        },
+                        enclosure: Span {
+                            start: 125,
+                            end: 135,
+                        },
+                        exp: "\"Hi!\"",
+                        vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 84,
+                                    end: 94,
+                                },
+                                exp: "// @prompt",
+                            },
+                        ],
+                    },
+                ],
+            },
+        )
+        "#);
+    }
+
+    #[test]
+    fn multiline_annotation() {
+        let src = indoc! {r#"
+            // Hello
+            // @prompt
+            // world
+            const msg = "Hello";
+        "#};
+        match ParserTs::parse(src, "prompts.ts") {
+            ParseResult::ParseResultSuccess(ParseResultSuccess { prompts, .. }) => {
+                assert_eq!(prompts.len(), 1, "expected exactly one prompt");
+                let ann = &prompts[0].annotations;
+                assert_eq!(ann.len(), 1, "expected a single combined annotation block");
+                assert_eq!(ann[0].exp, "// Hello\n// @prompt\n// world");
+            }
+            _ => panic!("Expected ParseResultSuccess"),
+        }
     }
 
     #[test]
@@ -664,6 +1010,10 @@ const hello = `Hello, world!`;"#;
                                 end: 35,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 37,
+                        },
                         exp: "`Hello, ${name}!`",
                         vars: [
                             PromptVar {
@@ -680,6 +1030,7 @@ const hello = `Hello, world!`;"#;
                                 },
                             },
                         ],
+                        annotations: [],
                     },
                     Prompt {
                         file: "prompts.ts",
@@ -692,6 +1043,10 @@ const hello = `Hello, world!`;"#;
                                 start: 70,
                                 end: 86,
                             },
+                        },
+                        enclosure: Span {
+                            start: 38,
+                            end: 88,
                         },
                         exp: "`Welcome ${user}!`",
                         vars: [
@@ -709,6 +1064,15 @@ const hello = `Hello, world!`;"#;
                                 },
                             },
                         ],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 55,
+                                    end: 68,
+                                },
+                                exp: "/* @prompt */",
+                            },
+                        ],
                     },
                     Prompt {
                         file: "prompts.ts",
@@ -721,6 +1085,10 @@ const hello = `Hello, world!`;"#;
                                 start: 118,
                                 end: 139,
                             },
+                        },
+                        enclosure: Span {
+                            start: 89,
+                            end: 141,
                         },
                         exp: "`Goodbye ${user.name}!`",
                         vars: [
@@ -738,6 +1106,15 @@ const hello = `Hello, world!`;"#;
                                 },
                             },
                         ],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 89,
+                                    end: 99,
+                                },
+                                exp: "// @prompt",
+                            },
+                        ],
                     },
                     Prompt {
                         file: "prompts.ts",
@@ -751,8 +1128,21 @@ const hello = `Hello, world!`;"#;
                                 end: 196,
                             },
                         },
+                        enclosure: Span {
+                            start: 142,
+                            end: 198,
+                        },
                         exp: "\"You are an AI assistant\"",
                         vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 142,
+                                    end: 156,
+                                },
+                                exp: "/** @prompt */",
+                            },
+                        ],
                     },
                 ],
             },
@@ -784,6 +1174,10 @@ const hello = `Hello, world!`;"#;
                                 end: 48,
                             },
                         },
+                        enclosure: Span {
+                            start: 22,
+                            end: 50,
+                        },
                         exp: "`Assigned ${value}`",
                         vars: [
                             PromptVar {
@@ -798,6 +1192,15 @@ const hello = `Hello, world!`;"#;
                                         end: 47,
                                     },
                                 },
+                            },
+                        ],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 0,
+                                    end: 10,
+                                },
+                                exp: "// @prompt",
                             },
                         ],
                     },
@@ -836,6 +1239,10 @@ const hello = `Hello, world!`;"#;
                                 end: 62,
                             },
                         },
+                        enclosure: Span {
+                            start: 36,
+                            end: 64,
+                        },
                         exp: "`Assigned ${value}`",
                         vars: [
                             PromptVar {
@@ -850,6 +1257,15 @@ const hello = `Hello, world!`;"#;
                                         end: 61,
                                     },
                                 },
+                            },
+                        ],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 0,
+                                    end: 10,
+                                },
+                                exp: "// @prompt",
                             },
                         ],
                     },
@@ -892,6 +1308,10 @@ const hello = `Hello, world!`;"#;
                                 end: 35,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 37,
+                        },
                         exp: "`Hello, ${name}!`",
                         vars: [
                             PromptVar {
@@ -908,6 +1328,7 @@ const hello = `Hello, world!`;"#;
                                 },
                             },
                         ],
+                        annotations: [],
                     },
                 ],
             },
@@ -935,6 +1356,10 @@ const hello = `Hello, world!`;"#;
                                 start: 20,
                                 end: 72,
                             },
+                        },
+                        enclosure: Span {
+                            start: 0,
+                            end: 74,
                         },
                         exp: "`Hello, ${name}! How is the weather today in ${city}?`",
                         vars: [
@@ -965,6 +1390,7 @@ const hello = `Hello, world!`;"#;
                                 },
                             },
                         ],
+                        annotations: [],
                     },
                 ],
             },
@@ -991,6 +1417,10 @@ const hello = `Hello, world!`;"#;
                                 start: 20,
                                 end: 91,
                             },
+                        },
+                        enclosure: Span {
+                            start: 0,
+                            end: 93,
                         },
                         exp: "`Hello, ${user.name}! How is the weather today in ${user.location.city}?`",
                         vars: [
@@ -1021,6 +1451,7 @@ const hello = `Hello, world!`;"#;
                                 },
                             },
                         ],
+                        annotations: [],
                     },
                 ],
             },
@@ -1049,6 +1480,10 @@ const hello = `Hello, world!`;"#;
                                 end: 74,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 76,
+                        },
                         exp: "`Hello, ${User.fullName({ ...user.name, last: null })}!`",
                         vars: [
                             PromptVar {
@@ -1065,6 +1500,7 @@ const hello = `Hello, world!`;"#;
                                 },
                             },
                         ],
+                        annotations: [],
                     },
                 ],
             },
@@ -1105,6 +1541,10 @@ const hello = `Hello, world!`;"#;
                                 end: 45,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 47,
+                        },
                         exp: "`Hello ${world}!`",
                         vars: [
                             PromptVar {
@@ -1119,6 +1559,15 @@ const hello = `Hello, world!`;"#;
                                         end: 43,
                                     },
                                 },
+                            },
+                        ],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 15,
+                                    end: 28,
+                                },
+                                exp: "/* @prompt */",
                             },
                         ],
                     },
@@ -1151,6 +1600,10 @@ const hello = `Hello, world!`;"#;
                                 end: 45,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 47,
+                        },
                         exp: "`Hello ${world}!`",
                         vars: [
                             PromptVar {
@@ -1165,6 +1618,15 @@ const hello = `Hello, world!`;"#;
                                         end: 43,
                                     },
                                 },
+                            },
+                        ],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 15,
+                                    end: 28,
+                                },
+                                exp: "/* @prompt */",
                             },
                         ],
                     },
@@ -1194,6 +1656,10 @@ const hello = `Hello, world!`;"#;
                                 end: 54,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 56,
+                        },
                         exp: "`Hello ${world}!`",
                         vars: [
                             PromptVar {
@@ -1208,6 +1674,15 @@ const hello = `Hello, world!`;"#;
                                         end: 52,
                                     },
                                 },
+                            },
+                        ],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 24,
+                                    end: 37,
+                                },
+                                exp: "/* @prompt */",
                             },
                         ],
                     },
@@ -1240,6 +1715,10 @@ const hello = `Hello, world!`;"#;
                                 end: 54,
                             },
                         },
+                        enclosure: Span {
+                            start: 0,
+                            end: 56,
+                        },
                         exp: "`Hello ${world}!`",
                         vars: [
                             PromptVar {
@@ -1254,6 +1733,15 @@ const hello = `Hello, world!`;"#;
                                         end: 52,
                                     },
                                 },
+                            },
+                        ],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 24,
+                                    end: 37,
+                                },
+                                exp: "/* @prompt */",
                             },
                         ],
                     },
@@ -1314,6 +1802,10 @@ const hello = `Hello, world!`;"#;
                                 end: 107,
                             },
                         },
+                        enclosure: Span {
+                            start: 71,
+                            end: 109,
+                        },
                         exp: "`Hello, ${name}!`",
                         vars: [
                             PromptVar {
@@ -1330,6 +1822,7 @@ const hello = `Hello, world!`;"#;
                                 },
                             },
                         ],
+                        annotations: [],
                     },
                     Prompt {
                         file: "prompts.ts",
@@ -1343,12 +1836,329 @@ const hello = `Hello, world!`;"#;
                                 end: 168,
                             },
                         },
+                        enclosure: Span {
+                            start: 123,
+                            end: 170,
+                        },
                         exp: "\"Hi!\"",
                         vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 123,
+                                    end: 133,
+                                },
+                                exp: "// @prompt",
+                            },
+                        ],
                     },
                 ],
             },
         )
         "#)
+    }
+
+    #[test]
+    fn multi_annotations() {
+        let src = indoc! {r#"
+            // Hello, world
+            const hello = /* @prompt */ "asd";
+        "#};
+        assert_debug_snapshot!(ParserTs::parse(src, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        span: SpanShape {
+                            outer: Span {
+                                start: 44,
+                                end: 49,
+                            },
+                            inner: Span {
+                                start: 45,
+                                end: 48,
+                            },
+                        },
+                        enclosure: Span {
+                            start: 0,
+                            end: 50,
+                        },
+                        exp: "\"asd\"",
+                        vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 0,
+                                    end: 15,
+                                },
+                                exp: "// Hello, world",
+                            },
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 30,
+                                    end: 43,
+                                },
+                                exp: "/* @prompt */",
+                            },
+                        ],
+                    },
+                ],
+            },
+        )
+        "#);
+    }
+
+    #[test]
+    fn multiline_annotations() {
+        let src = indoc! {r#"
+            /*
+             Multi
+             Line
+             Block
+            */
+            const hello = /* @prompt */ `x`;
+        "#};
+        assert_debug_snapshot!(ParserTs::parse(src, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        span: SpanShape {
+                            outer: Span {
+                                start: 54,
+                                end: 57,
+                            },
+                            inner: Span {
+                                start: 55,
+                                end: 56,
+                            },
+                        },
+                        enclosure: Span {
+                            start: 0,
+                            end: 58,
+                        },
+                        exp: "`x`",
+                        vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 0,
+                                    end: 25,
+                                },
+                                exp: "/*\n Multi\n Line\n Block\n*/",
+                            },
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 40,
+                                    end: 53,
+                                },
+                                exp: "/* @prompt */",
+                            },
+                        ],
+                    },
+                ],
+            },
+        )
+        "#);
+    }
+
+    #[test]
+    fn multiline_annotation_nested() {
+        let src = indoc! {r#"
+            function fn() {
+                // Hello
+                // @prompt
+                // world
+                const msg = "Hello";
+            }
+        "#};
+        assert_debug_snapshot!(ParserTs::parse(src, "prompts.ts"), @r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        span: SpanShape {
+                            outer: Span {
+                                start: 73,
+                                end: 80,
+                            },
+                            inner: Span {
+                                start: 74,
+                                end: 79,
+                            },
+                        },
+                        enclosure: Span {
+                            start: 20,
+                            end: 81,
+                        },
+                        exp: "\"Hello\"",
+                        vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 20,
+                                    end: 56,
+                                },
+                                exp: "// Hello\n    // @prompt\n    // world",
+                            },
+                        ],
+                    },
+                ],
+            },
+        )
+        "#);
+    }
+
+    #[test]
+    fn reassign_no_comment() {
+        let src = indoc! {r#"
+            // @prompt
+            let hello: string;
+            hello = `Hi`;
+        "#};
+        assert_debug_snapshot!(ParserTs::parse(src, "prompts.ts"),@r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        span: SpanShape {
+                            outer: Span {
+                                start: 38,
+                                end: 42,
+                            },
+                            inner: Span {
+                                start: 39,
+                                end: 41,
+                            },
+                        },
+                        enclosure: Span {
+                            start: 30,
+                            end: 43,
+                        },
+                        exp: "`Hi`",
+                        vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 0,
+                                    end: 10,
+                                },
+                                exp: "// @prompt",
+                            },
+                        ],
+                    },
+                ],
+            },
+        )
+        "#);
+    }
+
+    #[test]
+    fn reassign_with_comment() {
+        let src = indoc! {r#"
+            // @prompt def
+            let hello: string;
+            // @prompt fresh
+            hello = `Hi`;
+        "#};
+        assert_debug_snapshot!(ParserTs::parse(src, "prompts.ts"),@r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        span: SpanShape {
+                            outer: Span {
+                                start: 59,
+                                end: 63,
+                            },
+                            inner: Span {
+                                start: 60,
+                                end: 62,
+                            },
+                        },
+                        enclosure: Span {
+                            start: 34,
+                            end: 64,
+                        },
+                        exp: "`Hi`",
+                        vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 34,
+                                    end: 50,
+                                },
+                                exp: "// @prompt fresh",
+                            },
+                        ],
+                    },
+                ],
+            },
+        )
+        "#);
+    }
+
+    #[test]
+    fn reassign_with_comment_multi() {
+        let src = indoc! {r#"
+            // @prompt def
+            let hello: string;
+            // hello
+            hello = /* @prompt fresh */ `Hi`;
+        "#};
+        assert_debug_snapshot!(ParserTs::parse(src, "prompts.ts"),@r#"
+        ParseResultSuccess(
+            ParseResultSuccess {
+                state: "success",
+                prompts: [
+                    Prompt {
+                        file: "prompts.ts",
+                        span: SpanShape {
+                            outer: Span {
+                                start: 71,
+                                end: 75,
+                            },
+                            inner: Span {
+                                start: 72,
+                                end: 74,
+                            },
+                        },
+                        enclosure: Span {
+                            start: 34,
+                            end: 76,
+                        },
+                        exp: "`Hi`",
+                        vars: [],
+                        annotations: [
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 34,
+                                    end: 42,
+                                },
+                                exp: "// hello",
+                            },
+                            PromptAnnotation {
+                                span: Span {
+                                    start: 51,
+                                    end: 70,
+                                },
+                                exp: "/* @prompt fresh */",
+                            },
+                        ],
+                    },
+                ],
+            },
+        )
+        "#);
     }
 }
