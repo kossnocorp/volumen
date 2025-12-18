@@ -1,5 +1,5 @@
 use indoc::indoc;
-use insta::{assert_ron_snapshot, assert_json_snapshot};
+use insta::{assert_json_snapshot, assert_ron_snapshot};
 
 mod utils;
 use utils::*;
@@ -1064,6 +1064,268 @@ fn spaced() {
                   ]
                 ]
                 "#);
+            }),
+        },
+    );
+}
+
+#[test]
+fn dirty() {
+    ParseTest::test(
+        &ParseTestLang::ts(indoc! {r#"
+            // @prompt system
+            const system = "You are a helpful assistant.";
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 33,
+                          end: 63,
+                        ),
+                        inner: Span(
+                          start: 34,
+                          end: 62,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 64,
+                      ),
+                      exp: "\"You are a helpful assistant.\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 17,
+                          ),
+                          exp: "// @prompt system",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts, @r#"
+                [
+                  {
+                    "enclosure": "// @prompt system\nconst system = \"You are a helpful assistant.\";",
+                    "outer": "\"You are a helpful assistant.\"",
+                    "inner": "You are a helpful assistant.",
+                    "vars": []
+                  }
+                ]
+                "#);
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations, @r#"
+                [
+                  "You are a helpful assistant."
+                ]
+                "#);
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @r#"
+                [
+                  [
+                    "// @prompt system"
+                  ]
+                ]
+                "#);
+            }),
+        },
+    );
+}
+
+#[test]
+fn multi() {
+    ParseTest::test(
+        &ParseTestLang::ts(indoc! {r#"
+            // @prompt
+            const hello = "Hello", world = "World";
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 25,
+                          end: 32,
+                        ),
+                        inner: Span(
+                          start: 26,
+                          end: 31,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 50,
+                      ),
+                      exp: "\"Hello\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 10,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 42,
+                          end: 49,
+                        ),
+                        inner: Span(
+                          start: 43,
+                          end: 48,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 50,
+                      ),
+                      exp: "\"World\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 10,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts,  @r#"
+                [
+                  {
+                    "enclosure": "// @prompt\nconst hello = \"Hello\", world = \"World\";",
+                    "outer": "\"Hello\"",
+                    "inner": "Hello",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\nconst hello = \"Hello\", world = \"World\";",
+                    "outer": "\"World\"",
+                    "inner": "World",
+                    "vars": []
+                  }
+                ]
+                "#);
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations,  @r#"
+                [
+                  "Hello",
+                  "World"
+                ]
+                "#);
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @r#"
+                [
+                  [
+                    "// @prompt"
+                  ],
+                  [
+                    "// @prompt"
+                  ]
+                ]
+                "#);
+            }),
+        },
+    );
+}
+
+#[test]
+#[ignore = "TODO: TypeScript parsers parse no prompts at all. The destructuring must be added."]
+fn destructuring() {
+    ParseTest::test(
+        &ParseTestLang::ts(indoc! {r#"
+            // @prompt
+            const [hello1, world1] = ["Hello", "World"];
+            // @prompt
+            const { hello2, world2 } = { hello2: "Hello", world2: "World" };
+            // @prompt
+            const [{ hello3, world3 }] = [{ hello3: "Hello", world3: "World" }];
+            // @prompt
+            const { hi: [[hello4], { world4 }] } = { hi: [["Hello"], { world3: "World" }] };
+            // @prompt
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @"");
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts,  @"");
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations,  @"");
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @"");
+            }),
+        },
+    );
+}
+
+#[test]
+#[ignore = "TODO: TypeScript parsers incorrectly parse it. One is resulting in no prompts, another in just one. It must be two prompts parsed."]
+fn chained() {
+    ParseTest::test(
+        &ParseTestLang::ts(indoc! {r#"
+			let world;
+            // @prompt
+            const hello = world = "Hi"
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @"");
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts,  @"");
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations,  @"");
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @"");
             }),
         },
     );

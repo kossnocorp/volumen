@@ -339,3 +339,121 @@ fn tsx() {
         },
     );
 }
+
+#[test]
+fn multiline() {
+    ParseTest::test(
+        &ParseTestLang::ts(indoc! {r#"
+            // @prompt
+            const user = `Hello, ${name}!
+            How is the weather today in ${city}?
+            `;
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 24,
+                          end: 79,
+                        ),
+                        inner: Span(
+                          start: 25,
+                          end: 78,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 80,
+                      ),
+                      exp: "`Hello, ${name}!\nHow is the weather today in ${city}?\n`",
+                      vars: [
+                        PromptVar(
+                          exp: "${name}",
+                          span: SpanShape(
+                            outer: Span(
+                              start: 32,
+                              end: 39,
+                            ),
+                            inner: Span(
+                              start: 34,
+                              end: 38,
+                            ),
+                          ),
+                        ),
+                        PromptVar(
+                          exp: "${city}",
+                          span: SpanShape(
+                            outer: Span(
+                              start: 69,
+                              end: 76,
+                            ),
+                            inner: Span(
+                              start: 71,
+                              end: 75,
+                            ),
+                          ),
+                        ),
+                      ],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 10,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts, @r#"
+                [
+                  {
+                    "enclosure": "// @prompt\nconst user = `Hello, ${name}!\nHow is the weather today in ${city}?\n`;",
+                    "outer": "`Hello, ${name}!\nHow is the weather today in ${city}?\n`",
+                    "inner": "Hello, ${name}!\nHow is the weather today in ${city}?\n",
+                    "vars": [
+                      {
+                        "outer": "${name}",
+                        "inner": "name"
+                      },
+                      {
+                        "outer": "${city}",
+                        "inner": "city"
+                      }
+                    ]
+                  }
+                ]
+                "#);
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations, @r#"
+                [
+                  "Hello, {0}!\nHow is the weather today in {1}?\n"
+                ]
+                "#);
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @r#"
+                [
+                  [
+                    "// @prompt"
+                  ]
+                ]
+                "#);
+            }),
+        },
+    );
+}

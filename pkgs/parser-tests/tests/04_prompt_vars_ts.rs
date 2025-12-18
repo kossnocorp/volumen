@@ -1,5 +1,5 @@
 use indoc::indoc;
-use insta::{assert_ron_snapshot, assert_json_snapshot};
+use insta::{assert_json_snapshot, assert_ron_snapshot};
 
 mod utils;
 use utils::*;
