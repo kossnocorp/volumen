@@ -1,0 +1,22 @@
+[package]
+name = "volumen_benchmarks"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bench]]
+name = "python_parsers"
+harness = false
+
+[[bench]]
+name = "typescript_parsers"
+harness = false
+
+[dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+volumen_parser_py = { version = "0.2.0", path = "../parser-py" }
+volumen_parser_py_ruff = { version = "0.2.0", path = "../parser-py-ruff" }
+volumen_parser_py_tree_sitter = { version = "0.1.0", path = "../parser-py-tree-sitter" }
+volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }
+volumen_parser_ts_tree_sitter = { version = "0.1.0", path = "../parser-ts-tree-sitter" }
+volumen_types = { version = "0.2.0", path = "../types-crate" }

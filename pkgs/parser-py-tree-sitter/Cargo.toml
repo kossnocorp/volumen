@@ -20,3 +20,4 @@ indoc = "2.0.6"
 insta = { version = "1.43.1" }
 volumen_parser_test = { version = "0.2.0", path = "../parser-test" }
 volumen_parser_py = { version = "0.2.0", path = "../parser-py" }
+volumen_parser_py_ruff = { version = "0.2.0", path = "../parser-py-ruff" }
