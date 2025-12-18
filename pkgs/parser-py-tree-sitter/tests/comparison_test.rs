@@ -2,7 +2,7 @@
 // This ensures all parsers produce identical results
 
 use indoc::indoc;
-use volumen_parser_py::ParserPy as ParserPyRustPython;
+use volumen_parser_py::{ParserPy as ParserPyRustPython, VolumenParser};
 use volumen_parser_py_ruff::ParserPy as ParserPyRuff;
 use volumen_parser_py_tree_sitter::ParserPy as ParserPyTreeSitter;
 
@@ -17,12 +17,17 @@ fn compare_parsers(source: &str, filename: &str, test_name: &str) {
         volumen_types::ParseResult::ParseResultError(_e) => {
             // If RustPython fails, others should also fail
             assert!(
-                matches!(treesitter_result, volumen_types::ParseResult::ParseResultError(_)),
-                "{}: RustPython failed but Tree-sitter succeeded", test_name
+                matches!(
+                    treesitter_result,
+                    volumen_types::ParseResult::ParseResultError(_)
+                ),
+                "{}: RustPython failed but Tree-sitter succeeded",
+                test_name
             );
             assert!(
                 matches!(ruff_result, volumen_types::ParseResult::ParseResultError(_)),
-                "{}: RustPython failed but Ruff succeeded", test_name
+                "{}: RustPython failed but Ruff succeeded",
+                test_name
             );
             return;
         }
@@ -31,14 +36,20 @@ fn compare_parsers(source: &str, filename: &str, test_name: &str) {
     let treesitter_prompts = match treesitter_result {
         volumen_types::ParseResult::ParseResultSuccess(s) => s.prompts,
         volumen_types::ParseResult::ParseResultError(e) => {
-            panic!("{}: Tree-sitter failed but RustPython succeeded: {}", test_name, e.error);
+            panic!(
+                "{}: Tree-sitter failed but RustPython succeeded: {}",
+                test_name, e.error
+            );
         }
     };
 
     let ruff_prompts = match ruff_result {
         volumen_types::ParseResult::ParseResultSuccess(s) => s.prompts,
         volumen_types::ParseResult::ParseResultError(e) => {
-            panic!("{}: Ruff failed but RustPython succeeded: {}", test_name, e.error);
+            panic!(
+                "{}: Ruff failed but RustPython succeeded: {}",
+                test_name, e.error
+            );
         }
     };
 
@@ -63,49 +74,145 @@ fn compare_parsers(source: &str, filename: &str, test_name: &str) {
     );
 
     // Compare each prompt across all three parsers
-    for (i, ((rp, tp), rfp)) in rustpython_prompts.iter()
+    for (i, ((rp, tp), rfp)) in rustpython_prompts
+        .iter()
         .zip(treesitter_prompts.iter())
         .zip(ruff_prompts.iter())
-        .enumerate() {
+        .enumerate()
+    {
         // RustPython vs Tree-sitter
-        assert_eq!(rp.file, tp.file, "{} prompt {}: RustPython vs Tree-sitter different file", test_name, i);
-        assert_eq!(rp.exp, tp.exp, "{} prompt {}: RustPython vs Tree-sitter different exp", test_name, i);
-        assert_eq!(rp.span, tp.span, "{} prompt {}: RustPython vs Tree-sitter different span", test_name, i);
-        assert_eq!(rp.enclosure, tp.enclosure, "{} prompt {}: RustPython vs Tree-sitter different enclosure", test_name, i);
-        assert_eq!(rp.vars.len(), tp.vars.len(), "{} prompt {}: RustPython vs Tree-sitter different vars count", test_name, i);
+        assert_eq!(
+            rp.file, tp.file,
+            "{} prompt {}: RustPython vs Tree-sitter different file",
+            test_name, i
+        );
+        assert_eq!(
+            rp.exp, tp.exp,
+            "{} prompt {}: RustPython vs Tree-sitter different exp",
+            test_name, i
+        );
+        assert_eq!(
+            rp.span, tp.span,
+            "{} prompt {}: RustPython vs Tree-sitter different span",
+            test_name, i
+        );
+        assert_eq!(
+            rp.enclosure, tp.enclosure,
+            "{} prompt {}: RustPython vs Tree-sitter different enclosure",
+            test_name, i
+        );
+        assert_eq!(
+            rp.vars.len(),
+            tp.vars.len(),
+            "{} prompt {}: RustPython vs Tree-sitter different vars count",
+            test_name,
+            i
+        );
 
         // RustPython vs Ruff
-        assert_eq!(rp.file, rfp.file, "{} prompt {}: RustPython vs Ruff different file", test_name, i);
-        assert_eq!(rp.exp, rfp.exp, "{} prompt {}: RustPython vs Ruff different exp", test_name, i);
-        assert_eq!(rp.span, rfp.span, "{} prompt {}: RustPython vs Ruff different span", test_name, i);
-        assert_eq!(rp.enclosure, rfp.enclosure, "{} prompt {}: RustPython vs Ruff different enclosure", test_name, i);
-        assert_eq!(rp.vars.len(), rfp.vars.len(), "{} prompt {}: RustPython vs Ruff different vars count", test_name, i);
+        assert_eq!(
+            rp.file, rfp.file,
+            "{} prompt {}: RustPython vs Ruff different file",
+            test_name, i
+        );
+        assert_eq!(
+            rp.exp, rfp.exp,
+            "{} prompt {}: RustPython vs Ruff different exp",
+            test_name, i
+        );
+        assert_eq!(
+            rp.span, rfp.span,
+            "{} prompt {}: RustPython vs Ruff different span",
+            test_name, i
+        );
+        assert_eq!(
+            rp.enclosure, rfp.enclosure,
+            "{} prompt {}: RustPython vs Ruff different enclosure",
+            test_name, i
+        );
+        assert_eq!(
+            rp.vars.len(),
+            rfp.vars.len(),
+            "{} prompt {}: RustPython vs Ruff different vars count",
+            test_name,
+            i
+        );
 
         // Compare vars (RustPython vs Tree-sitter vs Ruff)
-        for (j, ((rv, tv), rfv)) in rp.vars.iter()
+        for (j, ((rv, tv), rfv)) in rp
+            .vars
+            .iter()
             .zip(tp.vars.iter())
             .zip(rfp.vars.iter())
-            .enumerate() {
-            assert_eq!(rv.exp, tv.exp, "{} prompt {} var {}: RustPython vs Tree-sitter different exp", test_name, i, j);
-            assert_eq!(rv.span, tv.span, "{} prompt {} var {}: RustPython vs Tree-sitter different span", test_name, i, j);
-            assert_eq!(rv.exp, rfv.exp, "{} prompt {} var {}: RustPython vs Ruff different exp", test_name, i, j);
-            assert_eq!(rv.span, rfv.span, "{} prompt {} var {}: RustPython vs Ruff different span", test_name, i, j);
+            .enumerate()
+        {
+            assert_eq!(
+                rv.exp, tv.exp,
+                "{} prompt {} var {}: RustPython vs Tree-sitter different exp",
+                test_name, i, j
+            );
+            assert_eq!(
+                rv.span, tv.span,
+                "{} prompt {} var {}: RustPython vs Tree-sitter different span",
+                test_name, i, j
+            );
+            assert_eq!(
+                rv.exp, rfv.exp,
+                "{} prompt {} var {}: RustPython vs Ruff different exp",
+                test_name, i, j
+            );
+            assert_eq!(
+                rv.span, rfv.span,
+                "{} prompt {} var {}: RustPython vs Ruff different span",
+                test_name, i, j
+            );
         }
 
         // Compare annotations (RustPython vs Tree-sitter)
-        assert_eq!(rp.annotations.len(), tp.annotations.len(), "{} prompt {}: RustPython vs Tree-sitter different annotations count", test_name, i);
+        assert_eq!(
+            rp.annotations.len(),
+            tp.annotations.len(),
+            "{} prompt {}: RustPython vs Tree-sitter different annotations count",
+            test_name,
+            i
+        );
 
         // Compare annotations (RustPython vs Ruff)
-        assert_eq!(rp.annotations.len(), rfp.annotations.len(), "{} prompt {}: RustPython vs Ruff different annotations count", test_name, i);
+        assert_eq!(
+            rp.annotations.len(),
+            rfp.annotations.len(),
+            "{} prompt {}: RustPython vs Ruff different annotations count",
+            test_name,
+            i
+        );
 
-        for (j, ((ra, ta), rfa)) in rp.annotations.iter()
+        for (j, ((ra, ta), rfa)) in rp
+            .annotations
+            .iter()
             .zip(tp.annotations.iter())
             .zip(rfp.annotations.iter())
-            .enumerate() {
-            assert_eq!(ra.exp, ta.exp, "{} prompt {} annotation {}: RustPython vs Tree-sitter different exp", test_name, i, j);
-            assert_eq!(ra.span, ta.span, "{} prompt {} annotation {}: RustPython vs Tree-sitter different span", test_name, i, j);
-            assert_eq!(ra.exp, rfa.exp, "{} prompt {} annotation {}: RustPython vs Ruff different exp", test_name, i, j);
-            assert_eq!(ra.span, rfa.span, "{} prompt {} annotation {}: RustPython vs Ruff different span", test_name, i, j);
+            .enumerate()
+        {
+            assert_eq!(
+                ra.exp, ta.exp,
+                "{} prompt {} annotation {}: RustPython vs Tree-sitter different exp",
+                test_name, i, j
+            );
+            assert_eq!(
+                ra.span, ta.span,
+                "{} prompt {} annotation {}: RustPython vs Tree-sitter different span",
+                test_name, i, j
+            );
+            assert_eq!(
+                ra.exp, rfa.exp,
+                "{} prompt {} annotation {}: RustPython vs Ruff different exp",
+                test_name, i, j
+            );
+            assert_eq!(
+                ra.span, rfa.span,
+                "{} prompt {} annotation {}: RustPython vs Ruff different span",
+                test_name, i, j
+            );
         }
     }
 }

@@ -1,0 +1,20 @@
+[package]
+name = "volumen_parser_tests"
+version = "0.2.0"
+edition = "2024"
+description = "Volumen parser tests suite"
+repository = "https://github.com/kossnocorp/volumen"
+license = "MIT"
+
+[dev-dependencies]
+volumen_types = { version = "0.2.0", path = "../types-crate" }
+volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
+volumen_parser_py = { version = "0.2.0", path = "../parser-py" }
+volumen_parser_py_ruff = { version = "0.2.0", path = "../parser-py-ruff" }
+volumen_parser_py_tree_sitter = { version = "0.1.0", path = "../parser-py-tree-sitter" }
+volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }
+volumen_parser_ts_tree_sitter = { version = "0.1.0", path = "../parser-ts-tree-sitter" }
+pretty_assertions = "1.4.1"
+indoc = "2.0.7"
+insta = { version = "1.44.3", features = ["redactions", "ron", "toml", "yaml"] }
+serde = "1.0.228"

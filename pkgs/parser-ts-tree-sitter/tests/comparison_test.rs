@@ -2,7 +2,7 @@
 // This ensures both parsers produce identical results
 
 use indoc::indoc;
-use volumen_parser_ts::ParserTs as ParserTsOxc;
+use volumen_parser_ts::{ParserTs as ParserTsOxc, VolumenParser};
 use volumen_parser_ts_tree_sitter::ParserTs as ParserTsTreeSitter;
 
 fn compare_parsers(source: &str, filename: &str, test_name: &str) {
@@ -15,8 +15,12 @@ fn compare_parsers(source: &str, filename: &str, test_name: &str) {
         volumen_types::ParseResult::ParseResultError(e) => {
             // If Oxc fails, Tree-sitter should also fail
             assert!(
-                matches!(treesitter_result, volumen_types::ParseResult::ParseResultError(_)),
-                "{}: Oxc failed but Tree-sitter succeeded", test_name
+                matches!(
+                    treesitter_result,
+                    volumen_types::ParseResult::ParseResultError(_)
+                ),
+                "{}: Oxc failed but Tree-sitter succeeded",
+                test_name
             );
             return;
         }
@@ -25,7 +29,10 @@ fn compare_parsers(source: &str, filename: &str, test_name: &str) {
     let treesitter_prompts = match treesitter_result {
         volumen_types::ParseResult::ParseResultSuccess(s) => s.prompts,
         volumen_types::ParseResult::ParseResultError(e) => {
-            panic!("{}: Tree-sitter failed but Oxc succeeded: {}", test_name, e.error);
+            panic!(
+                "{}: Tree-sitter failed but Oxc succeeded: {}",
+                test_name, e.error
+            );
         }
     };
 
@@ -40,23 +47,67 @@ fn compare_parsers(source: &str, filename: &str, test_name: &str) {
     );
 
     // Compare each prompt
-    for (i, (op, tp)) in oxc_prompts.iter().zip(treesitter_prompts.iter()).enumerate() {
-        assert_eq!(op.file, tp.file, "{} prompt {}: different file", test_name, i);
+    for (i, (op, tp)) in oxc_prompts
+        .iter()
+        .zip(treesitter_prompts.iter())
+        .enumerate()
+    {
+        assert_eq!(
+            op.file, tp.file,
+            "{} prompt {}: different file",
+            test_name, i
+        );
         assert_eq!(op.exp, tp.exp, "{} prompt {}: different exp", test_name, i);
-        assert_eq!(op.span, tp.span, "{} prompt {}: different span", test_name, i);
-        assert_eq!(op.enclosure, tp.enclosure, "{} prompt {}: different enclosure", test_name, i);
-        assert_eq!(op.vars.len(), tp.vars.len(), "{} prompt {}: different vars count", test_name, i);
+        assert_eq!(
+            op.span, tp.span,
+            "{} prompt {}: different span",
+            test_name, i
+        );
+        assert_eq!(
+            op.enclosure, tp.enclosure,
+            "{} prompt {}: different enclosure",
+            test_name, i
+        );
+        assert_eq!(
+            op.vars.len(),
+            tp.vars.len(),
+            "{} prompt {}: different vars count",
+            test_name,
+            i
+        );
 
         for (j, (ov, tv)) in op.vars.iter().zip(tp.vars.iter()).enumerate() {
-            assert_eq!(ov.exp, tv.exp, "{} prompt {} var {}: different exp", test_name, i, j);
-            assert_eq!(ov.span, tv.span, "{} prompt {} var {}: different span", test_name, i, j);
+            assert_eq!(
+                ov.exp, tv.exp,
+                "{} prompt {} var {}: different exp",
+                test_name, i, j
+            );
+            assert_eq!(
+                ov.span, tv.span,
+                "{} prompt {} var {}: different span",
+                test_name, i, j
+            );
         }
 
-        assert_eq!(op.annotations.len(), tp.annotations.len(), "{} prompt {}: different annotations count", test_name, i);
+        assert_eq!(
+            op.annotations.len(),
+            tp.annotations.len(),
+            "{} prompt {}: different annotations count",
+            test_name,
+            i
+        );
 
         for (j, (oa, ta)) in op.annotations.iter().zip(tp.annotations.iter()).enumerate() {
-            assert_eq!(oa.exp, ta.exp, "{} prompt {} annotation {}: different exp", test_name, i, j);
-            assert_eq!(oa.span, ta.span, "{} prompt {} annotation {}: different span", test_name, i, j);
+            assert_eq!(
+                oa.exp, ta.exp,
+                "{} prompt {} annotation {}: different exp",
+                test_name, i, j
+            );
+            assert_eq!(
+                oa.span, ta.span,
+                "{} prompt {} annotation {}: different span",
+                test_name, i, j
+            );
         }
     }
 }

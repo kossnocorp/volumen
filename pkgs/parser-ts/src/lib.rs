@@ -5,13 +5,14 @@ use oxc_allocator::Vec as OxcVec;
 use oxc_ast::{Comment, Visit, ast};
 use oxc_parser::{ParseOptions, Parser};
 use oxc_span::{GetSpan, SourceType};
+pub use volumen_parser_core::VolumenParser;
 use volumen_parser_core::*;
 use volumen_types::*;
 
 pub struct ParserTs {}
 
-impl ParserTs {
-    pub fn parse(source: &str, filename: &str) -> ParseResult {
+impl VolumenParser for ParserTs {
+    fn parse(source: &str, filename: &str) -> ParseResult {
         let allocator = Allocator::default();
 
         let source_type =
@@ -483,108 +484,6 @@ mod tests {
     use volumen_parser_test::*;
 
     #[test]
-    fn detect_const_name() {
-        let const_src = r#"const userPrompt = "You are a helpful assistant.";"#;
-        assert_debug_snapshot!(ParserTs::parse(const_src, "prompts.ts"), @r#"
-        ParseResultSuccess(
-            ParseResultSuccess {
-                state: "success",
-                prompts: [
-                    Prompt {
-                        file: "prompts.ts",
-                        span: SpanShape {
-                            outer: Span {
-                                start: 19,
-                                end: 49,
-                            },
-                            inner: Span {
-                                start: 20,
-                                end: 48,
-                            },
-                        },
-                        enclosure: Span {
-                            start: 0,
-                            end: 50,
-                        },
-                        exp: "\"You are a helpful assistant.\"",
-                        vars: [],
-                        annotations: [],
-                    },
-                ],
-            },
-        )
-        "#)
-    }
-
-    #[test]
-    fn detect_let_name() {
-        let var_src = r#"var userPrompt = "You are a helpful assistant.";"#;
-        assert_debug_snapshot!(ParserTs::parse(var_src, "prompts.ts"), @r#"
-        ParseResultSuccess(
-            ParseResultSuccess {
-                state: "success",
-                prompts: [
-                    Prompt {
-                        file: "prompts.ts",
-                        span: SpanShape {
-                            outer: Span {
-                                start: 17,
-                                end: 47,
-                            },
-                            inner: Span {
-                                start: 18,
-                                end: 46,
-                            },
-                        },
-                        enclosure: Span {
-                            start: 0,
-                            end: 48,
-                        },
-                        exp: "\"You are a helpful assistant.\"",
-                        vars: [],
-                        annotations: [],
-                    },
-                ],
-            },
-        )
-        "#)
-    }
-
-    #[test]
-    fn detect_var_name() {
-        let var_src = r#"var userPrompt = "You are a helpful assistant.";"#;
-        assert_debug_snapshot!(ParserTs::parse(var_src, "prompts.ts"), @r#"
-        ParseResultSuccess(
-            ParseResultSuccess {
-                state: "success",
-                prompts: [
-                    Prompt {
-                        file: "prompts.ts",
-                        span: SpanShape {
-                            outer: Span {
-                                start: 17,
-                                end: 47,
-                            },
-                            inner: Span {
-                                start: 18,
-                                end: 46,
-                            },
-                        },
-                        enclosure: Span {
-                            start: 0,
-                            end: 48,
-                        },
-                        exp: "\"You are a helpful assistant.\"",
-                        vars: [],
-                        annotations: [],
-                    },
-                ],
-            },
-        )
-        "#)
-    }
-
-    #[test]
     fn detect_inline() {
         let inline_src = r#"const greeting = /* @prompt */ `Welcome ${user}!`;"#;
         assert_debug_snapshot!(ParserTs::parse(inline_src, "prompts.ts"), @r#"
@@ -883,80 +782,6 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
     }
 
     #[test]
-    fn detect_var_comment_mixed() {
-        let var_comment_mixed_src = indoc! {r#"
-            // @prompt
-            const number = 42;
-
-            const hello = "Hello, world!"
-        "#};
-        assert_debug_snapshot!(ParserTs::parse(var_comment_mixed_src, "prompts.ts"), @r#"
-        ParseResultSuccess(
-            ParseResultSuccess {
-                state: "success",
-                prompts: [],
-            },
-        )
-        "#);
-    }
-
-    #[test]
-    fn detect_var_comment_mixed_nested() {
-        let var_comment_mixed_nested_src = indoc! {r#"
-            class Hello {
-                world(self) {
-                    // @prompt
-                    let hello = 42;
-
-                    // @prompt
-                    let hi = 42;
-
-                    hi = "Hi!"
-                }
-            }
-
-            hello = "Hello, world!";
-        "#};
-        assert_debug_snapshot!(ParserTs::parse(var_comment_mixed_nested_src, "prompts.ts"), @r#"
-        ParseResultSuccess(
-            ParseResultSuccess {
-                state: "success",
-                prompts: [
-                    Prompt {
-                        file: "prompts.ts",
-                        span: SpanShape {
-                            outer: Span {
-                                start: 130,
-                                end: 135,
-                            },
-                            inner: Span {
-                                start: 131,
-                                end: 134,
-                            },
-                        },
-                        enclosure: Span {
-                            start: 125,
-                            end: 135,
-                        },
-                        exp: "\"Hi!\"",
-                        vars: [],
-                        annotations: [
-                            PromptAnnotation {
-                                span: Span {
-                                    start: 84,
-                                    end: 94,
-                                },
-                                exp: "// @prompt",
-                            },
-                        ],
-                    },
-                ],
-            },
-        )
-        "#);
-    }
-
-    #[test]
     fn multiline_annotation() {
         let src = indoc! {r#"
             // Hello
@@ -973,13 +798,6 @@ const whatever = /* wrong@prompt */ "That's not it!";"#;
             }
             _ => panic!("Expected ParseResultSuccess"),
         }
-    }
-
-    #[test]
-    fn detect_var_comment_none() {
-        let var_comment_none_src = r#"// @prompting
-const hello = `Hello, world!`;"#;
-        assert_prompts_size(ParserTs::parse(var_comment_none_src, "prompts.ts"), 0)
     }
 
     #[test]
@@ -1148,144 +966,6 @@ const hello = `Hello, world!`;"#;
             },
         )
         "#);
-    }
-
-    #[test]
-    fn detect_assign_var_comment() {
-        let assign_var_comment_src = indoc! {r#"
-            // @prompt
-            let hello;
-            hello = `Assigned ${value}`;
-        "#};
-        assert_debug_snapshot!(ParserTs::parse(assign_var_comment_src, "prompts.ts"), @r#"
-        ParseResultSuccess(
-            ParseResultSuccess {
-                state: "success",
-                prompts: [
-                    Prompt {
-                        file: "prompts.ts",
-                        span: SpanShape {
-                            outer: Span {
-                                start: 30,
-                                end: 49,
-                            },
-                            inner: Span {
-                                start: 31,
-                                end: 48,
-                            },
-                        },
-                        enclosure: Span {
-                            start: 22,
-                            end: 50,
-                        },
-                        exp: "`Assigned ${value}`",
-                        vars: [
-                            PromptVar {
-                                exp: "${value}",
-                                span: SpanShape {
-                                    outer: Span {
-                                        start: 40,
-                                        end: 48,
-                                    },
-                                    inner: Span {
-                                        start: 42,
-                                        end: 47,
-                                    },
-                                },
-                            },
-                        ],
-                        annotations: [
-                            PromptAnnotation {
-                                span: Span {
-                                    start: 0,
-                                    end: 10,
-                                },
-                                exp: "// @prompt",
-                            },
-                        ],
-                    },
-                ],
-            },
-        )
-        "#)
-    }
-
-    #[test]
-    fn detect_reassign_var_comment() {
-        let reassign_var_comment = indoc! {r#"
-            // @prompt
-            let hello;
-            hello = 123;
-
-            hello = `Assigned ${value}`;
-        "#};
-        assert_debug_snapshot!(ParserTs::parse(
-            reassign_var_comment,
-            "prompts.ts"
-        ), @r#"
-        ParseResultSuccess(
-            ParseResultSuccess {
-                state: "success",
-                prompts: [
-                    Prompt {
-                        file: "prompts.ts",
-                        span: SpanShape {
-                            outer: Span {
-                                start: 44,
-                                end: 63,
-                            },
-                            inner: Span {
-                                start: 45,
-                                end: 62,
-                            },
-                        },
-                        enclosure: Span {
-                            start: 36,
-                            end: 64,
-                        },
-                        exp: "`Assigned ${value}`",
-                        vars: [
-                            PromptVar {
-                                exp: "${value}",
-                                span: SpanShape {
-                                    outer: Span {
-                                        start: 54,
-                                        end: 62,
-                                    },
-                                    inner: Span {
-                                        start: 56,
-                                        end: 61,
-                                    },
-                                },
-                            },
-                        ],
-                        annotations: [
-                            PromptAnnotation {
-                                span: Span {
-                                    start: 0,
-                                    end: 10,
-                                },
-                                exp: "// @prompt",
-                            },
-                        ],
-                    },
-                ],
-            },
-        )
-        "#);
-    }
-
-    #[test]
-    fn detect_none() {
-        let no_prompts_src = indoc! {r#"
-            const regularTemplate = `This is not a ${value}`;
-            const normalString = "This is not special";
-            const regular = `Regular template with ${variable}`;
-            const message = "Just a message";
-            // @prompt
-            const number = 1;
-        "#};
-        assert_prompts_size(ParserTs::parse(no_prompts_src, "prompts.ts"), 0);
     }
 
     #[test]

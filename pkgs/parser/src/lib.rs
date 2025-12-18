@@ -1,4 +1,4 @@
-use volumen_parser_py::ParserPy;
+use volumen_parser_py::{ParserPy, VolumenParser};
 use volumen_parser_ts::ParserTs;
 use volumen_types::*;
 
@@ -75,7 +75,7 @@ const prompt = "Hello, {name}!";
 
     #[test]
     fn parse_cjs() {
-        let cjs_source =indoc! { r#"
+        let cjs_source = indoc! { r#"
           // This is a comment
           const prompt = "Hello, {name}!";
         "# };
