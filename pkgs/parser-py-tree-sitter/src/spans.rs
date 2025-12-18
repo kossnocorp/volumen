@@ -1,0 +1,218 @@
+use tree_sitter::Node;
+use volumen_types::{PromptVar, Span, SpanShape};
+
+/// Calculate outer and inner spans for Python string literals.
+/// Handles string prefixes (f, r, u, fr, rf, etc.) and triple-quoted strings.
+pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
+    let bytes = source.as_bytes();
+    let start = node.start_byte();
+    let end = node.end_byte();
+
+    // Find first quote character (after any prefix like f, r, etc.)
+    let mut i = start;
+    while i < end {
+        let c = bytes[i];
+        if c == b'\'' || c == b'\"' {
+            break;
+        }
+        i += 1;
+    }
+
+    let quote_pos = i;
+    let quote_char = if quote_pos < end {
+        bytes[quote_pos]
+    } else {
+        b'\''
+    };
+
+    // Detect triple-quoted strings
+    let mut quote_len = 1u32;
+    if quote_pos + 2 < end
+        && bytes[quote_pos + 1] == quote_char
+        && bytes[quote_pos + 2] == quote_char
+    {
+        quote_len = 3;
+    }
+
+    let outer = Span {
+        start: start as u32,
+        end: end as u32,
+    };
+
+    let inner = Span {
+        start: (quote_pos as u32).saturating_add(quote_len),
+        end: outer.end.saturating_sub(quote_len),
+    };
+
+    SpanShape { outer, inner }
+}
+
+/// Extract variables from f-string interpolations.
+/// Tree-sitter parses f-strings with `interpolation` nodes that contain the expressions.
+pub fn extract_fstring_vars(node: &Node, source: &str) -> Vec<PromptVar> {
+    let mut vars = Vec::new();
+    let bytes = source.as_bytes();
+
+    // Walk through all child nodes to find interpolations
+    let mut cursor = node.walk();
+    if !cursor.goto_first_child() {
+        return vars;
+    }
+
+    loop {
+        let child = cursor.node();
+
+        // Tree-sitter represents f-string interpolations as "interpolation" nodes
+        if child.kind() == "interpolation" {
+            // The interpolation includes the { and }
+            let outer_start = child.start_byte();
+            let outer_end = child.end_byte();
+
+            // Find the expression inside by skipping the opening {
+            let mut expr_start = outer_start + 1;
+            let mut expr_end = outer_end;
+
+            // Skip whitespace after {
+            while expr_start < outer_end && bytes[expr_start].is_ascii_whitespace() {
+                expr_start += 1;
+            }
+
+            // Find the closing } and work backwards
+            if outer_end > 0 {
+                expr_end = outer_end - 1;
+                // Skip whitespace before }
+                while expr_end > expr_start && bytes[expr_end - 1].is_ascii_whitespace() {
+                    expr_end -= 1;
+                }
+            }
+
+            let outer = Span {
+                start: outer_start as u32,
+                end: outer_end as u32,
+            };
+
+            let inner = Span {
+                start: expr_start as u32,
+                end: expr_end as u32,
+            };
+
+            let exp = &source[outer_start..outer_end];
+
+            vars.push(PromptVar {
+                exp: exp.to_string(),
+                span: SpanShape { outer, inner },
+            });
+        }
+
+        if !cursor.goto_next_sibling() {
+            break;
+        }
+    }
+
+    vars
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tree_sitter::Parser;
+
+    #[test]
+    fn test_span_shape_string_simple() {
+        let mut parser = Parser::new();
+        parser
+            .set_language(&tree_sitter_python::LANGUAGE.into())
+            .unwrap();
+
+        let source = r#""hello""#;
+        let tree = parser.parse(source, None).unwrap();
+        let root = tree.root_node();
+
+        // Find the string node: module > expression_statement > string
+        let mut cursor = root.walk();
+        cursor.goto_first_child(); // Go to expression_statement
+        cursor.goto_first_child(); // Go to string
+        let string_node = cursor.node();
+
+        let span = span_shape_string_like(&string_node, source);
+
+        assert_eq!(span.outer.start, 0);
+        assert_eq!(span.outer.end, 7);
+        assert_eq!(span.inner.start, 1);
+        assert_eq!(span.inner.end, 6);
+    }
+
+    #[test]
+    fn test_span_shape_fstring() {
+        let mut parser = Parser::new();
+        parser
+            .set_language(&tree_sitter_python::LANGUAGE.into())
+            .unwrap();
+
+        let source = r#"f"hello {name}""#;
+        let tree = parser.parse(source, None).unwrap();
+        let root = tree.root_node();
+
+        // Find the string node: module > expression_statement > string
+        let mut cursor = root.walk();
+        cursor.goto_first_child(); // Go to expression_statement
+        cursor.goto_first_child(); // Go to string
+        let string_node = cursor.node();
+
+        let span = span_shape_string_like(&string_node, source);
+
+        assert_eq!(span.outer.start, 0);
+        assert_eq!(span.outer.end, 15);
+        assert_eq!(span.inner.start, 2); // After f"
+        assert_eq!(span.inner.end, 14); // Before "
+    }
+
+    #[test]
+    fn test_extract_fstring_vars_single() {
+        let mut parser = Parser::new();
+        parser
+            .set_language(&tree_sitter_python::LANGUAGE.into())
+            .unwrap();
+
+        let source = r#"f"Hello {name}""#;
+        let tree = parser.parse(source, None).unwrap();
+        let root = tree.root_node();
+
+        // Find the string node: module > expression_statement > string
+        let mut cursor = root.walk();
+        cursor.goto_first_child(); // Go to expression_statement
+        cursor.goto_first_child(); // Go to string
+        let string_node = cursor.node();
+
+        let vars = extract_fstring_vars(&string_node, source);
+
+        assert_eq!(vars.len(), 1);
+        assert_eq!(vars[0].exp, "{name}");
+        assert_eq!(vars[0].span.outer.start, 8);
+        assert_eq!(vars[0].span.outer.end, 14);
+    }
+
+    #[test]
+    fn test_extract_fstring_vars_multiple() {
+        let mut parser = Parser::new();
+        parser
+            .set_language(&tree_sitter_python::LANGUAGE.into())
+            .unwrap();
+
+        let source = r#"f"Hello {first} {last}""#;
+        let tree = parser.parse(source, None).unwrap();
+        let root = tree.root_node();
+
+        // Find the string node: module > expression_statement > string
+        let mut cursor = root.walk();
+        cursor.goto_first_child(); // Go to expression_statement
+        cursor.goto_first_child(); // Go to string
+        let string_node = cursor.node();
+
+        let vars = extract_fstring_vars(&string_node, source);
+
+        assert_eq!(vars.len(), 2);
+        assert_eq!(vars[0].exp, "{first}");
+        assert_eq!(vars[1].exp, "{last}");
+    }
+}

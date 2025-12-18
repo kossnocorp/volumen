@@ -7,8 +7,10 @@ members = [
   "pkgs/parser",
   "pkgs/parser-core",
   "pkgs/parser-ts",
+  "pkgs/parser-ts-tree-sitter",
   "pkgs/parser-py",
   "pkgs/parser-py-ruff",
+  "pkgs/parser-py-tree-sitter",
   "pkgs/parser-test",
 ]
 
