@@ -19,4 +19,3 @@ tree-sitter-typescript = "0.23"
 indoc = "2.0.6"
 insta = { version = "1.43.1" }
 volumen_parser_test = { version = "0.2.0", path = "../parser-test" }
-volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }

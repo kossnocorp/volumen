@@ -1932,8 +1932,6 @@ dependencies = [
  "tree-sitter",
  "tree-sitter-python",
  "volumen_parser_core",
- "volumen_parser_py",
- "volumen_parser_py_ruff",
  "volumen_parser_test",
  "volumen_types",
 ]
@@ -1994,7 +1992,6 @@ dependencies = [
  "tree-sitter-typescript",
  "volumen_parser_core",
  "volumen_parser_test",
- "volumen_parser_ts",
  "volumen_types",
 ]
 
