@@ -1,4 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use volumen_parser_core::VolumenParser;
 
 // Small code sample - basic prompt detection
 const SMALL_TYPESCRIPT: &str = r#"
@@ -201,9 +202,7 @@ fn bench_typescript_parsers(c: &mut Criterion) {
         BenchmarkId::new("Oxc", "small"),
         &SMALL_TYPESCRIPT,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_ts::ParserTs::parse(black_box(code), "test.ts")
-            });
+            b.iter(|| volumen_parser_ts::ParserTs::parse(black_box(code), "test.ts"));
         },
     );
 
@@ -211,9 +210,7 @@ fn bench_typescript_parsers(c: &mut Criterion) {
         BenchmarkId::new("Tree-sitter", "small"),
         &SMALL_TYPESCRIPT,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_ts_tree_sitter::ParserTs::parse(black_box(code), "test.ts")
-            });
+            b.iter(|| volumen_parser_ts_tree_sitter::ParserTs::parse(black_box(code), "test.ts"));
         },
     );
 
@@ -224,9 +221,7 @@ fn bench_typescript_parsers(c: &mut Criterion) {
         BenchmarkId::new("Oxc", "medium"),
         &MEDIUM_TYPESCRIPT,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_ts::ParserTs::parse(black_box(code), "test.ts")
-            });
+            b.iter(|| volumen_parser_ts::ParserTs::parse(black_box(code), "test.ts"));
         },
     );
 
@@ -234,9 +229,7 @@ fn bench_typescript_parsers(c: &mut Criterion) {
         BenchmarkId::new("Tree-sitter", "medium"),
         &MEDIUM_TYPESCRIPT,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_ts_tree_sitter::ParserTs::parse(black_box(code), "test.ts")
-            });
+            b.iter(|| volumen_parser_ts_tree_sitter::ParserTs::parse(black_box(code), "test.ts"));
         },
     );
 
@@ -247,9 +240,7 @@ fn bench_typescript_parsers(c: &mut Criterion) {
         BenchmarkId::new("Oxc", "large"),
         &LARGE_TYPESCRIPT,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_ts::ParserTs::parse(black_box(code), "test.ts")
-            });
+            b.iter(|| volumen_parser_ts::ParserTs::parse(black_box(code), "test.ts"));
         },
     );
 
@@ -257,9 +248,7 @@ fn bench_typescript_parsers(c: &mut Criterion) {
         BenchmarkId::new("Tree-sitter", "large"),
         &LARGE_TYPESCRIPT,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_ts_tree_sitter::ParserTs::parse(black_box(code), "test.ts")
-            });
+            b.iter(|| volumen_parser_ts_tree_sitter::ParserTs::parse(black_box(code), "test.ts"));
         },
     );
 

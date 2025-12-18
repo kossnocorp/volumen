@@ -1,4 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use volumen_parser_core::VolumenParser;
 
 // Small code sample - basic prompt detection
 const SMALL_PYTHON: &str = r#"
@@ -162,9 +163,7 @@ fn bench_python_parsers(c: &mut Criterion) {
         BenchmarkId::new("RustPython", "small"),
         &SMALL_PYTHON,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_py::ParserPy::parse(black_box(code), "test.py")
-            });
+            b.iter(|| volumen_parser_py::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 
@@ -172,9 +171,7 @@ fn bench_python_parsers(c: &mut Criterion) {
         BenchmarkId::new("Ruff", "small"),
         &SMALL_PYTHON,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_py_ruff::ParserPy::parse(black_box(code), "test.py")
-            });
+            b.iter(|| volumen_parser_py_ruff::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 
@@ -182,9 +179,7 @@ fn bench_python_parsers(c: &mut Criterion) {
         BenchmarkId::new("Tree-sitter", "small"),
         &SMALL_PYTHON,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_py_tree_sitter::ParserPy::parse(black_box(code), "test.py")
-            });
+            b.iter(|| volumen_parser_py_tree_sitter::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 
@@ -195,9 +190,7 @@ fn bench_python_parsers(c: &mut Criterion) {
         BenchmarkId::new("RustPython", "medium"),
         &MEDIUM_PYTHON,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_py::ParserPy::parse(black_box(code), "test.py")
-            });
+            b.iter(|| volumen_parser_py::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 
@@ -205,9 +198,7 @@ fn bench_python_parsers(c: &mut Criterion) {
         BenchmarkId::new("Ruff", "medium"),
         &MEDIUM_PYTHON,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_py_ruff::ParserPy::parse(black_box(code), "test.py")
-            });
+            b.iter(|| volumen_parser_py_ruff::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 
@@ -215,9 +206,7 @@ fn bench_python_parsers(c: &mut Criterion) {
         BenchmarkId::new("Tree-sitter", "medium"),
         &MEDIUM_PYTHON,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_py_tree_sitter::ParserPy::parse(black_box(code), "test.py")
-            });
+            b.iter(|| volumen_parser_py_tree_sitter::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 
@@ -228,9 +217,7 @@ fn bench_python_parsers(c: &mut Criterion) {
         BenchmarkId::new("RustPython", "large"),
         &LARGE_PYTHON,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_py::ParserPy::parse(black_box(code), "test.py")
-            });
+            b.iter(|| volumen_parser_py::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 
@@ -238,9 +225,7 @@ fn bench_python_parsers(c: &mut Criterion) {
         BenchmarkId::new("Ruff", "large"),
         &LARGE_PYTHON,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_py_ruff::ParserPy::parse(black_box(code), "test.py")
-            });
+            b.iter(|| volumen_parser_py_ruff::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 
@@ -248,9 +233,7 @@ fn bench_python_parsers(c: &mut Criterion) {
         BenchmarkId::new("Tree-sitter", "large"),
         &LARGE_PYTHON,
         |b, code| {
-            b.iter(|| {
-                volumen_parser_py_tree_sitter::ParserPy::parse(black_box(code), "test.py")
-            });
+            b.iter(|| volumen_parser_py_tree_sitter::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 

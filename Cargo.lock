@@ -1863,6 +1863,7 @@ name = "volumen_benchmarks"
 version = "0.1.0"
 dependencies = [
  "criterion",
+ "volumen_parser_core",
  "volumen_parser_py",
  "volumen_parser_py_ruff",
  "volumen_parser_py_tree_sitter",
