@@ -6,11 +6,9 @@ use utils::*;
 
 #[test]
 fn simple() {
-    // const
-
     ParseTest::test(
         &ParseTestLang::ts(indoc! {r#"
-            const userPrompt = "You are a helpful assistant.";
+          const greeting = /* @prompt */ `Welcome, ${user}!`
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -22,277 +20,41 @@ fn simple() {
                       file: "prompts.js",
                       span: SpanShape(
                         outer: Span(
-                          start: 19,
-                          end: 49,
+                          start: 31,
+                          end: 50,
                         ),
                         inner: Span(
-                          start: 20,
-                          end: 48,
+                          start: 32,
+                          end: 49,
                         ),
                       ),
                       enclosure: Span(
                         start: 0,
                         end: 50,
                       ),
-                      exp: "\"You are a helpful assistant.\"",
-                      vars: [],
-                      annotations: [],
-                    ),
-                  ],
-                )
-                "#);
-            }),
-
-            cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r#"
-                [
-                  {
-                    "enclosure": "const userPrompt = \"You are a helpful assistant.\";",
-                    "outer": "\"You are a helpful assistant.\"",
-                    "inner": "You are a helpful assistant.",
-                    "vars": []
-                  }
-                ]
-                "#);
-            }),
-
-            interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @r#"
-                [
-                  "You are a helpful assistant."
-                ]
-                "#);
-            }),
-
-            annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r"
-                [
-                  []
-                ]
-                ");
-            }),
-        },
-    );
-
-    // var
-
-    ParseTest::test(
-        &ParseTestLang::ts(indoc! {r#"
-            var userPrompt = "You are a helpful assistant.";
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r#"
-                ParseResultSuccess(
-                  state: "success",
-                  prompts: [
-                    Prompt(
-                      file: "prompts.js",
-                      span: SpanShape(
-                        outer: Span(
-                          start: 17,
-                          end: 47,
-                        ),
-                        inner: Span(
-                          start: 18,
-                          end: 46,
-                        ),
-                      ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 48,
-                      ),
-                      exp: "\"You are a helpful assistant.\"",
-                      vars: [],
-                      annotations: [],
-                    ),
-                  ],
-                )
-                "#);
-            }),
-
-            cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r#"
-                [
-                  {
-                    "enclosure": "var userPrompt = \"You are a helpful assistant.\";",
-                    "outer": "\"You are a helpful assistant.\"",
-                    "inner": "You are a helpful assistant.",
-                    "vars": []
-                  }
-                ]
-                "#);
-            }),
-
-            interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @r#"
-                [
-                  "You are a helpful assistant."
-                ]
-                "#);
-            }),
-
-            annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r"
-                [
-                  []
-                ]
-                ");
-            }),
-        },
-    );
-
-    // let
-
-    ParseTest::test(
-        &ParseTestLang::ts(indoc! {r#"
-            let userPrompt = "You are a helpful assistant.";
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r#"
-                ParseResultSuccess(
-                  state: "success",
-                  prompts: [
-                    Prompt(
-                      file: "prompts.js",
-                      span: SpanShape(
-                        outer: Span(
-                          start: 17,
-                          end: 47,
-                        ),
-                        inner: Span(
-                          start: 18,
-                          end: 46,
-                        ),
-                      ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 48,
-                      ),
-                      exp: "\"You are a helpful assistant.\"",
-                      vars: [],
-                      annotations: [],
-                    ),
-                  ],
-                )
-                "#);
-            }),
-
-            cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r#"
-                [
-                  {
-                    "enclosure": "let userPrompt = \"You are a helpful assistant.\";",
-                    "outer": "\"You are a helpful assistant.\"",
-                    "inner": "You are a helpful assistant.",
-                    "vars": []
-                  }
-                ]
-                "#);
-            }),
-
-            interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @r#"
-                [
-                  "You are a helpful assistant."
-                ]
-                "#);
-            }),
-
-            annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r"
-                [
-                  []
-                ]
-                ");
-            }),
-        },
-    );
-}
-
-#[test]
-fn nested() {
-    ParseTest::test(
-        &ParseTestLang::ts(indoc! {r#"
-            class Hello {
-                world(self) {
-                    const fn = () => {
-                        const helloPrompt = `Hello, ${name}!`;
-
-                        // @prompt
-                        const alsoPrmpt = "Hi!";
-                    };
-
-                    return fn;
-                }
-            }
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r#"
-                ParseResultSuccess(
-                  state: "success",
-                  prompts: [
-                    Prompt(
-                      file: "prompts.js",
-                      span: SpanShape(
-                        outer: Span(
-                          start: 91,
-                          end: 108,
-                        ),
-                        inner: Span(
-                          start: 92,
-                          end: 107,
-                        ),
-                      ),
-                      enclosure: Span(
-                        start: 71,
-                        end: 109,
-                      ),
-                      exp: "`Hello, ${name}!`",
+                      exp: "`Welcome, ${user}!`",
                       vars: [
                         PromptVar(
-                          exp: "${name}",
+                          exp: "${user}",
                           span: SpanShape(
                             outer: Span(
-                              start: 99,
-                              end: 106,
+                              start: 41,
+                              end: 48,
                             ),
                             inner: Span(
-                              start: 101,
-                              end: 105,
+                              start: 43,
+                              end: 47,
                             ),
                           ),
                         ),
                       ],
-                      annotations: [],
-                    ),
-                    Prompt(
-                      file: "prompts.js",
-                      span: SpanShape(
-                        outer: Span(
-                          start: 164,
-                          end: 169,
-                        ),
-                        inner: Span(
-                          start: 165,
-                          end: 168,
-                        ),
-                      ),
-                      enclosure: Span(
-                        start: 123,
-                        end: 170,
-                      ),
-                      exp: "\"Hi!\"",
-                      vars: [],
                       annotations: [
                         PromptAnnotation(
                           span: Span(
-                            start: 123,
-                            end: 133,
+                            start: 17,
+                            end: 30,
                           ),
-                          exp: "// @prompt",
+                          exp: "/* @prompt */",
                         ),
                       ],
                     ),
@@ -305,21 +67,15 @@ fn nested() {
                 assert_json_snapshot!(prompt_source_cuts, @r#"
                 [
                   {
-                    "enclosure": "const helloPrompt = `Hello, ${name}!`;",
-                    "outer": "`Hello, ${name}!`",
-                    "inner": "Hello, ${name}!",
+                    "enclosure": "const greeting = /* @prompt */ `Welcome, ${user}!`",
+                    "outer": "`Welcome, ${user}!`",
+                    "inner": "Welcome, ${user}!",
                     "vars": [
                       {
-                        "outer": "${name}",
-                        "inner": "name"
+                        "outer": "${user}",
+                        "inner": "user"
                       }
                     ]
-                  },
-                  {
-                    "enclosure": "// @prompt\n            const alsoPrmpt = \"Hi!\";",
-                    "outer": "\"Hi!\"",
-                    "inner": "Hi!",
-                    "vars": []
                   }
                 ]
                 "#);
@@ -328,8 +84,7 @@ fn nested() {
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
-                  "Hello, {0}!",
-                  "Hi!"
+                  "Welcome, {0}!"
                 ]
                 "#);
             }),
@@ -337,9 +92,217 @@ fn nested() {
             annotations: Box::new(|annotations| {
                 assert_json_snapshot!(annotations, @r#"
                 [
-                  [],
                   [
-                    "// @prompt"
+                    "/* @prompt */"
+                  ]
+                ]
+                "#);
+            }),
+        },
+    );
+}
+
+#[test]
+fn jsdoc() {
+    ParseTest::test(
+        &ParseTestLang::ts(indoc! {r#"
+          const hello = /** @prompt */ "Hello, world!";
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 29,
+                          end: 44,
+                        ),
+                        inner: Span(
+                          start: 30,
+                          end: 43,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 45,
+                      ),
+                      exp: "\"Hello, world!\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 14,
+                            end: 28,
+                          ),
+                          exp: "/** @prompt */",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts, @r#"
+                [
+                  {
+                    "enclosure": "const hello = /** @prompt */ \"Hello, world!\";",
+                    "outer": "\"Hello, world!\"",
+                    "inner": "Hello, world!",
+                    "vars": []
+                  }
+                ]
+                "#);
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations, @r#"
+                [
+                  "Hello, world!"
+                ]
+                "#);
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @r#"
+                [
+                  [
+                    "/** @prompt */"
+                  ]
+                ]
+                "#);
+            }),
+        },
+    );
+}
+
+#[test]
+fn inexact() {
+    ParseTest::test(
+        &ParseTestLang::ts(indoc! {r#"
+          const greeting = /* @prompting */ `Welcome, ${user}!`;
+          const whatever = /* wrong@prompt */ "That's not it!";
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [],
+                )
+                "#);
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts, @"[]");
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations, @"[]");
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @"[]");
+            }),
+        },
+    );
+}
+
+#[test]
+fn dirty() {
+    ParseTest::test(
+        &ParseTestLang::ts(indoc! {r#"
+          const greeting = /* @prompt greeting */ `Welcome, ${user}!`;
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 40,
+                          end: 59,
+                        ),
+                        inner: Span(
+                          start: 41,
+                          end: 58,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 60,
+                      ),
+                      exp: "`Welcome, ${user}!`",
+                      vars: [
+                        PromptVar(
+                          exp: "${user}",
+                          span: SpanShape(
+                            outer: Span(
+                              start: 50,
+                              end: 57,
+                            ),
+                            inner: Span(
+                              start: 52,
+                              end: 56,
+                            ),
+                          ),
+                        ),
+                      ],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 17,
+                            end: 39,
+                          ),
+                          exp: "/* @prompt greeting */",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts, @r#"
+                [
+                  {
+                    "enclosure": "const greeting = /* @prompt greeting */ `Welcome, ${user}!`;",
+                    "outer": "`Welcome, ${user}!`",
+                    "inner": "Welcome, ${user}!",
+                    "vars": [
+                      {
+                        "outer": "${user}",
+                        "inner": "user"
+                      }
+                    ]
+                  }
+                ]
+                "#);
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations, @r#"
+                [
+                  "Welcome, {0}!"
+                ]
+                "#);
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @r#"
+                [
+                  [
+                    "/* @prompt greeting */"
                   ]
                 ]
                 "#);

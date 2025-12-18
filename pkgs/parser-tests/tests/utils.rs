@@ -5,7 +5,7 @@ use volumen_parser_py_ruff::ParserPy as ParserPyRuff;
 use volumen_parser_py_tree_sitter::ParserPy as ParserPyTreeSitter;
 use volumen_parser_ts::ParserTs as ParserTsOxc;
 use volumen_parser_ts_tree_sitter::ParserTs as ParserTsTreeSitter;
-use volumen_types::{ParseResult, ParseResultSuccess, Prompt};
+use volumen_types::{ParseResult, Prompt};
 
 type Parsers = [(&'static str, Parse)];
 
@@ -62,116 +62,93 @@ impl PromptSourceCuts {
 pub struct ParseTest {}
 
 impl ParseTest {
-    pub fn test(name: Option<&str>, lang: &ParseTestLang, assertions: ParseAssertions) {
-        let test_name = name.unwrap_or("default");
+    pub fn test(lang: &ParseTestLang, assertions: ParseAssertions) {
+        let mut insta_settings = insta::Settings::new();
+        insta_settings.add_redaction(".error", "<error>");
 
-        let mut results = vec![];
-        for (parser, parse) in lang.parsers() {
-            let result = parse(lang.source, lang.filename());
-            match result {
-                ParseResult::ParseResultSuccess(success) => {
-                    results.push(ParseTestResult {
-                        result: success,
-                        parser,
+        insta_settings.bind(|| {
+            let mut results = vec![];
+            for (parser, parse) in lang.parsers() {
+                let result = parse(lang.source, lang.filename);
+                results.push(ParseTestResult { result, parser });
+            }
+
+            insta::allow_duplicates! {
+                for result in &results {
+                    let error_description = match &result.result {
+                        ParseResult::ParseResultError(err) => format!("\nError: {}", err.error),
+                        _ => "".to_owned(),
+                    };
+
+                    insta::with_settings!({ description => format!("Assertion: parser, parser name: {}{}", result.parser, error_description) }, {
+                        (assertions.result)(&result.result);
                     });
-                }
 
-                _ => panic!("Expected ParseResultSuccess"),
-            }
-        }
+                    match &result.result {
+                        ParseResult::ParseResultSuccess(result_success) => {
+                            let cuts: Vec<PromptSourceCuts> = result_success
+                                .prompts
+                                .iter()
+                                .map(|prompt| PromptSourceCuts::cut(lang.source, prompt))
+                                .collect();
 
-        insta::allow_duplicates! {
-            for result in &results {
-              insta::with_settings!({ description => format!("Test: {}, assertion: parser, parser name: {}", test_name, result.parser) }, {
-                  (assertions.result)(&result.result);
-              });
-            }
-        }
-
-        insta::allow_duplicates! {
-            for result in &results {
-                let cuts: Vec<PromptSourceCuts> = result
-                    .result
-                    .prompts
-                    .iter()
-                    .map(|prompt| PromptSourceCuts::cut(lang.source, prompt))
-                    .collect();
-
-                insta::with_settings!({ description => format!("Test: {}, assertion: cuts, parser name: {}", test_name,result.parser) }, {
-                    (assertions.cuts)(cuts);
-                });
-
-                if let Some(assertion) = &assertions.interpolate {
-                    let interpolations : Vec<String> = result
-                        .result
-                        .prompts
-                        .iter()
-                        .map(|prompt| {
-                            let interpolated_start = prompt.span.inner.start - prompt.span.outer.start;
-                            let interpolated_end = prompt.span.inner.end - prompt.span.outer.start;
-                            let mut interpolated = prompt.exp[interpolated_start as usize..interpolated_end as usize].to_owned();
-                            prompt.vars.iter().enumerate().rev().for_each(|(var_index, var)| {
-                                let var_start = (var.span.outer.start - prompt.span.inner.start) as usize;
-                                let var_end = (var.span.outer.end - prompt.span.inner.start) as usize;
-                                let range = var_start..var_end;
-                                interpolated.replace_range(range, &format!("{{{}}}", var_index));
+                            insta::with_settings!({ description => format!("Assertion: cuts, parser name: {}", result.parser) }, {
+                                (assertions.cuts)(cuts);
                             });
-                            interpolated
 
-                        })
-                        .collect();
+                            let interpolations : Vec<String> = result_success
+                                .prompts
+                                .iter()
+                                .map(|prompt| {
+                                    let interpolated_start = prompt.span.inner.start - prompt.span.outer.start;
+                                    let interpolated_end = prompt.span.inner.end - prompt.span.outer.start;
+                                    let mut interpolated = prompt.exp[interpolated_start as usize..interpolated_end as usize].to_owned();
+                                    prompt.vars.iter().enumerate().rev().for_each(|(var_index, var)| {
+                                        let var_start = (var.span.outer.start - prompt.span.inner.start) as usize;
+                                        let var_end = (var.span.outer.end - prompt.span.inner.start) as usize;
+                                        let range = var_start..var_end;
+                                        interpolated.replace_range(range, &format!("{{{}}}", var_index));
+                                    });
+                                    interpolated
 
-                    insta::with_settings!({ description => format!("Test: {}, assertion: interpolation, parser name: {}", test_name,result.parser) }, {
-                        (assertion)(interpolations);
-                    });
+                                })
+                                .collect();
+
+                            insta::with_settings!({ description => format!("Assertion: interpolation, parser name: {}", result.parser) }, {
+                                (assertions.interpolate)(interpolations);
+                            });
+
+                            let annotations : Vec<Vec<String>> = result_success
+                                .prompts
+                                .iter()
+                                .map(|prompt| {
+                                    prompt
+                                        .annotations
+                                        .iter()
+                                        .map(|annotation| {
+                                            let annotation_str = &lang.source[annotation.span.start as usize..annotation.span.end as usize];
+                                            annotation_str.to_owned()
+                                        })
+                                        .collect()
+                                })
+                                .collect();
+
+
+                            insta::with_settings!({ description => format!("Assertion: annotations, parser name: {}", result.parser) }, {
+                                (assertions.annotations)(annotations);
+                            });
+                        }
+
+                        ParseResult::ParseResultError(_) => {
+                            (assertions.cuts)(vec![]);
+                            (assertions.interpolate)(vec![]);
+                            (assertions.annotations)(vec![]);
+                        }
+                    }
+
                 }
             }
-        }
-
-        // let max_prompts_len = ParseTestResult::max_prompts_len(&results);
-
-        // // insta::allow_duplicates! {
-        // // }
-
-        // for index in 0..max_prompts_len {
-        //     let prompts: Vec<(&Prompt, &str)> = results.iter().map(|r| {
-        //         (
-        //             r.result.prompts.get(index).expect("Prompt is missing"),
-        //             r.parser,
-        //         )
-        //     });
-        //     // .collect();
-
-        //     insta::allow_duplicates! {
-        //         for (prompt, parser) in &prompts {
-        //             let cuts = PromptSourceCuts::cut(lang.source, prompt);
-
-        //             insta::with_settings!({ description => format!("Test: {}, assertion: cuts, parser name: {}, prompt index: {}", test_name,parser, index) }, {
-        //                 (assertions.cuts)(&cuts);
-        //             });
-        //         }
-        //     }
-
-        //     if let Some(assertion) = &assertions.interpolate {
-        //         insta::allow_duplicates! {
-        //             for (prompt, parser) in &prompts {
-        //                 let interpolated_start = prompt.span.inner.start - prompt.span.outer.start;
-        //                 let interpolated_end = prompt.span.inner.end - prompt.span.outer.start;
-        //                 let mut interpolated = prompt.exp[interpolated_start as usize..interpolated_end as usize].to_owned();
-        //                 prompt.vars.iter().enumerate().rev().for_each(|(var_index, var)| {
-        //                     let var_start = (var.span.outer.start - prompt.span.inner.start) as usize;
-        //                     let var_end = (var.span.outer.end - prompt.span.inner.start) as usize;
-        //                     let range = var_start..var_end;
-        //                     interpolated.replace_range(range, &format!("{{{}}}", var_index));
-        //                 });
-
-        //                 insta::with_settings!({ description => format!("Test: {}, assertion: interpolation, parser name: {}, prompt index: {}", test_name, parser,index) }, {
-        //                     (assertion)(interpolated);
-        //                 });
-        //             }
-        //         }
-        //     }
-        // }
+        });
     }
 }
 
@@ -190,44 +167,38 @@ impl ParseLang {
 }
 
 pub struct ParseTestResult {
-    pub result: ParseResultSuccess,
+    pub result: ParseResult,
     pub parser: &'static str,
-}
-
-impl ParseTestResult {
-    pub fn max_prompts_len(results: &Vec<ParseTestResult>) -> usize {
-        results
-            .iter()
-            .map(|r| r.result.prompts.len())
-            .max()
-            .unwrap_or(0)
-    }
 }
 
 pub struct ParseTestLang {
     pub source: &'static str,
     pub lang: ParseLang,
+    pub filename: &'static str,
 }
 
 impl ParseTestLang {
     pub fn ts(source: &'static str) -> ParseTestLang {
+        Self::ts_named(source, "prompts.js")
+    }
+
+    pub fn ts_named(source: &'static str, filename: &'static str) -> ParseTestLang {
         ParseTestLang {
             source,
             lang: ParseLang::Ts,
+            filename,
         }
     }
 
     pub fn py(source: &'static str) -> ParseTestLang {
+        Self::py_named(source, "prompts.py")
+    }
+
+    pub fn py_named(source: &'static str, filename: &'static str) -> ParseTestLang {
         ParseTestLang {
             source,
             lang: ParseLang::Py,
-        }
-    }
-
-    pub fn filename(&self) -> &str {
-        match self.lang {
-            ParseLang::Ts => "prompts.js",
-            ParseLang::Py => "prompts.py",
+            filename,
         }
     }
 
@@ -239,11 +210,14 @@ impl ParseTestLang {
 pub struct ParseAssertions {
     pub result: ParseSnapshotAssertion,
     pub cuts: ParseCutsAssertion,
-    pub interpolate: Option<ParseInterpolateAssertion>,
+    pub interpolate: ParseInterpolateAssertion,
+    pub annotations: ParseAnnotationsAssertion,
 }
 
-type ParseSnapshotAssertion = Box<dyn Fn(&ParseResultSuccess) -> ()>;
+type ParseSnapshotAssertion = Box<dyn Fn(&ParseResult) -> ()>;
 
 type ParseCutsAssertion = Box<dyn Fn(Vec<PromptSourceCuts>) -> ()>;
 
 type ParseInterpolateAssertion = Box<dyn Fn(Vec<String>) -> ()>;
+
+type ParseAnnotationsAssertion = Box<dyn Fn(Vec<Vec<String>>) -> ()>;
