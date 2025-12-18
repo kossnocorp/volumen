@@ -138,7 +138,7 @@ fn compare_detect_inline() {
 
 #[test]
 fn compare_detect_inline_jsdoc() {
-    let src = r#"const msg = /** @prompt */ "Hello world";"#;
+    let src = r#"const msg = /** @prompt */ "Hello, world!";"#;
     compare_parsers(src, "prompts.ts", "detect_inline_jsdoc");
 }
 

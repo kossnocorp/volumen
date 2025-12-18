@@ -8,7 +8,7 @@ use wasm_bindgen_test::*;
 #[allow(dead_code)]
 fn parse_js_value() {
     let js_source = indoc! {r#"
-        const msg = /** @prompt */ "Hello world";
+        const msg = /** @prompt */ "Hello, world!";
     "#};
     let js_result = parse_test_code_wasm(js_source, "prompts.js");
     assert_eq!(
@@ -22,7 +22,7 @@ fn parse_js_value() {
                     inner: Span { start: 28, end: 39 },
                 },
                 enclosure: Span { start: 0, end: 41 },
-                exp: "\"Hello world\"".into(),
+                exp: "\"Hello, world\"".into(),
                 vars: vec![],
                 annotations: vec![PromptAnnotation {
                     span: Span { start: 12, end: 26 },

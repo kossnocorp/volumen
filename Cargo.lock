@@ -1876,6 +1876,7 @@ name = "volumen_parser"
 version = "0.2.0"
 dependencies = [
  "indoc",
+ "volumen_parser_core",
  "volumen_parser_py",
  "volumen_parser_test",
  "volumen_parser_ts",

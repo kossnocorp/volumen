@@ -1,4 +1,5 @@
-use volumen_parser_py::{ParserPy, VolumenParser};
+use volumen_parser_core::VolumenParser;
+use volumen_parser_py::ParserPy;
 use volumen_parser_ts::ParserTs;
 use volumen_types::*;
 

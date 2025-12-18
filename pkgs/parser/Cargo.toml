@@ -9,6 +9,7 @@ license = "MIT"
 [dependencies]
 # Volumen
 volumen_types = { version = "0.2.0", path = "../types-crate" }
+volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
 volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }
 volumen_parser_py = { version = "0.2.0", path = "../parser-py" }
 

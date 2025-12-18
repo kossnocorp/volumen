@@ -56,7 +56,7 @@ mod tests {
     }
 
     #[test]
-    fn not_exact() {
+    fn inexact() {
         assert_eq!(parse_annotation("@prompting"), Some(false));
         assert_eq!(parse_annotation("my@prompt"), Some(false));
         assert_eq!(parse_annotation("@prompter"), Some(false));

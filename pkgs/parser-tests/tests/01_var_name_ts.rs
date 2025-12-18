@@ -164,11 +164,12 @@ fn simple() {
 }
 
 #[test]
-fn literal() {
+fn inline() {
     ParseTest::test(
-        None,
+        Some("const"),
         &ParseTestLang::ts(indoc! {r#"
-            const userPrompt = `Welcome, ${user}!`;
+            /* @prompt */
+            const hello = `Hello, world!`;
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -180,35 +181,29 @@ fn literal() {
                       file: "prompts.js",
                       span: SpanShape(
                         outer: Span(
-                          start: 19,
-                          end: 38,
+                          start: 28,
+                          end: 43,
                         ),
                         inner: Span(
-                          start: 20,
-                          end: 37,
+                          start: 29,
+                          end: 42,
                         ),
                       ),
                       enclosure: Span(
                         start: 0,
-                        end: 39,
+                        end: 44,
                       ),
-                      exp: "`Welcome, ${user}!`",
-                      vars: [
-                        PromptVar(
-                          exp: "${user}",
-                          span: SpanShape(
-                            outer: Span(
-                              start: 29,
-                              end: 36,
-                            ),
-                            inner: Span(
-                              start: 31,
-                              end: 35,
-                            ),
+                      exp: "`Hello, world!`",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 13,
                           ),
+                          exp: "/* @prompt */",
                         ),
                       ],
-                      annotations: [],
                     ),
                   ],
                 )
@@ -218,29 +213,29 @@ fn literal() {
             cuts: Box::new(|prompt_source_cuts| {
                 assert_toml_snapshot!(prompt_source_cuts, @r"
                 [[]]
-                enclosure = 'const userPrompt = `Welcome, ${user}!`;'
-                outer = '`Welcome, ${user}!`'
-                inner = 'Welcome, ${user}!'
-
-                [[vars]]
-                outer = '${user}'
-                inner = 'user'
+                enclosure = '''
+                /* @prompt */
+                const hello = `Hello, world!`;'''
+                outer = '`Hello, world!`'
+                inner = 'Hello, world!'
+                vars = []
                 ");
             }),
 
-            interpolate: Some(Box::new(|interpolated| {
-                assert_toml_snapshot!(interpolated, @"['Welcome, {0}!']");
-            })),
+            interpolate: None,
         },
     );
 }
 
 #[test]
-fn multiple_vars() {
+fn jsdoc() {
     ParseTest::test(
-        None,
+        Some("const"),
         &ParseTestLang::ts(indoc! {r#"
-            const userPrompt = `Hello, ${name}! How is the weather today in ${city}?`;
+            /**
+             * @prompt
+             */
+            const hello = `Hello, world!`;
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -252,48 +247,29 @@ fn multiple_vars() {
                       file: "prompts.js",
                       span: SpanShape(
                         outer: Span(
-                          start: 19,
-                          end: 73,
+                          start: 33,
+                          end: 48,
                         ),
                         inner: Span(
-                          start: 20,
-                          end: 72,
+                          start: 34,
+                          end: 47,
                         ),
                       ),
                       enclosure: Span(
                         start: 0,
-                        end: 74,
+                        end: 49,
                       ),
-                      exp: "`Hello, ${name}! How is the weather today in ${city}?`",
-                      vars: [
-                        PromptVar(
-                          exp: "${name}",
-                          span: SpanShape(
-                            outer: Span(
-                              start: 27,
-                              end: 34,
-                            ),
-                            inner: Span(
-                              start: 29,
-                              end: 33,
-                            ),
+                      exp: "`Hello, world!`",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 18,
                           ),
-                        ),
-                        PromptVar(
-                          exp: "${city}",
-                          span: SpanShape(
-                            outer: Span(
-                              start: 64,
-                              end: 71,
-                            ),
-                            inner: Span(
-                              start: 66,
-                              end: 70,
-                            ),
-                          ),
+                          exp: "/**\n * @prompt\n */",
                         ),
                       ],
-                      annotations: [],
                     ),
                   ],
                 )
@@ -303,23 +279,18 @@ fn multiple_vars() {
             cuts: Box::new(|prompt_source_cuts| {
                 assert_toml_snapshot!(prompt_source_cuts, @r"
                 [[]]
-                enclosure = 'const userPrompt = `Hello, ${name}! How is the weather today in ${city}?`;'
-                outer = '`Hello, ${name}! How is the weather today in ${city}?`'
-                inner = 'Hello, ${name}! How is the weather today in ${city}?'
-
-                [[vars]]
-                outer = '${name}'
-                inner = 'name'
-
-                [[vars]]
-                outer = '${city}'
-                inner = 'city'
+                enclosure = '''
+                /**
+                 * @prompt
+                 */
+                const hello = `Hello, world!`;'''
+                outer = '`Hello, world!`'
+                inner = 'Hello, world!'
+                vars = []
                 ");
             }),
 
-            interpolate: Some(Box::new(|interpolated| {
-                assert_toml_snapshot!(interpolated, @"['Hello, {0}! How is the weather today in {1}?']");
-            })),
+            interpolate: None,
         },
     );
 }

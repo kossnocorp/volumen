@@ -234,7 +234,7 @@ fn reassigned() {
 }
 
 #[test]
-fn not_exact() {
+fn inexact() {
     ParseTest::test(
         None,
         &ParseTestLang::py(indoc! {r#"

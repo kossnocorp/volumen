@@ -28,7 +28,11 @@ importers:
 
   pkgs/parser-py-ruff: {}
 
+  pkgs/parser-py-tree-sitter: {}
+
   pkgs/parser-test: {}
+
+  pkgs/parser-tests: {}
 
   pkgs/parser-ts: {}
 
