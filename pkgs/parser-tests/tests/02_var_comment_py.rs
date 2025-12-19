@@ -646,7 +646,6 @@ fn mixed_assign() {
 }
 
 #[test]
-#[ignore = "TODO: Python parsers don not match, the snapshot is correct though"]
 fn mixed_reassign() {
     ParseTest::test(
         &ParseTestLang::py(indoc! {r#"
@@ -696,19 +695,34 @@ fn mixed_reassign() {
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r#"
-                [[]]
-                enclosure = 'hello = "Hi"'
-                vars = []
-                "#);
+                assert_json_snapshot!(prompt_source_cuts, @r##"
+                [
+                  {
+                    "enclosure": "# @prompting\nhello = \"Hi\"",
+                    "outer": "\"Hi\"",
+                    "inner": "Hi",
+                    "vars": []
+                  }
+                ]
+                "##);
             }),
 
             interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @"['Hi']");
+                assert_json_snapshot!(interpolations, @r#"
+                [
+                  "Hi"
+                ]
+                "#);
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @"");
+                assert_json_snapshot!(annotations, @r##"
+                [
+                  [
+                    "# @prompt def"
+                  ]
+                ]
+                "##);
             }),
         },
     );
@@ -882,7 +896,6 @@ fn dirty() {
 }
 
 #[test]
-#[ignore = "TODO: Python parsers parse just a single prompt. It must be fixed."]
 fn multi() {
     ParseTest::test(
         &ParseTestLang::py(indoc! {r#"
@@ -891,19 +904,110 @@ fn multi() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r##"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.py",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 25,
+                          end: 32,
+                        ),
+                        inner: Span(
+                          start: 26,
+                          end: 31,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 41,
+                      ),
+                      exp: "\"Hello\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 9,
+                          ),
+                          exp: "# @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.py",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 34,
+                          end: 41,
+                        ),
+                        inner: Span(
+                          start: 35,
+                          end: 40,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 41,
+                      ),
+                      exp: "\"World\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 9,
+                          ),
+                          exp: "# @prompt",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "##);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts,  @"");
+                assert_json_snapshot!(prompt_source_cuts,  @r##"
+                [
+                  {
+                    "enclosure": "# @prompt\nhello, world = \"Hello\", \"World\"",
+                    "outer": "\"Hello\"",
+                    "inner": "Hello",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "# @prompt\nhello, world = \"Hello\", \"World\"",
+                    "outer": "\"World\"",
+                    "inner": "World",
+                    "vars": []
+                  }
+                ]
+                "##);
             }),
 
             interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations,  @"");
+                assert_json_snapshot!(interpolations,  @r#"
+                [
+                  "Hello",
+                  "World"
+                ]
+                "#);
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @"");
+                assert_json_snapshot!(annotations, @r##"
+                [
+                  [
+                    "# @prompt"
+                  ],
+                  [
+                    "# @prompt"
+                  ]
+                ]
+                "##);
             }),
         },
     );

@@ -334,8 +334,13 @@ fn process_identifier_assignment(
 
         // Check if it's a string or f-string
         if is_string_like(&right) {
+            // Check if current annotations contain at least one valid @prompt
+            let has_valid_current_annotation = annotations
+                .iter()
+                .any(|a| volumen_parser_core::parse_annotation(&a.exp).unwrap_or(false));
+
             // Get annotations (from current statement or from definition)
-            let final_annotations = if !annotations.is_empty() {
+            let final_annotations = if has_valid_current_annotation {
                 annotations.to_vec()
             } else {
                 scopes.get_def_annotation(ident_name).unwrap_or_default()
@@ -530,8 +535,8 @@ fn create_prompt_from_range(
     // Extract variables if f-string (simplified version)
     let vars = Vec::new(); // TODO: Extract vars from f-string in multi-assignment
 
-    // Calculate enclosure
-    let enclosure_start = comments.get_leading_start(stmt_start).unwrap_or(stmt_start);
+    // Calculate enclosure - use get_any_leading_start to include ANY leading comment (valid or not)
+    let enclosure_start = comments.get_any_leading_start(stmt_start).unwrap_or(stmt_start);
     let enclosure = Span {
         start: enclosure_start,
         end: stmt_end,
@@ -597,8 +602,8 @@ fn create_prompt_from_string(
         Vec::new()
     };
 
-    // Calculate enclosure
-    let enclosure_start = comments.get_leading_start(stmt_start).unwrap_or(stmt_start);
+    // Calculate enclosure - use get_any_leading_start to include ANY leading comment (valid or not)
+    let enclosure_start = comments.get_any_leading_start(stmt_start).unwrap_or(stmt_start);
     let enclosure = Span {
         start: enclosure_start,
         end: stmt_end,

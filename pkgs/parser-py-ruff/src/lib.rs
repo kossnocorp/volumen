@@ -274,7 +274,14 @@ impl<'a> PyPromptVisitor<'a> {
             .last()
             .cloned()
             .unwrap_or_default();
-        if annotations.is_empty()
+
+        // Check if current annotations contain at least one valid @prompt
+        let has_valid_current_annotation = annotations
+            .iter()
+            .any(|a| parse_annotation(&a.exp).unwrap_or(false));
+
+        // If no valid annotations in current statement, use stored definition annotations
+        if !has_valid_current_annotation
             && self.annotated_idents.contains(ident)
             && let Some(def) = self.def_prompt_annotations.get(ident)
         {

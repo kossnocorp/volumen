@@ -146,6 +146,53 @@ impl<'a> CommentTracker<'a> {
         let annotations = self.collect_adjacent_leading(stmt_start);
         annotations.first().map(|a| a.span.start)
     }
+
+    /// Get the start position of any adjacent leading comment, regardless of whether it's valid.
+    /// Used for enclosure calculation when we want to include all leading comments.
+    pub fn get_any_leading_start(&self, stmt_start: u32) -> Option<u32> {
+        // Find comments that end before the statement starts
+        for comment in self.comments.iter().rev() {
+            if comment.end <= stmt_start {
+                // Check if there's only whitespace between comment and statement
+                let start = comment.end as usize;
+                let end = stmt_start as usize;
+
+                let between = if start <= end && end <= self.source.len() {
+                    &self.source[start..end]
+                } else {
+                    ""
+                };
+
+                if between.trim().is_empty() {
+                    // Found a comment adjacent to the statement
+                    // Now find the start of the entire contiguous block
+                    let mut block_start = comment.start;
+                    let mut last = stmt_start;
+                    for c in self.comments.iter().rev() {
+                        if c.end <= last {
+                            let s = c.end as usize;
+                            let e = last as usize;
+                            let between2 = if s <= e && e <= self.source.len() {
+                                &self.source[s..e]
+                            } else {
+                                ""
+                            };
+
+                            if between2.trim().is_empty() {
+                                block_start = c.start;
+                                last = c.start;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                    return Some(block_start);
+                }
+                break;
+            }
+        }
+        None
+    }
 }
 
 #[cfg(test)]
