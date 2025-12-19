@@ -14,6 +14,8 @@ volumen_parser_py_ruff = { version = "0.2.0", path = "../parser-py-ruff" }
 volumen_parser_py_tree_sitter = { version = "0.1.0", path = "../parser-py-tree-sitter" }
 volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }
 volumen_parser_ts_tree_sitter = { version = "0.1.0", path = "../parser-ts-tree-sitter" }
+volumen_parser_rb = { version = "0.2.0", path = "../parser-rb" }
+volumen_parser_php = { version = "0.2.0", path = "../parser-php" }
 pretty_assertions = "1.4.1"
 indoc = "2.0.7"
 insta = { version = "1.44.3", features = ["json", "redactions", "ron", "toml", "yaml"] }

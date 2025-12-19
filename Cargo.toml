@@ -11,6 +11,8 @@ members = [
   "pkgs/parser-py",
   "pkgs/parser-py-ruff",
   "pkgs/parser-py-tree-sitter",
+  "pkgs/parser-rb",
+  "pkgs/parser-php",
   "pkgs/parser-test",
   "pkgs/parser-tests",
   "pkgs/benchmarks",

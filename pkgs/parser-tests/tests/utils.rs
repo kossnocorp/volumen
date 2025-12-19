@@ -1,8 +1,10 @@
 use serde::Serialize;
 use volumen_parser_core::VolumenParser;
+use volumen_parser_php::ParserPhp;
 use volumen_parser_py::ParserPy as ParserPyRustPython;
 use volumen_parser_py_ruff::ParserPy as ParserPyRuff;
 use volumen_parser_py_tree_sitter::ParserPy as ParserPyTreeSitter;
+use volumen_parser_rb::ParserRb;
 use volumen_parser_ts::ParserTs as ParserTsOxc;
 use volumen_parser_ts_tree_sitter::ParserTs as ParserTsTreeSitter;
 use volumen_types::{ParseResult, Prompt};
@@ -21,6 +23,10 @@ static PY_PARSERS: &Parsers = &[
     ("ParserPyRuff", ParserPyRuff::parse),
     ("ParserPyTreeSitter", ParserPyTreeSitter::parse),
 ];
+
+static RB_PARSERS: &Parsers = &[("ParserRb", ParserRb::parse)];
+
+static PHP_PARSERS: &Parsers = &[("ParserPhp", ParserPhp::parse)];
 
 #[derive(Serialize)]
 pub struct PromptSourceCuts {
@@ -155,6 +161,8 @@ impl ParseTest {
 pub enum ParseLang {
     Ts,
     Py,
+    Rb,
+    Php,
 }
 
 impl ParseLang {
@@ -162,6 +170,8 @@ impl ParseLang {
         match self {
             ParseLang::Ts => TS_PARSERS,
             ParseLang::Py => PY_PARSERS,
+            ParseLang::Rb => RB_PARSERS,
+            ParseLang::Php => PHP_PARSERS,
         }
     }
 }
@@ -198,6 +208,30 @@ impl ParseTestLang {
         ParseTestLang {
             source,
             lang: ParseLang::Py,
+            filename,
+        }
+    }
+
+    pub fn rb(source: &'static str) -> ParseTestLang {
+        Self::rb_named(source, "prompts.rb")
+    }
+
+    pub fn rb_named(source: &'static str, filename: &'static str) -> ParseTestLang {
+        ParseTestLang {
+            source,
+            lang: ParseLang::Rb,
+            filename,
+        }
+    }
+
+    pub fn php(source: &'static str) -> ParseTestLang {
+        Self::php_named(source, "prompts.php")
+    }
+
+    pub fn php_named(source: &'static str, filename: &'static str) -> ParseTestLang {
+        ParseTestLang {
+            source,
+            lang: ParseLang::Php,
             filename,
         }
     }

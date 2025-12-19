@@ -1,0 +1,13 @@
+[package]
+name = "volumen_parser_rb"
+version = "0.2.0"
+edition = "2021"
+description = "Volumen Ruby parser using Tree-sitter"
+repository = "https://github.com/kossnocorp/volumen"
+license = "MIT"
+
+[dependencies]
+tree-sitter = "0.25"
+tree-sitter-ruby = "0.23"
+volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
+volumen_types = { version = "0.2.0", path = "../types-crate" }
