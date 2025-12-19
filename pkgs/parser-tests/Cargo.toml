@@ -16,6 +16,9 @@ volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }
 volumen_parser_ts_tree_sitter = { version = "0.1.0", path = "../parser-ts-tree-sitter" }
 volumen_parser_rb = { version = "0.2.0", path = "../parser-rb" }
 volumen_parser_php = { version = "0.2.0", path = "../parser-php" }
+volumen_parser_java = { version = "0.2.0", path = "../parser-java" }
+volumen_parser_go = { version = "0.2.0", path = "../parser-go" }
+volumen_parser_csharp = { version = "0.2.0", path = "../parser-csharp" }
 pretty_assertions = "1.4.1"
 indoc = "2.0.7"
 insta = { version = "1.44.3", features = ["json", "redactions", "ron", "toml", "yaml"] }

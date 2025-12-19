@@ -1,5 +1,8 @@
 use serde::Serialize;
 use volumen_parser_core::VolumenParser;
+use volumen_parser_csharp::ParserCSharp;
+use volumen_parser_go::ParserGo;
+use volumen_parser_java::ParserJava;
 use volumen_parser_php::ParserPhp;
 use volumen_parser_py::ParserPy as ParserPyRustPython;
 use volumen_parser_py_ruff::ParserPy as ParserPyRuff;
@@ -27,6 +30,12 @@ static PY_PARSERS: &Parsers = &[
 static RB_PARSERS: &Parsers = &[("ParserRb", ParserRb::parse)];
 
 static PHP_PARSERS: &Parsers = &[("ParserPhp", ParserPhp::parse)];
+
+static JAVA_PARSERS: &Parsers = &[("ParserJava", ParserJava::parse)];
+
+static GO_PARSERS: &Parsers = &[("ParserGo", ParserGo::parse)];
+
+static CS_PARSERS: &Parsers = &[("ParserCSharp", ParserCSharp::parse)];
 
 #[derive(Serialize)]
 pub struct PromptSourceCuts {
@@ -163,6 +172,9 @@ pub enum ParseLang {
     Py,
     Rb,
     Php,
+    Java,
+    Go,
+    Cs,
 }
 
 impl ParseLang {
@@ -172,6 +184,9 @@ impl ParseLang {
             ParseLang::Py => PY_PARSERS,
             ParseLang::Rb => RB_PARSERS,
             ParseLang::Php => PHP_PARSERS,
+            ParseLang::Java => JAVA_PARSERS,
+            ParseLang::Go => GO_PARSERS,
+            ParseLang::Cs => CS_PARSERS,
         }
     }
 }
@@ -232,6 +247,42 @@ impl ParseTestLang {
         ParseTestLang {
             source,
             lang: ParseLang::Php,
+            filename,
+        }
+    }
+
+    pub fn java(source: &'static str) -> ParseTestLang {
+        Self::java_named(source, "Prompts.java")
+    }
+
+    pub fn java_named(source: &'static str, filename: &'static str) -> ParseTestLang {
+        ParseTestLang {
+            source,
+            lang: ParseLang::Java,
+            filename,
+        }
+    }
+
+    pub fn go(source: &'static str) -> ParseTestLang {
+        Self::go_named(source, "prompts.go")
+    }
+
+    pub fn go_named(source: &'static str, filename: &'static str) -> ParseTestLang {
+        ParseTestLang {
+            source,
+            lang: ParseLang::Go,
+            filename,
+        }
+    }
+
+    pub fn cs(source: &'static str) -> ParseTestLang {
+        Self::cs_named(source, "Prompts.cs")
+    }
+
+    pub fn cs_named(source: &'static str, filename: &'static str) -> ParseTestLang {
+        ParseTestLang {
+            source,
+            lang: ParseLang::Cs,
             filename,
         }
     }
