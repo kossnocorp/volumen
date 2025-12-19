@@ -822,7 +822,6 @@ fn mixed_assign() {
 }
 
 #[test]
-#[ignore = "TODO: TypeScript parsers don not match, the snapshot is correct though"]
 fn mixed_reassign() {
     ParseTest::test(
         &ParseTestLang::ts(indoc! {r#"
@@ -872,21 +871,34 @@ fn mixed_reassign() {
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r"
-                [[]]
-                enclosure = 'hello = `Hi`;'
-                outer = '`Hi`'
-                inner = 'Hi'
-                vars = []
-                ");
+                assert_json_snapshot!(prompt_source_cuts, @r#"
+                [
+                  {
+                    "enclosure": "// @prompting\nhello = `Hi`;",
+                    "outer": "`Hi`",
+                    "inner": "Hi",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
 
             interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @"['Hi']");
+                assert_json_snapshot!(interpolations, @r#"
+                [
+                  "Hi"
+                ]
+                "#);
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @"");
+                assert_json_snapshot!(annotations, @r#"
+                [
+                  [
+                    "// @prompt def"
+                  ]
+                ]
+                "#);
             }),
         },
     );
@@ -1268,7 +1280,6 @@ fn multi() {
 }
 
 #[test]
-#[ignore = "TODO: TypeScript parsers parse no prompts at all. The destructuring must be added."]
 fn destructuring() {
     ParseTest::test(
         &ParseTestLang::ts(indoc! {r#"
@@ -1284,26 +1295,344 @@ fn destructuring() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 37,
+                          end: 44,
+                        ),
+                        inner: Span(
+                          start: 38,
+                          end: 43,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 55,
+                      ),
+                      exp: "\"Hello\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 10,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 46,
+                          end: 53,
+                        ),
+                        inner: Span(
+                          start: 47,
+                          end: 52,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 55,
+                      ),
+                      exp: "\"World\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 10,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 104,
+                          end: 111,
+                        ),
+                        inner: Span(
+                          start: 105,
+                          end: 110,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 56,
+                        end: 131,
+                      ),
+                      exp: "\"Hello\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 56,
+                            end: 66,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 121,
+                          end: 128,
+                        ),
+                        inner: Span(
+                          start: 122,
+                          end: 127,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 56,
+                        end: 131,
+                      ),
+                      exp: "\"World\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 56,
+                            end: 66,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 183,
+                          end: 190,
+                        ),
+                        inner: Span(
+                          start: 184,
+                          end: 189,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 132,
+                        end: 211,
+                      ),
+                      exp: "\"Hello\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 132,
+                            end: 142,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 200,
+                          end: 207,
+                        ),
+                        inner: Span(
+                          start: 201,
+                          end: 206,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 132,
+                        end: 211,
+                      ),
+                      exp: "\"World\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 132,
+                            end: 142,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 270,
+                          end: 277,
+                        ),
+                        inner: Span(
+                          start: 271,
+                          end: 276,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 212,
+                        end: 303,
+                      ),
+                      exp: "\"Hello\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 212,
+                            end: 222,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 290,
+                          end: 297,
+                        ),
+                        inner: Span(
+                          start: 291,
+                          end: 296,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 212,
+                        end: 303,
+                      ),
+                      exp: "\"World\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 212,
+                            end: 222,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts,  @"");
+                assert_json_snapshot!(prompt_source_cuts,  @r#"
+                [
+                  {
+                    "enclosure": "// @prompt\nconst [hello1, world1] = [\"Hello\", \"World\"];",
+                    "outer": "\"Hello\"",
+                    "inner": "Hello",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\nconst [hello1, world1] = [\"Hello\", \"World\"];",
+                    "outer": "\"World\"",
+                    "inner": "World",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\nconst { hello2, world2 } = { hello2: \"Hello\", world2: \"World\" };",
+                    "outer": "\"Hello\"",
+                    "inner": "Hello",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\nconst { hello2, world2 } = { hello2: \"Hello\", world2: \"World\" };",
+                    "outer": "\"World\"",
+                    "inner": "World",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\nconst [{ hello3, world3 }] = [{ hello3: \"Hello\", world3: \"World\" }];",
+                    "outer": "\"Hello\"",
+                    "inner": "Hello",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\nconst [{ hello3, world3 }] = [{ hello3: \"Hello\", world3: \"World\" }];",
+                    "outer": "\"World\"",
+                    "inner": "World",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\nconst { hi: [[hello4], { world4 }] } = { hi: [[\"Hello\"], { world3: \"World\" }] };",
+                    "outer": "\"Hello\"",
+                    "inner": "Hello",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\nconst { hi: [[hello4], { world4 }] } = { hi: [[\"Hello\"], { world3: \"World\" }] };",
+                    "outer": "\"World\"",
+                    "inner": "World",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
 
             interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations,  @"");
+                assert_json_snapshot!(interpolations,  @r#"
+                [
+                  "Hello",
+                  "World",
+                  "Hello",
+                  "World",
+                  "Hello",
+                  "World",
+                  "Hello",
+                  "World"
+                ]
+                "#);
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @"");
+                assert_json_snapshot!(annotations, @r#"
+                [
+                  [
+                    "// @prompt"
+                  ],
+                  [
+                    "// @prompt"
+                  ],
+                  [
+                    "// @prompt"
+                  ],
+                  [
+                    "// @prompt"
+                  ],
+                  [
+                    "// @prompt"
+                  ],
+                  [
+                    "// @prompt"
+                  ],
+                  [
+                    "// @prompt"
+                  ],
+                  [
+                    "// @prompt"
+                  ]
+                ]
+                "#);
             }),
         },
     );
 }
 
 #[test]
-#[ignore = "TODO: TypeScript parsers incorrectly parse it. One is resulting in no prompts, another in just one. It must be two prompts parsed."]
 fn chained() {
     ParseTest::test(
         &ParseTestLang::ts(indoc! {r#"
@@ -1313,19 +1642,110 @@ fn chained() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 62,
+                          end: 66,
+                        ),
+                        inner: Span(
+                          start: 63,
+                          end: 65,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 20,
+                        end: 66,
+                      ),
+                      exp: "\"Hi\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 20,
+                            end: 30,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.js",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 62,
+                          end: 66,
+                        ),
+                        inner: Span(
+                          start: 63,
+                          end: 65,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 20,
+                        end: 66,
+                      ),
+                      exp: "\"Hi\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 20,
+                            end: 30,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts,  @"");
+                assert_json_snapshot!(prompt_source_cuts,  @r#"
+                [
+                  {
+                    "enclosure": "// @prompt\n         const hello = world = \"Hi\"",
+                    "outer": "\"Hi\"",
+                    "inner": "Hi",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\n         const hello = world = \"Hi\"",
+                    "outer": "\"Hi\"",
+                    "inner": "Hi",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
 
             interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations,  @"");
+                assert_json_snapshot!(interpolations,  @r#"
+                [
+                  "Hi",
+                  "Hi"
+                ]
+                "#);
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @"");
+                assert_json_snapshot!(annotations, @r#"
+                [
+                  [
+                    "// @prompt"
+                  ],
+                  [
+                    "// @prompt"
+                  ]
+                ]
+                "#);
             }),
         },
     );

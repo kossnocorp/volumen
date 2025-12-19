@@ -7,6 +7,7 @@ use scope::ScopeTracker;
 use spans::{extract_template_vars, is_string_like, is_template_string, span_shape_string_like};
 use tree_sitter::Node;
 pub use volumen_parser_core::VolumenParser;
+use volumen_parser_core::parse_annotation;
 use volumen_types::*;
 
 pub struct ParserTs {}
@@ -214,6 +215,62 @@ fn process_variable_declaration(
 }
 
 /// Process a single variable declarator.
+/// Recursively extract all identifiers from a pattern node (object_pattern, array_pattern, etc.)
+fn extract_pattern_identifiers(node: &Node, source: &str, identifiers: &mut Vec<String>) {
+    let kind = node.kind();
+
+    // Match identifier node types
+    if kind == "identifier" || kind == "shorthand_property_identifier_pattern" {
+        if let Ok(name) = node.utf8_text(source.as_bytes()) {
+            identifiers.push(name.to_string());
+        }
+        return;
+    }
+
+    // For object patterns with property assignments, extract from the value side
+    if kind == "pair_pattern" {
+        // pair_pattern has a "value" field with the actual pattern
+        if let Some(value_node) = node.child_by_field_name("value") {
+            extract_pattern_identifiers(&value_node, source, identifiers);
+            return;
+        }
+    }
+
+    // Recursively walk the pattern's children
+    let mut cursor = node.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            extract_pattern_identifiers(&child, source, identifiers);
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+}
+
+/// Recursively extract all string/template literal values from a value node
+fn extract_value_strings<'a>(node: &Node<'a>, values: &mut Vec<Node<'a>>) {
+    let kind = node.kind();
+
+    if kind == "string" || kind == "template_string" {
+        values.push(*node);
+        return;
+    }
+
+    // Recursively walk the value's children
+    let mut cursor = node.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            extract_value_strings(&child, values);
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+}
+
 fn process_variable_declarator(
     node: &Node,
     has_prompt_annotation: bool,
@@ -231,6 +288,54 @@ fn process_variable_declarator(
         Some(n) => n,
         None => return,
     };
+
+    let name_kind = name_node.kind();
+
+    // Check if this is a destructuring pattern
+    if (name_kind == "object_pattern" || name_kind == "array_pattern") && has_prompt_annotation {
+        // Handle destructuring pattern
+        let value_node = match node.child_by_field_name("value") {
+            Some(v) => v,
+            None => return,
+        };
+
+        // Extract all identifiers from the pattern
+        let mut identifiers = Vec::new();
+        extract_pattern_identifiers(&name_node, source, &mut identifiers);
+
+        // Extract all string values from the value
+        let mut values = Vec::new();
+        extract_value_strings(&value_node, &mut values);
+
+        // Match identifiers with values by position
+        for (i, ident_name) in identifiers.iter().enumerate() {
+            if let Some(value) = values.get(i) {
+                if is_prompt_variable(ident_name, has_prompt_annotation, scopes) {
+                    // Mark as prompt identifier
+                    scopes.mark_prompt_ident(ident_name);
+
+                    // Store definition annotations
+                    if has_prompt_annotation {
+                        scopes.store_def_annotation(ident_name, annotations.to_vec());
+                    }
+
+                    // Create prompt for this value
+                    create_prompt_from_string(
+                        value,
+                        source,
+                        filename,
+                        stmt_start,
+                        stmt_end,
+                        comments,
+                        annotations,
+                        true,
+                        prompts,
+                    );
+                }
+            }
+        }
+        return;
+    }
 
     let ident_name = name_node.utf8_text(source.as_bytes()).unwrap_or("");
 
@@ -272,8 +377,57 @@ fn process_variable_declarator(
             scopes.mark_annotated(ident_name);
         }
 
-        // Check if it's a string or template string
-        if is_string_like(&value) {
+        // Check if it's a chained assignment (e.g., const hello = world = "Hi")
+        if value.kind() == "assignment_expression" {
+            // Walk the chain to find the ultimate value
+            let mut current = value;
+            loop {
+                let right = match current.child_by_field_name("right") {
+                    Some(r) => r,
+                    None => break,
+                };
+
+                if right.kind() == "assignment_expression" {
+                    current = right;
+                } else if is_string_like(&right) {
+                    // Found the ultimate value - create prompt for current identifier
+                    let final_annotations = if !annotations.is_empty() {
+                        annotations.to_vec()
+                    } else {
+                        scopes.get_def_annotation(ident_name).unwrap_or_default()
+                    };
+
+                    create_prompt_from_string(
+                        &right,
+                        source,
+                        filename,
+                        stmt_start,
+                        stmt_end,
+                        comments,
+                        &final_annotations,
+                        true,
+                        prompts,
+                    );
+                    break;
+                } else {
+                    break;
+                }
+            }
+
+            // Recursively process the chained assignment
+            process_assignment_expression_with_annotations(
+                &value,
+                source,
+                filename,
+                comments,
+                scopes,
+                prompts,
+                annotations,
+                stmt_start,
+                stmt_end,
+            );
+        } else if is_string_like(&value) {
+            // Check if it's a string or template string
             // Get annotations (from current statement or from definition)
             let final_annotations = if !annotations.is_empty() {
                 annotations.to_vec()
@@ -315,6 +469,101 @@ fn is_prompt_variable(ident_name: &str, has_annotation: bool, scopes: &ScopeTrac
     }
 
     false
+}
+
+/// Process assignment expression with inherited annotations (for chained assignments).
+fn process_assignment_expression_with_annotations(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    comments: &CommentTracker,
+    scopes: &mut ScopeTracker,
+    prompts: &mut Vec<Prompt>,
+    inherited_annotations: &[PromptAnnotation],
+    stmt_start: u32,
+    stmt_end: u32,
+) {
+    // Get the left side (identifier)
+    let left = match node.child_by_field_name("left") {
+        Some(n) => n,
+        None => return,
+    };
+
+    if left.kind() != "identifier" {
+        return;
+    }
+
+    let ident_name = left.utf8_text(source.as_bytes()).unwrap_or("");
+
+    // Get the right side (value)
+    let right = match node.child_by_field_name("right") {
+        Some(n) => n,
+        None => return,
+    };
+
+    // Determine if this is a prompt
+    let is_prompt = is_prompt_variable(ident_name, !inherited_annotations.is_empty(), scopes);
+
+    if is_prompt {
+        scopes.mark_prompt_ident(ident_name);
+
+        // Check if it's a chained assignment
+        if right.kind() == "assignment_expression" {
+            // Walk the chain to find the ultimate value
+            let mut current = right;
+            loop {
+                let r = match current.child_by_field_name("right") {
+                    Some(r) => r,
+                    None => break,
+                };
+
+                if r.kind() == "assignment_expression" {
+                    current = r;
+                } else if is_string_like(&r) {
+                    // Found the ultimate value
+                    create_prompt_from_string(
+                        &r,
+                        source,
+                        filename,
+                        stmt_start,
+                        stmt_end,
+                        comments,
+                        inherited_annotations,
+                        true,
+                        prompts,
+                    );
+                    break;
+                } else {
+                    break;
+                }
+            }
+
+            // Recursively process the nested assignment
+            process_assignment_expression_with_annotations(
+                &right,
+                source,
+                filename,
+                comments,
+                scopes,
+                prompts,
+                inherited_annotations,
+                stmt_start,
+                stmt_end,
+            );
+        } else if is_string_like(&right) {
+            create_prompt_from_string(
+                &right,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                inherited_annotations,
+                true,
+                prompts,
+            );
+        }
+    }
 }
 
 /// Process assignment expressions (reassignments like `hello = value`).
@@ -373,8 +622,13 @@ fn process_assignment_expression(
         scopes.mark_prompt_ident(ident_name);
 
         if is_string_like(&right) {
+            // Check if current annotations contain at least one valid @prompt
+            let has_valid_current_annotation = all_annotations
+                .iter()
+                .any(|a| parse_annotation(&a.exp).unwrap_or(false));
+
             // Get annotations (from current statement or from definition)
-            let (final_annotations, from_current) = if !all_annotations.is_empty() {
+            let (final_annotations, from_current) = if has_valid_current_annotation {
                 (all_annotations, true)
             } else {
                 (
@@ -425,7 +679,8 @@ fn create_prompt_from_string(
     };
 
     // Calculate enclosure
-    // Only use annotation positions if they're from the current statement
+    // Always check for leading comments, even if they're invalid annotations
+    let leading_start = comments.get_any_leading_start(stmt_start);
     let enclosure_start = if annotations_from_current_stmt && !annotations.is_empty() {
         if annotations.len() >= 2 {
             // Multiple annotations: first one is leading comment
@@ -441,7 +696,8 @@ fn create_prompt_from_string(
             }
         }
     } else {
-        stmt_start
+        // Even with stored definition annotations, include leading comments in enclosure
+        leading_start.unwrap_or(stmt_start)
     };
 
     let enclosure = Span {

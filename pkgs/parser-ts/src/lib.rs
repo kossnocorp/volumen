@@ -108,23 +108,87 @@ impl<'a> PromptVisitor<'a> {
         declarator: &ast::VariableDeclarator<'a>,
         has_stmt_prompt: bool,
     ) {
-        if let ast::BindingPatternKind::BindingIdentifier(ident) = &declarator.id.kind
-            && has_stmt_prompt
-        {
-            if let Some(scope) = self.prompt_idents_stack.last_mut() {
-                scope.insert(ident.name.to_string());
-            }
-            // Persist definition-time annotations for later reassignments
-            if let Some(ann) = self.stmt_annotations_stack.last()
-                && !ann.is_empty()
-                && let Some(scope) = self.def_prompt_annotations_stack.last_mut()
-            {
-                scope.insert(ident.name.to_string(), ann.clone());
-            }
-        }
+        // Check if this is a destructuring pattern (object or array)
+        let is_destructuring = matches!(
+            &declarator.id.kind,
+            ast::BindingPatternKind::ObjectPattern(_) | ast::BindingPatternKind::ArrayPattern(_)
+        );
 
-        // Detect type annotation regardless of initializer presence
-        if let ast::BindingPatternKind::BindingIdentifier(ident) = &declarator.id.kind {
+        if is_destructuring && has_stmt_prompt {
+            // Handle destructuring patterns
+            if let Some(init) = &declarator.init {
+                // Extract all identifiers from the left side
+                let mut identifiers = Vec::new();
+                self.extract_binding_identifiers(&declarator.id, &mut identifiers);
+
+                // Extract all string/template values from the right side
+                let mut values = Vec::new();
+                self.extract_expression_values(init, &mut values);
+
+                // Match identifiers with values by position
+                for (i, ident_name) in identifiers.iter().enumerate() {
+                    if let Some((value_span, is_template)) = values.get(i) {
+                        if self.is_prompt(ident_name, has_stmt_prompt) {
+                            // Mark this identifier as a prompt variable
+                            if let Some(scope) = self.prompt_idents_stack.last_mut() {
+                                scope.insert(ident_name.clone());
+                            }
+
+                            // Store definition-time annotations
+                            if let Some(ann) = self.stmt_annotations_stack.last()
+                                && !ann.is_empty()
+                                && let Some(scope) = self.def_prompt_annotations_stack.last_mut()
+                            {
+                                scope.insert(ident_name.clone(), ann.clone());
+                            }
+
+                            // Create a prompt for this value
+                            let (has_prompt, annotations, enclosure) =
+                                self.resolve_prompt_meta(ident_name, value_span);
+
+                            if has_prompt {
+                                let span = self.span_shape_literal(value_span);
+                                let exp = value_span.source_text(self.code).to_string();
+
+                                let vars = if *is_template {
+                                    // For template literals, we need to extract the original template
+                                    // from the span. Since we only have a span, we'll create an empty
+                                    // vars list for now. A proper implementation would parse the template.
+                                    Vec::new()
+                                } else {
+                                    Vec::new()
+                                };
+
+                                let prompt = Prompt {
+                                    file: self.file.clone(),
+                                    span,
+                                    enclosure,
+                                    exp,
+                                    vars,
+                                    annotations,
+                                };
+                                self.prompts.push(prompt);
+                            }
+                        }
+                    }
+                }
+            }
+        } else if let ast::BindingPatternKind::BindingIdentifier(ident) = &declarator.id.kind {
+            // Handle simple identifier (existing code)
+            if has_stmt_prompt {
+                if let Some(scope) = self.prompt_idents_stack.last_mut() {
+                    scope.insert(ident.name.to_string());
+                }
+                // Persist definition-time annotations for later reassignments
+                if let Some(ann) = self.stmt_annotations_stack.last()
+                    && !ann.is_empty()
+                    && let Some(scope) = self.def_prompt_annotations_stack.last_mut()
+                {
+                    scope.insert(ident.name.to_string(), ann.clone());
+                }
+            }
+
+            // Detect type annotation regardless of initializer presence
             let id_span = declarator.id.span();
             let decl_span = self
                 .stmt_span_stack
@@ -161,6 +225,37 @@ impl<'a> PromptVisitor<'a> {
                         self.process_string_literal(&ident.name, string_literal);
                     }
 
+                    ast::Expression::AssignmentExpression(assign_expr) => {
+                        // Handle chained assignment in initializer: const hello = world = "Hi"
+                        // Walk the chain to find the ultimate value
+                        let mut current = assign_expr.as_ref();
+                        loop {
+                            match &current.right {
+                                ast::Expression::AssignmentExpression(inner) => {
+                                    // Continue walking the chain
+                                    current = inner.as_ref();
+                                }
+                                ast::Expression::TemplateLiteral(template) => {
+                                    // Found the ultimate value - process it for current identifier
+                                    self.process_template_literal(&ident.name, template);
+                                    break;
+                                }
+                                ast::Expression::StringLiteral(string_literal) => {
+                                    // Found the ultimate value - process it for current identifier
+                                    self.process_string_literal(&ident.name, string_literal);
+                                    break;
+                                }
+                                _ => {
+                                    // Not a string/template value, stop
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Note: Don't manually call process_assignment_expression here
+                        // The visitor will automatically handle it via enter_node
+                    }
+
                     _ => {}
                 }
             }
@@ -176,6 +271,37 @@ impl<'a> PromptVisitor<'a> {
 
                 ast::Expression::StringLiteral(string_literal) => {
                     self.process_string_literal(&ident.name, string_literal);
+                }
+
+                ast::Expression::AssignmentExpression(nested_assign) => {
+                    // Handle chained assignment: a = b = "value"
+                    // Walk the chain to find the ultimate value
+                    let mut current = nested_assign.as_ref();
+                    loop {
+                        match &current.right {
+                            ast::Expression::AssignmentExpression(inner) => {
+                                // Continue walking the chain
+                                current = inner.as_ref();
+                            }
+                            ast::Expression::TemplateLiteral(template) => {
+                                // Found the ultimate value - process it for current identifier
+                                self.process_template_literal(&ident.name, template);
+                                break;
+                            }
+                            ast::Expression::StringLiteral(string_literal) => {
+                                // Found the ultimate value - process it for current identifier
+                                self.process_string_literal(&ident.name, string_literal);
+                                break;
+                            }
+                            _ => {
+                                // Not a string/template value, stop
+                                break;
+                            }
+                        }
+                    }
+
+                    // Recursively process the nested assignment
+                    self.process_assignment_expression(nested_assign.as_ref());
                 }
 
                 _ => {}
@@ -266,6 +392,90 @@ impl<'a> PromptVisitor<'a> {
         }
 
         false
+    }
+
+    /// Recursively extract all binding identifiers from a binding pattern
+    fn extract_binding_identifiers(&self, pattern: &ast::BindingPattern<'a>, identifiers: &mut Vec<String>) {
+        match &pattern.kind {
+            ast::BindingPatternKind::BindingIdentifier(ident) => {
+                identifiers.push(ident.name.to_string());
+            }
+            ast::BindingPatternKind::ObjectPattern(obj_pattern) => {
+                for prop in &obj_pattern.properties {
+                    self.extract_binding_identifiers(&prop.value, identifiers);
+                }
+                if let Some(rest) = &obj_pattern.rest {
+                    self.extract_binding_identifiers(&rest.argument, identifiers);
+                }
+            }
+            ast::BindingPatternKind::ArrayPattern(array_pattern) => {
+                for element in array_pattern.elements.iter().flatten() {
+                    self.extract_binding_identifiers(element, identifiers);
+                }
+                if let Some(rest) = &array_pattern.rest {
+                    self.extract_binding_identifiers(&rest.argument, identifiers);
+                }
+            }
+            ast::BindingPatternKind::AssignmentPattern(assign_pattern) => {
+                self.extract_binding_identifiers(&assign_pattern.left, identifiers);
+            }
+        }
+    }
+
+    /// Helper to extract values from an array expression
+    fn extract_values_from_array(&self, array: &ast::ArrayExpression<'a>, values: &mut Vec<(oxc_span::Span, bool)>) {
+        for element in array.elements.iter() {
+            match element {
+                ast::ArrayExpressionElement::SpreadElement(_) => {}
+                ast::ArrayExpressionElement::Elision(_) => {}
+                ast::ArrayExpressionElement::StringLiteral(string) => {
+                    values.push((string.span, false));
+                }
+                ast::ArrayExpressionElement::TemplateLiteral(template) => {
+                    values.push((template.span, true));
+                }
+                ast::ArrayExpressionElement::ArrayExpression(nested_array) => {
+                    self.extract_values_from_array(nested_array, values);
+                }
+                ast::ArrayExpressionElement::ObjectExpression(obj) => {
+                    self.extract_values_from_object(obj, values);
+                }
+                _ => {}
+            }
+        }
+    }
+
+    /// Helper to extract values from an object expression
+    fn extract_values_from_object(&self, obj: &ast::ObjectExpression<'a>, values: &mut Vec<(oxc_span::Span, bool)>) {
+        for prop in &obj.properties {
+            match prop {
+                ast::ObjectPropertyKind::ObjectProperty(obj_prop) => {
+                    self.extract_expression_values(&obj_prop.value, values);
+                }
+                ast::ObjectPropertyKind::SpreadProperty(_) => {}
+            }
+        }
+    }
+
+    /// Recursively extract all string/template literal values from an expression
+    fn extract_expression_values(&self, expr: &ast::Expression<'a>, values: &mut Vec<(oxc_span::Span, bool)>) {
+        match expr {
+            ast::Expression::StringLiteral(string) => {
+                values.push((string.span, false)); // false = string literal
+            }
+            ast::Expression::TemplateLiteral(template) => {
+                values.push((template.span, true)); // true = template literal
+            }
+            ast::Expression::ArrayExpression(array) => {
+                self.extract_values_from_array(array, values);
+            }
+            ast::Expression::ObjectExpression(obj) => {
+                self.extract_values_from_object(obj, values);
+            }
+            _ => {
+                // For other expression types, we don't extract values
+            }
+        }
     }
 
     /// Collect the block of leading comments immediately adjacent to the statement,
@@ -378,7 +588,14 @@ impl<'a> PromptVisitor<'a> {
             .last()
             .cloned()
             .unwrap_or_default();
-        if annotations.is_empty() {
+
+        // Check if current annotations contain at least one valid @prompt
+        let has_valid_current_annotation = annotations
+            .iter()
+            .any(|a| parse_annotation(&a.exp).unwrap_or(false));
+
+        // If no valid annotations in current statement, use stored definition annotations
+        if !has_valid_current_annotation {
             for scope in self.def_prompt_annotations_stack.iter().rev() {
                 if let Some(def) = scope.get(ident_name) {
                     annotations = def.clone();
@@ -386,6 +603,7 @@ impl<'a> PromptVisitor<'a> {
                 }
             }
         }
+
         let has_stmt_prompt = annotations
             .iter()
             .any(|a| parse_annotation(&a.exp).unwrap_or(false));

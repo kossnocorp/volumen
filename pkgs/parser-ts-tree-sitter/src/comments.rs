@@ -180,6 +180,31 @@ impl CommentTracker {
         let annotations = self.collect_adjacent_leading(stmt_start);
         annotations.first().map(|a| a.span.start)
     }
+
+    /// Get the start position of any adjacent leading comment, regardless of whether it's valid.
+    pub fn get_any_leading_start(&self, stmt_start: u32) -> Option<u32> {
+        // Find comments that end before the statement starts
+        for comment in self.comments.iter().rev() {
+            if comment.end <= stmt_start {
+                // Check if there's only whitespace between comment and statement
+                let start = comment.end as usize;
+                let end = stmt_start as usize;
+
+                let between = if start <= end && end <= self.source.len() {
+                    &self.source[start..end]
+                } else {
+                    ""
+                };
+
+                // Check if there's only whitespace
+                if between.trim().is_empty() {
+                    return Some(comment.start);
+                }
+                break;
+            }
+        }
+        None
+    }
 }
 
 /// Recursively extract all comments from the tree.
