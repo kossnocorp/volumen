@@ -1,6 +1,6 @@
 use serde::Serialize;
 use volumen_parser_core::VolumenParser;
-use volumen_parser_csharp::ParserCSharp;
+use volumen_parser_cs::ParserCs;
 use volumen_parser_go::ParserGo;
 use volumen_parser_java::ParserJava;
 use volumen_parser_php::ParserPhp;
@@ -35,7 +35,7 @@ static JAVA_PARSERS: &Parsers = &[("ParserJava", ParserJava::parse)];
 
 static GO_PARSERS: &Parsers = &[("ParserGo", ParserGo::parse)];
 
-static CS_PARSERS: &Parsers = &[("ParserCSharp", ParserCSharp::parse)];
+static CS_PARSERS: &Parsers = &[("ParserCs", ParserCs::parse)];
 
 #[derive(Serialize)]
 pub struct PromptSourceCuts {

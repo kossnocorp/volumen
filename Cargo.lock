@@ -1943,7 +1943,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "volumen_parser_csharp"
+name = "volumen_parser_cs"
 version = "0.2.0"
 dependencies = [
  "tree-sitter",
@@ -2053,7 +2053,7 @@ dependencies = [
  "pretty_assertions",
  "serde",
  "volumen_parser_core",
- "volumen_parser_csharp",
+ "volumen_parser_cs",
  "volumen_parser_go",
  "volumen_parser_java",
  "volumen_parser_php",

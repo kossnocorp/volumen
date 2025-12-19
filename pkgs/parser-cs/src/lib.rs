@@ -9,9 +9,9 @@ use tree_sitter::{Node, Parser, Tree};
 pub use volumen_parser_core::VolumenParser;
 use volumen_types::*;
 
-pub struct ParserCSharp {}
+pub struct ParserCs {}
 
-impl VolumenParser for ParserCSharp {
+impl VolumenParser for ParserCs {
     fn parse(source: &str, filename: &str) -> ParseResult {
         // Initialize Tree-sitter parser
         let mut parser = Parser::new();
@@ -133,7 +133,8 @@ fn traverse_node(
     if kind == "method_declaration"
         || kind == "class_declaration"
         || kind == "struct_declaration"
-        || kind == "constructor_declaration" {
+        || kind == "constructor_declaration"
+    {
         scopes.enter_scope();
 
         // Process children
