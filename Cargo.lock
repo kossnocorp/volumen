@@ -1928,7 +1928,12 @@ version = "0.2.0"
 dependencies = [
  "indoc",
  "volumen_parser_core",
+ "volumen_parser_cs",
+ "volumen_parser_go",
+ "volumen_parser_java",
+ "volumen_parser_php",
  "volumen_parser_py",
+ "volumen_parser_rb",
  "volumen_parser_test",
  "volumen_parser_ts",
  "volumen_types",

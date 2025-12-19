@@ -12,6 +12,11 @@ volumen_types = { version = "0.2.0", path = "../types-crate" }
 volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
 volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }
 volumen_parser_py = { version = "0.2.0", path = "../parser-py" }
+volumen_parser_rb = { version = "0.2.0", path = "../parser-rb" }
+volumen_parser_php = { version = "0.2.0", path = "../parser-php" }
+volumen_parser_cs = { version = "0.2.0", path = "../parser-cs" }
+volumen_parser_java = { version = "0.2.0", path = "../parser-java" }
+volumen_parser_go = { version = "0.2.0", path = "../parser-go" }
 
 [dev-dependencies]
 indoc = "2.0.6"
