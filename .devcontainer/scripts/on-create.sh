@@ -4,4 +4,5 @@
 
 set -e
 
-# Nothing here yet
+# Install clang needed for building Tree-sitter to Wasm.
+sudo apt-get update && sudo apt-get install -y clang
