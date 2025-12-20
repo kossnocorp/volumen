@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree -L 4:*)",
+      "Bash(cargo tree:*)",
+      "Bash(cargo test:*)",
+      "Bash(grep:*)",
+      "WebSearch",
+      "Bash(cargo search:*)",
+      "Bash(cargo build:*)",
+      "Bash(cargo insta accept:*)",
+      "Bash(cargo insta test:*)",
+      "Bash(cargo insta review:*)",
+      "Bash(ls:*)",
+      "Bash(cargo bench:*)"
+    ]
+  }
+}
