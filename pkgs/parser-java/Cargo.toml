@@ -7,7 +7,7 @@ repository = "https://github.com/kossnocorp/volumen"
 license = "MIT"
 
 [dependencies]
-tree-sitter = "0.25"
-tree-sitter-java = "0.23"
+tree-sitter = "0.26.3"
+tree-sitter-java = "0.23.5"
 volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
 volumen_types = { version = "0.2.0", path = "../types-crate" }
