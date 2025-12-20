@@ -17,6 +17,7 @@ cargo-binstall = "latest"
 "cargo:cargo-insta" = "latest"
 # Agents
 opencode = "latest"
+rg = "latest"
 
 [settings]
 # Enable extra features
