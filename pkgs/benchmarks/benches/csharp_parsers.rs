@@ -2,7 +2,7 @@ use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criteri
 use volumen_parser_core::VolumenParser;
 
 // Small code sample - basic prompt detection
-const SMALL_CSHARP: &str = r#"
+const SMALL_CS: &str = r#"
 public class Program
 {
     // @prompt
@@ -12,7 +12,7 @@ public class Program
 "#;
 
 // Medium code sample - multiple prompts with annotations
-const MEDIUM_CSHARP: &str = r#"
+const MEDIUM_CS: &str = r#"
 public class ChatBot
 {
     private string systemPrompt;
@@ -65,7 +65,7 @@ public string Helper()
 "#;
 
 // Large code sample - complex nested structures
-const LARGE_CSHARP: &str = r#"
+const LARGE_CS: &str = r#"
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -225,35 +225,35 @@ fn bench_csharp_parsers(c: &mut Criterion) {
     let mut group = c.benchmark_group("csharp_parsers");
 
     // Small benchmark
-    group.throughput(Throughput::Bytes(SMALL_CSHARP.len() as u64));
+    group.throughput(Throughput::Bytes(SMALL_CS.len() as u64));
 
     group.bench_with_input(
         BenchmarkId::new("Tree-sitter", "small"),
-        &SMALL_CSHARP,
+        &SMALL_CS,
         |b, code| {
-            b.iter(|| volumen_parser_csharp::ParserCSharp::parse(black_box(code), "test.cs"));
+            b.iter(|| volumen_parser_cs::ParserCs::parse(black_box(code), "test.cs"));
         },
     );
 
     // Medium benchmark
-    group.throughput(Throughput::Bytes(MEDIUM_CSHARP.len() as u64));
+    group.throughput(Throughput::Bytes(MEDIUM_CS.len() as u64));
 
     group.bench_with_input(
         BenchmarkId::new("Tree-sitter", "medium"),
-        &MEDIUM_CSHARP,
+        &MEDIUM_CS,
         |b, code| {
-            b.iter(|| volumen_parser_csharp::ParserCSharp::parse(black_box(code), "test.cs"));
+            b.iter(|| volumen_parser_cs::ParserCs::parse(black_box(code), "test.cs"));
         },
     );
 
     // Large benchmark
-    group.throughput(Throughput::Bytes(LARGE_CSHARP.len() as u64));
+    group.throughput(Throughput::Bytes(LARGE_CS.len() as u64));
 
     group.bench_with_input(
         BenchmarkId::new("Tree-sitter", "large"),
-        &LARGE_CSHARP,
+        &LARGE_CS,
         |b, code| {
-            b.iter(|| volumen_parser_csharp::ParserCSharp::parse(black_box(code), "test.cs"));
+            b.iter(|| volumen_parser_cs::ParserCs::parse(black_box(code), "test.cs"));
         },
     );
 

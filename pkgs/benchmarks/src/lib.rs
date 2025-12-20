@@ -24,7 +24,7 @@ pub fn count_tokens(code: &str, lang: &str) -> Result<u64, String> {
     let language = match lang {
         "go" => tree_sitter_go::LANGUAGE,
         "java" => tree_sitter_java::LANGUAGE,
-        "csharp" => tree_sitter_c_sharp::LANGUAGE,
+        "cs" => tree_sitter_c_sharp::LANGUAGE,
         "php" => tree_sitter_php::LANGUAGE_PHP,
         "ruby" => tree_sitter_ruby::LANGUAGE,
         "python" => tree_sitter_python::LANGUAGE,

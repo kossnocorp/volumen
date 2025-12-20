@@ -1946,7 +1946,7 @@ dependencies = [
  "tree-sitter-ruby",
  "tree-sitter-typescript",
  "volumen_parser_core",
- "volumen_parser_csharp",
+ "volumen_parser_cs",
  "volumen_parser_go",
  "volumen_parser_java",
  "volumen_parser_php",

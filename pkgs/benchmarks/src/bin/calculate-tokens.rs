@@ -11,9 +11,9 @@ const MEDIUM_JAVA: &str = include_str!("../../benches/java_parsers.rs");
 const LARGE_JAVA: &str = include_str!("../../benches/java_parsers.rs");
 
 // C# samples
-const SMALL_CSHARP: &str = include_str!("../../benches/csharp_parsers.rs");
-const MEDIUM_CSHARP: &str = include_str!("../../benches/csharp_parsers.rs");
-const LARGE_CSHARP: &str = include_str!("../../benches/csharp_parsers.rs");
+const SMALL_CS: &str = include_str!("../../benches/csharp_parsers.rs");
+const MEDIUM_CS: &str = include_str!("../../benches/csharp_parsers.rs");
+const LARGE_CS: &str = include_str!("../../benches/csharp_parsers.rs");
 
 // PHP samples
 const SMALL_PHP: &str = include_str!("../../benches/php_parsers.rs");
@@ -96,18 +96,18 @@ fn main() {
     // C#
     println!("  \"csharp_parsers\": {{");
     println!("    \"Tree-sitter\": {{");
-    if let Some(code) = extract_code_sample(SMALL_CSHARP, "SMALL_CSHARP") {
-        if let Ok(tokens) = count_tokens(&code, "csharp") {
+    if let Some(code) = extract_code_sample(SMALL_CS, "SMALL_CS") {
+        if let Ok(tokens) = count_tokens(&code, "cs") {
             println!("      \"small\": {},", tokens);
         }
     }
-    if let Some(code) = extract_code_sample(MEDIUM_CSHARP, "MEDIUM_CSHARP") {
-        if let Ok(tokens) = count_tokens(&code, "csharp") {
+    if let Some(code) = extract_code_sample(MEDIUM_CS, "MEDIUM_CS") {
+        if let Ok(tokens) = count_tokens(&code, "cs") {
             println!("      \"medium\": {},", tokens);
         }
     }
-    if let Some(code) = extract_code_sample(LARGE_CSHARP, "LARGE_CSHARP") {
-        if let Ok(tokens) = count_tokens(&code, "csharp") {
+    if let Some(code) = extract_code_sample(LARGE_CS, "LARGE_CS") {
+        if let Ok(tokens) = count_tokens(&code, "cs") {
             println!("      \"large\": {}", tokens);
         }
     }

@@ -35,7 +35,7 @@ static JAVA_PARSERS: &Parsers = &[("ParserJava", ParserJava::parse)];
 
 static GO_PARSERS: &Parsers = &[("ParserGo", ParserGo::parse)];
 
-static CS_PARSERS: &Parsers = &[("ParserCs", ParserCs::parse)];
+static CSHARP_PARSERS: &Parsers = &[("ParserCs", ParserCs::parse)];
 
 #[derive(Serialize)]
 pub struct PromptSourceCuts {
@@ -186,7 +186,7 @@ impl ParseLang {
             ParseLang::Php => PHP_PARSERS,
             ParseLang::Java => JAVA_PARSERS,
             ParseLang::Go => GO_PARSERS,
-            ParseLang::Cs => CS_PARSERS,
+            ParseLang::Cs => CSHARP_PARSERS,
         }
     }
 }

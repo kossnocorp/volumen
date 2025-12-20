@@ -38,8 +38,9 @@ struct TokenCounts {
 
 fn load_token_counts() -> TokenCounts {
     let json_path = "pkgs/benchmarks/token_counts.json";
-    let content = fs::read_to_string(json_path)
-        .expect("Failed to read token_counts.json. Make sure you're running from the project root.");
+    let content = fs::read_to_string(json_path).expect(
+        "Failed to read token_counts.json. Make sure you're running from the project root.",
+    );
     serde_json::from_str(&content).expect("Failed to parse token_counts.json")
 }
 
@@ -313,11 +314,7 @@ fn main() {
 
                     println!(
                         "    {} ({}, {} | {}){}",
-                        time_str,
-                        ops_str,
-                        throughput_str,
-                        token_throughput_str,
-                        tag_str
+                        time_str, ops_str, throughput_str, token_throughput_str, tag_str
                     );
 
                     total_cases += 1;
@@ -342,7 +339,9 @@ fn main() {
             let fastest_parser = parser_avg_times
                 .iter()
                 .min_by(|(_, (time1, count1)), (_, (time2, count2))| {
-                    (time1 / *count1 as f64).partial_cmp(&(time2 / *count2 as f64)).unwrap()
+                    (time1 / *count1 as f64)
+                        .partial_cmp(&(time2 / *count2 as f64))
+                        .unwrap()
                 })
                 .map(|(parser, _)| *parser);
 
