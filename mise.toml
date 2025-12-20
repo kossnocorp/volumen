@@ -15,6 +15,8 @@ cargo-binstall = "latest"
 # TODIO: Will include with latest Mothership image, so can remove after updating
 "cargo:loc" = "latest"
 "cargo:cargo-insta" = "latest"
+# Agents
+opencode = "latest"
 
 [settings]
 # Enable extra features
