@@ -1,0 +1,66 @@
+{
+  "go_parsers": {
+    "Tree-sitter": {
+      "small": 25,
+      "medium": 266,
+      "large": 879
+    }
+  },
+  "java_parsers": {
+    "Tree-sitter": {
+      "small": 36,
+      "medium": 230,
+      "large": 759
+    }
+  },
+  "csharp_parsers": {
+    "Tree-sitter": {
+      "small": 46,
+      "medium": 237,
+      "large": 779
+    }
+  },
+  "php_parsers": {
+    "Tree-sitter": {
+      "small": 33,
+      "medium": 273,
+      "large": 838
+    }
+  },
+  "ruby_parsers": {
+    "Tree-sitter": {
+      "small": 21,
+      "medium": 139,
+      "large": 439
+    }
+  },
+  "python_parsers": {
+    "Ruff": {
+      "small": 23,
+      "medium": 188,
+      "large": 658
+    },
+    "RustPython": {
+      "small": 23,
+      "medium": 188,
+      "large": 658
+    },
+    "Tree-sitter": {
+      "small": 23,
+      "medium": 188,
+      "large": 658
+    }
+  },
+  "typescript_parsers": {
+    "Oxc": {
+      "small": 27,
+      "medium": 248,
+      "large": 797
+    },
+    "Tree-sitter": {
+      "small": 27,
+      "medium": 248,
+      "large": 797
+    }
+  }
+}

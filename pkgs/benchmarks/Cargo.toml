@@ -12,12 +12,55 @@ harness = false
 name = "typescript_parsers"
 harness = false
 
+[[bench]]
+name = "ruby_parsers"
+harness = false
+
+[[bench]]
+name = "php_parsers"
+harness = false
+
+[[bench]]
+name = "go_parsers"
+harness = false
+
+[[bench]]
+name = "java_parsers"
+harness = false
+
+[[bench]]
+name = "csharp_parsers"
+harness = false
+
+[[bin]]
+name = "bench-report"
+path = "src/bin/bench-report.rs"
+
+[[bin]]
+name = "calculate-tokens"
+path = "src/bin/calculate-tokens.rs"
+
 [dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 criterion = { version = "0.5", features = ["html_reports"] }
+tree-sitter = "0.25"
+tree-sitter-go = "0.23"
+tree-sitter-java = "0.23"
+tree-sitter-c-sharp = "0.23"
+tree-sitter-php = "0.23"
+tree-sitter-ruby = "0.23"
+tree-sitter-python = "0.25"
+tree-sitter-typescript = "0.23"
 volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
 volumen_parser_py = { version = "0.2.0", path = "../parser-py" }
 volumen_parser_py_ruff = { version = "0.2.0", path = "../parser-py-ruff" }
 volumen_parser_py_tree_sitter = { version = "0.1.0", path = "../parser-py-tree-sitter" }
 volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }
 volumen_parser_ts_tree_sitter = { version = "0.1.0", path = "../parser-ts-tree-sitter" }
+volumen_parser_rb = { version = "0.2.0", path = "../parser-rb" }
+volumen_parser_php = { version = "0.2.0", path = "../parser-php" }
+volumen_parser_go = { version = "0.2.0", path = "../parser-go" }
+volumen_parser_java = { version = "0.2.0", path = "../parser-java" }
+volumen_parser_csharp = { version = "0.2.0", path = "../parser-csharp" }
 volumen_types = { version = "0.2.0", path = "../types-crate" }
