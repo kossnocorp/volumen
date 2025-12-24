@@ -1,1 +1,1 @@
-// JS/TS have no common format function.
+// TS have no common format function.

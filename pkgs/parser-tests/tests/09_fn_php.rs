@@ -5,7 +5,7 @@ mod utils;
 use utils::*;
 
 #[test]
-fn sprintf_assignment() {
+fn sprintf_fn() {
     ParseTest::test(
         &ParseTestLang::php(indoc! {r#"
             <?php

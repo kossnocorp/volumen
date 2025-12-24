@@ -5,7 +5,7 @@ mod utils;
 use utils::*;
 
 #[test]
-fn concat_assignment() {
+fn concat() {
     ParseTest::test(
         &ParseTestLang::php(indoc! {r#"
             <?php

@@ -5,7 +5,7 @@ mod utils;
 use utils::*;
 
 #[test]
-fn format_assignment() {
+fn format_method() {
     ParseTest::test(
         &ParseTestLang::py(indoc! {r#"
             # @prompt

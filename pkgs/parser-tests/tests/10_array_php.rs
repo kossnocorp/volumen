@@ -5,12 +5,40 @@ mod utils;
 use utils::*;
 
 #[test]
-fn implode_assignment() {
+fn implode_fn() {
     ParseTest::test(
         &ParseTestLang::php(indoc! {r#"
             <?php
             /* @prompt */
             $prompt = implode("\n", ["Hello", $user, "!"]);
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @"");
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts, @"");
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations, @"");
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @"");
+            }),
+        },
+    );
+}
+
+#[test]
+fn array_simple() {
+    ParseTest::test(
+        &ParseTestLang::php(indoc! {r#"
+            <?php
+            /* @prompt */
+            $prompt = ["Hello ", $user, "!"];
         "#}),
         ParseAssertions {
             result: Box::new(|result| {

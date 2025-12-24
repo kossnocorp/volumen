@@ -5,11 +5,35 @@ mod utils;
 use utils::*;
 
 #[test]
-fn join_assignment() {
+fn join_method() {
     ParseTest::test(
         &ParseTestLang::py(indoc! {r#"
             # @prompt
-            prompt = " ".join(["Hello", user, "!"])
+            prompt = "\n".join(["Hello", user, "!"])
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @"");
+            }),
+            cuts: Box::new(|cuts| {
+                assert_json_snapshot!(cuts, @"");
+            }),
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations, @"");
+            }),
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @"");
+            }),
+        },
+    );
+}
+
+#[test]
+fn array_simple() {
+    ParseTest::test(
+        &ParseTestLang::py(indoc! {r#"
+            # @prompt
+            prompt = ["Hello ", user, "!"]
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
