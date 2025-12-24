@@ -1,13 +1,15 @@
 [package]
 name = "volumen_parser_cs"
-version = "0.2.0"
+version = "0.3.3"
 edition = "2021"
 description = "Volumen C# parser using Tree-sitter"
 repository = "https://github.com/kossnocorp/volumen"
 license = "MIT"
 
 [dependencies]
-tree-sitter = "0.26.3"
-tree-sitter-c-sharp = "0.23.1"
-volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
-volumen_types = { version = "0.2.0", path = "../types-crate" }
+# Volumen
+volumen_parser_core = { version = "0.3.3", path = "../parser-core" }
+volumen_types = { version = "0.3.3", path = "../types-crate" }
+# Tree-sitter
+tree-sitter = { git = "https://github.com/kossnocorp/tree-sitter", branch = "wasm-malloc" }
+tree-sitter-c-sharp = { git = "https://github.com/kossnocorp/tree-sitter-c-sharp", branch = "wasm-repro-malloc" }

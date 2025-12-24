@@ -8,11 +8,13 @@ node = { version = "lts", postinstall = "corepack enable && node -v > .nvmrc" }
 # Install Rust-based binaries instead of compiling
 cargo-binstall = "latest"
 "cargo:wasm-pack" = "latest"
+"npm:wabt" = "latest"
+"cargo:https://github.com/Liamolucko/find_wasm_import" = { version = "rev:b726e870fcc30f59987ef59ad448ceb2d3dd998d", bin = "find_wasm_import" }
 # TODO: Will include with latest Mothership image, so can remove after updating
 "cargo:jaq" = "latest"
 "npm:turbo" = "latest"
 "cargo:cargo-release" = "latest"
-# TODIO: Will include with latest Mothership image, so can remove after updating
+# TODO: Will include with latest Mothership image, so can remove after updating
 "cargo:loc" = "latest"
 "cargo:cargo-insta" = "latest"
 # Agents

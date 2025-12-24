@@ -1,6 +1,6 @@
 [package]
 name = "volumen_parser_py"
-version = "0.2.0"
+version = "0.3.3"
 edition = "2024"
 description = "Volumen Python parser crate"
 repository = "https://github.com/kossnocorp/volumen"
@@ -9,8 +9,8 @@ license = "MIT"
 [dependencies]
 serde = "1.0.219"
 # Volumen
-volumen_types = { version = "0.2.0", path = "../types-crate" }
-volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
+volumen_types = { version = "0.3.3", path = "../types-crate" }
+volumen_parser_core = { version = "0.3.3", path = "../parser-core" }
 # RustPython
 rustpython-parser = { version = "0.4.0", features = ["full-lexer"] }
 rustpython-ast = { version = "0.4.0", features = ["visitor"] }
@@ -18,4 +18,4 @@ rustpython-ast = { version = "0.4.0", features = ["visitor"] }
 [dev-dependencies]
 indoc = "2.0.6"
 insta = { version = "1.43.1" }
-volumen_parser_test = { version = "0.2.0", path = "../parser-test" }
+volumen_parser_test = { version = "0.3.3", path = "../parser-test" }

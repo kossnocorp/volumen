@@ -1,13 +1,15 @@
 [package]
 name = "volumen_parser_php"
-version = "0.2.0"
+version = "0.3.3"
 edition = "2021"
 description = "Volumen PHP parser using Tree-sitter"
 repository = "https://github.com/kossnocorp/volumen"
 license = "MIT"
 
 [dependencies]
-tree-sitter = "0.26.3"
-tree-sitter-php = "0.24.2"
-volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
-volumen_types = { version = "0.2.0", path = "../types-crate" }
+# Volumen
+volumen_parser_core = { version = "0.3.3", path = "../parser-core" }
+volumen_types = { version = "0.3.3", path = "../types-crate" }
+# Tree-sitter
+tree-sitter = { git = "https://github.com/kossnocorp/tree-sitter", branch = "wasm-malloc" }
+tree-sitter-php = { git = "https://github.com/kossnocorp/tree-sitter-php", branch = "wasm-repro-malloc" }

@@ -7,3 +7,7 @@ node_modules/
 .devcontainer/state
 # Turborepo
 .turbo/
+# Temp
+tmp/
+# Tree-sitter repos
+/subs/tree-sitter*

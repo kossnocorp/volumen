@@ -29,3 +29,37 @@ opt-level = "s"
 [profile.bench]
 opt-level = 3
 lto = true
+
+# NOTE: Use these for local development with path overrides:
+
+# [patch."https://github.com/kossnocorp/tree-sitter"]
+# tree-sitter = { path = "subs/tree-sitter/lib" }
+# tree-sitter-language = { path = "subs/tree-sitter/crates/language" }
+
+# [patch."https://github.com/kossnocorp/tree-sitter-ruby"]
+# tree-sitter-ruby = { path = "subs/tree-sitter-ruby" }
+
+# [patch."https://github.com/kossnocorp/tree-sitter"]
+# tree-sitter = { path = "subs/tree-sitter/lib" }
+# tree-sitter-language = { path = "subs/tree-sitter/crates/language" }
+
+# [patch."https://github.com/kossnocorp/tree-sitter-ruby"]
+# tree-sitter-ruby = { path = "subs/tree-sitter-ruby" }
+
+# [patch."https://github.com/kossnocorp/tree-sitter-php"]
+# tree-sitter-php = { path = "subs/tree-sitter-php" }
+
+# [patch."https://github.com/kossnocorp/tree-sitter-c-sharp"]
+# tree-sitter-c-sharp = { path = "subs/tree-sitter-c-sharp" }
+
+# [patch."https://github.com/kossnocorp/tree-sitter-go"]
+# tree-sitter-go = { path = "subs/tree-sitter-go" }
+
+# [patch."https://github.com/kossnocorp/tree-sitter-java"]
+# tree-sitter-java = { path = "subs/tree-sitter-java" }
+
+# [patch."https://github.com/kossnocorp/tree-sitter-python"]
+# tree-sitter-python = { path = "subs/tree-sitter-python" }
+
+# [patch."https://github.com/kossnocorp/tree-sitter-typescript"]
+# tree-sitter-typescript = { path = "subs/tree-sitter-typescript" }

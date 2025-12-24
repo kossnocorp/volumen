@@ -18,11 +18,11 @@ fn parse_js_value() {
             prompts: vec![Prompt {
                 file: "prompts.js".into(),
                 span: SpanShape {
-                    outer: Span { start: 27, end: 40 },
-                    inner: Span { start: 28, end: 39 },
+                    outer: Span { start: 27, end: 42 },
+                    inner: Span { start: 28, end: 41 },
                 },
-                enclosure: Span { start: 0, end: 41 },
-                exp: "\"Hello, world\"".into(),
+                enclosure: Span { start: 0, end: 43 },
+                exp: "\"Hello, world!\"".into(),
                 vars: vec![],
                 annotations: vec![PromptAnnotation {
                     span: Span { start: 12, end: 26 },
@@ -135,7 +135,7 @@ fn parse_java_value() {
         }
     "#};
     let result = parse_test_code_wasm(java_source, "Prompts.java");
-    assert_prompt_count(result, 0);
+    assert_prompt_count(result, 1);
 }
 
 #[wasm_bindgen_test]

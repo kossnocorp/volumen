@@ -10,7 +10,7 @@ out = "types-npm"
 
 [ts.manifest]
 name = "@volumen/types"
-version = "0.2.0"
+version = "0.3.3"
 description = "Volumen types"
 repository = "https://github.com/kossnocorp/volumen"
 license = "MIT"
@@ -24,7 +24,7 @@ out = "types-crate"
 
 [rs.manifest.package]
 name = "volumen_types"
-version = "0.2.0"
+version = "0.3.3"
 edition = "2024"
 description = "Volumen types"
 repository = "https://github.com/kossnocorp/volumen"

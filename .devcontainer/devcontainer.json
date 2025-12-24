@@ -48,7 +48,8 @@
         "rust-lang.rust-analyzer",
         "vadimcn.vscode-lldb",
         "Vercel.turbo-vsc",
-        "mkhl.shfmt"
+        "mkhl.shfmt",
+        "ms-vscode.cpptools-extension-pack"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "fish",

@@ -1,13 +1,13 @@
 [package]
 name = "volumen_parser_core"
-version = "0.2.0"
+version = "0.3.3"
 edition = "2024"
 description = "Volumen parser core crate"
 repository = "https://github.com/kossnocorp/volumen"
 license = "MIT"
 
 [dependencies]
-volumen_types = { version = "0.2.0", path = "../types-crate" }
+volumen_types = { version = "0.3.3", path = "../types-crate" }
 
 [dev-dependencies]
 pretty_assertions = "1.4.1"

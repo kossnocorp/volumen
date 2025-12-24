@@ -1,6 +1,6 @@
 [package]
 name = "volumen_parser_ts"
-version = "0.2.0"
+version = "0.3.3"
 edition = "2024"
 description = "Volumen TypeScript parser crate"
 repository = "https://github.com/kossnocorp/volumen"
@@ -10,8 +10,8 @@ license = "MIT"
 serde = "1.0.219"
 serde_json = "1.0"
 # Volumen
-volumen_types = { version = "0.2.0", path = "../types-crate" }
-volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
+volumen_types = { version = "0.3.3", path = "../types-crate" }
+volumen_parser_core = { version = "0.3.3", path = "../parser-core" }
 # Oxc
 oxc_allocator = "0.41"
 oxc_ast = "0.41"
@@ -22,4 +22,4 @@ oxc_span = "0.41"
 indoc = "2.0.6"
 insta = { version = "1.43.1" }
 pretty_assertions = "1.4"
-volumen_parser_test = { version = "0.2.0", path = "../parser-test" }
+volumen_parser_test = { version = "0.3.3", path = "../parser-test" }

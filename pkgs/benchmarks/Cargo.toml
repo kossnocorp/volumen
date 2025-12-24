@@ -1,6 +1,6 @@
 [package]
 name = "volumen_benchmarks"
-version = "0.1.0"
+version = "0.3.3"
 edition = "2021"
 publish = false
 
@@ -44,23 +44,23 @@ path = "src/bin/calculate-tokens.rs"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 criterion = { version = "0.5", features = ["html_reports"] }
-tree-sitter = "0.26.3"
-tree-sitter-go = "0.25.0"
-tree-sitter-java = "0.23.5"
-tree-sitter-c-sharp = "0.23.1"
-tree-sitter-php = "0.24.2"
-tree-sitter-ruby = "0.23.1"
-tree-sitter-python = "0.25.0"
-tree-sitter-typescript = "0.23.2"
-volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
-volumen_parser_py = { version = "0.2.0", path = "../parser-py" }
-volumen_parser_py_ruff = { version = "0.2.0", path = "../parser-py-ruff" }
-volumen_parser_py_tree_sitter = { version = "0.1.0", path = "../parser-py-tree-sitter" }
-volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }
-volumen_parser_ts_tree_sitter = { version = "0.1.0", path = "../parser-ts-tree-sitter" }
-volumen_parser_rb = { version = "0.2.0", path = "../parser-rb" }
-volumen_parser_php = { version = "0.2.0", path = "../parser-php" }
-volumen_parser_go = { version = "0.2.0", path = "../parser-go" }
-volumen_parser_java = { version = "0.2.0", path = "../parser-java" }
-volumen_parser_cs = { version = "0.2.0", path = "../parser-cs" }
-volumen_types = { version = "0.2.0", path = "../types-crate" }
+tree-sitter = { git = "https://github.com/kossnocorp/tree-sitter", branch = "wasm-malloc" }
+tree-sitter-go = { git = "https://github.com/kossnocorp/tree-sitter-go", branch = "wasm-repro-malloc" }
+tree-sitter-java = { git = "https://github.com/kossnocorp/tree-sitter-java", branch = "wasm-repro-malloc" }
+tree-sitter-c-sharp = { git = "https://github.com/kossnocorp/tree-sitter-c-sharp", branch = "wasm-repro-malloc" }
+tree-sitter-php = { git = "https://github.com/kossnocorp/tree-sitter-php", branch = "wasm-repro-malloc" }
+tree-sitter-ruby = { git = "https://github.com/kossnocorp/tree-sitter-ruby", branch = "wasm-repro-malloc" }
+tree-sitter-python = { git = "https://github.com/kossnocorp/tree-sitter-python", branch = "wasm-repro-malloc" }
+tree-sitter-typescript = { git = "https://github.com/kossnocorp/tree-sitter-typescript", branch = "wasm-repro-malloc" }
+volumen_parser_core = { version = "0.3.3", path = "../parser-core" }
+volumen_parser_py = { version = "0.3.3", path = "../parser-py" }
+volumen_parser_py_ruff = { version = "0.3.3", path = "../parser-py-ruff" }
+volumen_parser_py_tree_sitter = { version = "0.3.3", path = "../parser-py-tree-sitter" }
+volumen_parser_ts = { version = "0.3.3", path = "../parser-ts" }
+volumen_parser_ts_tree_sitter = { version = "0.3.3", path = "../parser-ts-tree-sitter" }
+volumen_parser_rb = { version = "0.3.3", path = "../parser-rb" }
+volumen_parser_php = { version = "0.3.3", path = "../parser-php" }
+volumen_parser_go = { version = "0.3.3", path = "../parser-go" }
+volumen_parser_java = { version = "0.3.3", path = "../parser-java" }
+volumen_parser_cs = { version = "0.3.3", path = "../parser-cs" }
+volumen_types = { version = "0.3.3", path = "../types-crate" }

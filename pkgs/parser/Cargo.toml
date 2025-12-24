@@ -1,6 +1,6 @@
 [package]
 name = "volumen_parser"
-version = "0.2.0"
+version = "0.3.3"
 edition = "2024"
 description = "Volumen parser crate"
 repository = "https://github.com/kossnocorp/volumen"
@@ -8,16 +8,16 @@ license = "MIT"
 
 [dependencies]
 # Volumen
-volumen_types = { version = "0.2.0", path = "../types-crate" }
-volumen_parser_core = { version = "0.2.0", path = "../parser-core" }
-volumen_parser_ts = { version = "0.2.0", path = "../parser-ts" }
-volumen_parser_py = { version = "0.2.0", path = "../parser-py" }
-volumen_parser_rb = { version = "0.2.0", path = "../parser-rb" }
-volumen_parser_php = { version = "0.2.0", path = "../parser-php" }
-volumen_parser_cs = { version = "0.2.0", path = "../parser-cs" }
-volumen_parser_java = { version = "0.2.0", path = "../parser-java" }
-volumen_parser_go = { version = "0.2.0", path = "../parser-go" }
+volumen_types = { version = "0.3.3", path = "../types-crate" }
+volumen_parser_core = { version = "0.3.3", path = "../parser-core" }
+volumen_parser_ts = { version = "0.3.3", path = "../parser-ts" }
+volumen_parser_py = { version = "0.3.3", path = "../parser-py" }
+volumen_parser_rb = { version = "0.3.3", path = "../parser-rb" }
+volumen_parser_php = { version = "0.3.3", path = "../parser-php" }
+volumen_parser_cs = { version = "0.3.3", path = "../parser-cs" }
+volumen_parser_java = { version = "0.3.3", path = "../parser-java" }
+volumen_parser_go = { version = "0.3.3", path = "../parser-go" }
 
 [dev-dependencies]
 indoc = "2.0.6"
-volumen_parser_test = { version = "0.2.0", path = "../parser-test" }
+volumen_parser_test = { version = "0.3.3", path = "../parser-test" }
