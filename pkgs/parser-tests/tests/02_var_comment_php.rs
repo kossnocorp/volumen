@@ -1140,21 +1140,69 @@ fn chained() {
                 assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
-                  prompts: [],
+                  prompts: [
+                    Prompt(
+                      file: "prompts.php",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 35,
+                          end: 39,
+                        ),
+                        inner: Span(
+                          start: 36,
+                          end: 38,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 6,
+                        end: 39,
+                      ),
+                      exp: "\"Hi\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 6,
+                            end: 16,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                  ],
                 )
                 "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @"[]");
+                assert_json_snapshot!(prompt_source_cuts, @r#"
+                [
+                  {
+                    "enclosure": "// @prompt\n$hello = $world = \"Hi\"",
+                    "outer": "\"Hi\"",
+                    "inner": "Hi",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
 
             interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @"[]");
+                assert_json_snapshot!(interpolations, @r#"
+                [
+                  "Hi"
+                ]
+                "#);
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @"[]");
+                assert_json_snapshot!(annotations, @r#"
+                [
+                  [
+                    "// @prompt"
+                  ]
+                ]
+                "#);
             }),
         },
     );
