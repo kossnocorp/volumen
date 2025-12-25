@@ -103,7 +103,7 @@ fn simple() {
 }
 
 #[test]
-fn jsdoc() {
+fn doc() {
     ParseTest::test(
         &ParseTestLang::ts(indoc! {r#"
           const hello = /** @prompt */ "Hello, world!";

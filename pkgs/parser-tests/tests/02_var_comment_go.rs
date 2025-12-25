@@ -29,6 +29,30 @@ fn simple() {
 }
 
 #[test]
+fn inline() {
+    ParseTest::test(
+        &ParseTestLang::go(indoc! {r#"
+            /* @prompt */
+            hello := "Hello, world!"
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @"");
+            }),
+            cuts: Box::new(|cuts| {
+                assert_json_snapshot!(cuts, @"");
+            }),
+            interpolate: Box::new(|interp| {
+                assert_json_snapshot!(interp, @"");
+            }),
+            annotations: Box::new(|annot| {
+                assert_json_snapshot!(annot, @"");
+            }),
+        },
+    );
+}
+
+#[test]
 fn assigned() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
@@ -107,9 +131,8 @@ fn reassigned() {
 fn inexact() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
-            // @prompt
-            inexactPrompt := "Exact prompt"
-            inexact := "Inexact"
+            // @prompting
+            hello := "Hello, world!"
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -132,8 +155,9 @@ fn inexact() {
 fn mixed() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
-            // @prompt system
-            system := "You are a helpful assistant."
+            // @prompt
+            number := 42
+            hello := "Hello, world!"
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -156,34 +180,18 @@ fn mixed() {
 fn mixed_nested() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
-            func myFunction() {
-                prompt := "First"
-                second := "Second"
-            }
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
+            type Hello struct{}
+            func (Hello) world() {
+                // @prompt
+                hello := 42
 
-#[test]
-fn mixed_none() {
-    ParseTest::test(
-        &ParseTestLang::go(indoc! {r#"
-            prompt := "First"
-            second := "Second"
+                // @prompt
+                hi := 42
+
+                hi = "Hi!"
+            }
+
+            hello := "Hello, world!"
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -206,8 +214,10 @@ fn mixed_none() {
 fn mixed_assign() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
-            mixedPrompt := "First"
-            mixed := "Second"
+            // @prompt def
+            var hello string
+            // @prompt fresh
+            hello = "Hi"
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -227,14 +237,15 @@ fn mixed_assign() {
 }
 
 #[test]
-fn mixed_reassign() {
+fn mixed_none() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
-            // @prompt def
-            hello := 123
-            hello = 456
-            // @prompting
-            hello = "Hi"
+            regularString := "This is not special"
+            normalString := "This is not special"
+            regular := "Regular string"
+            message := "Just a message"
+            // @prompt
+            number := 1
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -257,10 +268,15 @@ fn mixed_reassign() {
 fn spaced() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
-            // This is a comment
             // @prompt
-            // This is another comment
-            spaced := "Spaced"
+
+
+            hello := "Hello, world!"
+
+            // @prompt
+            nope()
+
+            world := "Hello!"
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -283,9 +299,8 @@ fn spaced() {
 fn dirty() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
-            dirty := 123
-            // @prompt
-            dirty = "Dirty"
+            // @prompt system
+            system := "You are a helpful assistant."
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -310,56 +325,6 @@ fn multi() {
         &ParseTestLang::go(indoc! {r#"
             // @prompt
             hello, world := "Hello", "World"
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
-
-#[test]
-fn destructuring() {
-    ParseTest::test(
-        &ParseTestLang::go(indoc! {r#"
-            // @prompt
-            values := []string{"Hello", "World"}
-            hello1, world1 := values[0], values[1]
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
-
-#[test]
-fn chained() {
-    ParseTest::test(
-        &ParseTestLang::go(indoc! {r#"
-            // @prompt
-            hello := "Hi"
-            world := hello
         "#}),
         ParseAssertions {
             result: Box::new(|result| {

@@ -165,7 +165,7 @@ fn inline() {
 }
 
 #[test]
-fn jsdoc() {
+fn doc() {
     ParseTest::test(
         &ParseTestLang::ts(indoc! {r#"
             /**

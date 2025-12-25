@@ -12,21 +12,16 @@ fn simple() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r#"
-                ParseResultSuccess(
-                  state: "success",
-                  prompts: [],
-                )
-                "#);
+                assert_ron_snapshot!(result, @"");
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"[]");
+                assert_json_snapshot!(cuts, @"");
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"[]");
+                assert_json_snapshot!(interp, @"");
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"[]");
+                assert_json_snapshot!(annot, @"");
             }),
         },
     );
@@ -45,21 +40,16 @@ fn nested() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r#"
-                ParseResultSuccess(
-                  state: "success",
-                  prompts: [],
-                )
-                "#);
+                assert_ron_snapshot!(result, @"");
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"[]");
+                assert_json_snapshot!(cuts, @"");
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"[]");
+                assert_json_snapshot!(interp, @"");
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"[]");
+                assert_json_snapshot!(annot, @"");
             }),
         },
     );

@@ -29,6 +29,56 @@ fn simple() {
 }
 
 #[test]
+fn inline() {
+    ParseTest::test(
+        &ParseTestLang::java(indoc! {r#"
+            /* @prompt */
+            String hello = "Hello, world!";
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @"");
+            }),
+            cuts: Box::new(|cuts| {
+                assert_json_snapshot!(cuts, @"");
+            }),
+            interpolate: Box::new(|interp| {
+                assert_json_snapshot!(interp, @"");
+            }),
+            annotations: Box::new(|annot| {
+                assert_json_snapshot!(annot, @"");
+            }),
+        },
+    );
+}
+
+#[test]
+fn doc() {
+    ParseTest::test(
+        &ParseTestLang::java(indoc! {r#"
+            /**
+             * @prompt
+             */
+            String hello = "Hello, world!";
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @"");
+            }),
+            cuts: Box::new(|cuts| {
+                assert_json_snapshot!(cuts, @"");
+            }),
+            interpolate: Box::new(|interp| {
+                assert_json_snapshot!(interp, @"");
+            }),
+            annotations: Box::new(|annot| {
+                assert_json_snapshot!(annot, @"");
+            }),
+        },
+    );
+}
+
+#[test]
 fn assigned() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
@@ -107,9 +157,8 @@ fn reassigned() {
 fn inexact() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
-            // @prompt
-            String inexactPrompt = "Exact prompt";
-            String inexact = "Inexact";
+            // @prompting
+            String hello = "Hello, world!";
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -132,8 +181,9 @@ fn inexact() {
 fn mixed() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
-            // @prompt system
-            String system = "You are a helpful assistant.";
+            // @prompt
+            int number = 42;
+            String hello = "Hello, world!";
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -156,10 +206,19 @@ fn mixed() {
 fn mixed_nested() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
-            void myFunction() {
-                String prompt = "First";
-                String second = "Second";
+            class Hello {
+                void world() {
+                    // @prompt
+                    int hello = 42;
+
+                    // @prompt
+                    int hi = 42;
+
+                    hi = "Hi!";
+                }
             }
+
+            String hello = "Hello, world!";
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -182,8 +241,12 @@ fn mixed_nested() {
 fn mixed_none() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
-            String prompt = "First";
-            String second = "Second";
+            String regularString = "This is not special";
+            String normalString = "This is not special";
+            String regular = "Regular string";
+            String message = "Just a message";
+            // @prompt
+            int number = 1;
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -206,35 +269,10 @@ fn mixed_none() {
 fn mixed_assign() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
-            String mixedPrompt = "First";
-            String mixed = "Second";
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
-
-#[test]
-fn mixed_reassign() {
-    ParseTest::test(
-        &ParseTestLang::java(indoc! {r#"
             // @prompt def
-            int hello = 123;
-            hello = 456;
-            // @prompting
-            String helloStr = "Hi";
+            String hello;
+            // @prompt fresh
+            hello = "Hi";
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -257,10 +295,15 @@ fn mixed_reassign() {
 fn spaced() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
-            // This is a comment
             // @prompt
-            // This is another comment
-            String spaced = "Spaced";
+
+
+            String hello = "Hello, world!";
+
+            // @prompt
+            nope();
+
+            String world = "Hello!";
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -283,9 +326,8 @@ fn spaced() {
 fn dirty() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
-            int dirty = 123;
-            // @prompt
-            String dirtyStr = "Dirty";
+            // @prompt system
+            String system = "You are a helpful assistant.";
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -311,57 +353,6 @@ fn multi() {
             // @prompt
             String hello = "Hello";
             String world = "World";
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
-
-#[test]
-fn destructuring() {
-    ParseTest::test(
-        &ParseTestLang::java(indoc! {r#"
-            // @prompt
-            String[] values = {"Hello", "World"};
-            String hello1 = values[0];
-            String world1 = values[1];
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
-
-#[test]
-fn chained() {
-    ParseTest::test(
-        &ParseTestLang::java(indoc! {r#"
-            // @prompt
-            String hello = "Hi";
-            String world = hello;
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
