@@ -5,11 +5,11 @@ mod utils;
 use utils::*;
 
 #[test]
-fn multiple() {
+fn join_method() {
     ParseTest::test(
-        &ParseTestLang::cs(indoc! {r#"
-            // Hello, world
-            string hello = /* @prompt */ "asd";
+        &ParseTestLang::java(indoc! {r#"
+            // @prompt
+            String prompt = String.join("\n", new String[]{"Hello", user, "!"});
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -29,43 +29,11 @@ fn multiple() {
 }
 
 #[test]
-fn multiline() {
+fn array_simple() {
     ParseTest::test(
-        &ParseTestLang::cs(indoc! {r#"
-            /*
-             Multi
-             Line
-             Block
-            */
-            string hello = /* @prompt */ "x";
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
-
-#[test]
-fn multiline_nested() {
-    ParseTest::test(
-        &ParseTestLang::cs(indoc! {r#"
-            void Fn() {
-                // Hello
-                // @prompt
-                // world
-                string msg = "Hello";
-            }
+        &ParseTestLang::java(indoc! {r#"
+            // @prompt
+            String[] prompt = new String[]{"Hello ", user, "!"};
         "#}),
         ParseAssertions {
             result: Box::new(|result| {

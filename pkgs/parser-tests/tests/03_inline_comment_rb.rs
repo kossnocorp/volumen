@@ -1,1 +1,1 @@
-// Ruby has no inline comments like /* @prompt */.
+// Ruby doesn't have inline comments.

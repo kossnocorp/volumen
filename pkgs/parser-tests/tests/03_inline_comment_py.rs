@@ -1,1 +1,1 @@
-// Python has no inline comments.
+// Python doesn't have inline comments.
