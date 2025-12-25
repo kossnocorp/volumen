@@ -13,16 +13,69 @@ fn simple() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "Prompts.cs",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 27,
+                          end: 57,
+                        ),
+                        inner: Span(
+                          start: 28,
+                          end: 56,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 58,
+                      ),
+                      exp: "\"You are a helpful assistant.\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 10,
+                          ),
+                          exp: "// @prompt",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "// @prompt\nstring system = \"You are a helpful assistant.\";",
+                    "outer": "\"You are a helpful assistant.\"",
+                    "inner": "You are a helpful assistant.",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "You are a helpful assistant."
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    "// @prompt"
+                  ]
+                ]
+                "#);
             }),
         },
     );
@@ -163,16 +216,59 @@ fn mixed_nested() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "Prompts.cs",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 40,
+                          end: 47,
+                        ),
+                        inner: Span(
+                          start: 41,
+                          end: 46,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 24,
+                        end: 48,
+                      ),
+                      exp: "\"First\"",
+                      vars: [],
+                      annotations: [],
+                    ),
+                  ],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "string prompt = \"First\";",
+                    "outer": "\"First\"",
+                    "inner": "First",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "First"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @"
+                [
+                  []
+                ]
+                ");
             }),
         },
     );

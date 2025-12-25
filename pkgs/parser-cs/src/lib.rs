@@ -153,6 +153,22 @@ fn traverse_node(
         return;
     }
 
+    // Handle global statements (C# 9.0+ top-level statements)
+    if kind == "global_statement" {
+        // Process children of global_statement which may contain local_declaration_statement
+        let mut cursor = node.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                traverse_node(&child, source, filename, comments, scopes, prompts);
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+        return;
+    }
+
     // Handle local declarations
     if kind == "local_declaration_statement" {
         process_local_declaration(node, source, filename, comments, scopes, prompts);
@@ -316,10 +332,28 @@ fn process_variable_declarator(
 
     let ident_name = ident_node.utf8_text(source.as_bytes()).unwrap_or("");
 
-    // Get value node
-    let value_node = match node.child_by_field_name("value") {
-        Some(n) => n,
-        None => return,
+    // Get value node - in C# it's not a named field, it's the last child after '='
+    // Pattern: identifier = value
+    let value_node = {
+        let mut found_value = None;
+        let mut cursor = node.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                // Skip identifier (name) and '=' token, take the first expression-like node
+                if child.kind() != "identifier" && child.kind() != "=" {
+                    found_value = Some(child);
+                    break;
+                }
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+        match found_value {
+            Some(n) => n,
+            None => return,
+        }
     };
 
     // Determine if this is a prompt
