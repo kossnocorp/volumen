@@ -19,19 +19,10 @@ fn simple() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 14,
-                          end: 44,
-                        ),
-                        inner: Span(
-                          start: 15,
-                          end: 43,
-                        ),
+                        outer: (14, 44),
+                        inner: (15, 43),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 44,
-                      ),
+                      enclosure: (0, 44),
                       exp: "\"You are a helpful assistant.\"",
                       vars: [],
                       annotations: [],
@@ -98,32 +89,17 @@ fn nested() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 56,
-                          end: 73,
-                        ),
-                        inner: Span(
-                          start: 57,
-                          end: 72,
-                        ),
+                        outer: (56, 73),
+                        inner: (57, 72),
                       ),
-                      enclosure: Span(
-                        start: 41,
-                        end: 73,
-                      ),
+                      enclosure: (41, 73),
                       exp: "\"Hello, #{name}!\"",
                       vars: [
                         PromptVar(
                           exp: "#{name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 64,
-                              end: 71,
-                            ),
-                            inner: Span(
-                              start: 66,
-                              end: 70,
-                            ),
+                            outer: (64, 71),
+                            inner: (66, 70),
                           ),
                         ),
                       ],
@@ -132,27 +108,15 @@ fn nested() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 111,
-                          end: 116,
-                        ),
-                        inner: Span(
-                          start: 112,
-                          end: 115,
-                        ),
+                        outer: (111, 116),
+                        inner: (112, 115),
                       ),
-                      enclosure: Span(
-                        start: 81,
-                        end: 116,
-                      ),
+                      enclosure: (81, 116),
                       exp: "\"Hi!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 81,
-                            end: 90,
-                          ),
+                          span: (81, 90),
                           exp: "# @prompt",
                         ),
                       ],

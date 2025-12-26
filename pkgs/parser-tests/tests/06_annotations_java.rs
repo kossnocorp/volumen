@@ -184,27 +184,15 @@ fn multiline_nested() {
                     Prompt(
                       file: "Prompts.java",
                       span: SpanShape(
-                        outer: Span(
-                          start: 70,
-                          end: 77,
-                        ),
-                        inner: Span(
-                          start: 71,
-                          end: 76,
-                        ),
+                        outer: (70, 77),
+                        inner: (71, 76),
                       ),
-                      enclosure: Span(
-                        start: 16,
-                        end: 78,
-                      ),
+                      enclosure: (16, 78),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 16,
-                            end: 52,
-                          ),
+                          span: (16, 52),
                           exp: "// Hello\n    // @prompt\n    // world",
                         ),
                       ],

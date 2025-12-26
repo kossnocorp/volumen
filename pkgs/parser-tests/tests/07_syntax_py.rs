@@ -53,27 +53,15 @@ fn multiline_str() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 19,
-                          end: 204,
-                        ),
-                        inner: Span(
-                          start: 22,
-                          end: 201,
-                        ),
+                        outer: (19, 204),
+                        inner: (22, 201),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 204,
-                      ),
+                      enclosure: (0, 204),
                       exp: "\"\"\"You are a helpful assistant.\nYou will answer the user\'s questions to the best of your ability.\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\"\"\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -135,54 +123,30 @@ fn multiline_fstr() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 17,
-                          end: 75,
-                        ),
-                        inner: Span(
-                          start: 21,
-                          end: 72,
-                        ),
+                        outer: (17, 75),
+                        inner: (21, 72),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 75,
-                      ),
+                      enclosure: (0, 75),
                       exp: "f\"\"\"Hello, {name}!\nHow is the weather today in {city}?\n\"\"\"",
                       vars: [
                         PromptVar(
                           exp: "{name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 28,
-                              end: 34,
-                            ),
-                            inner: Span(
-                              start: 29,
-                              end: 33,
-                            ),
+                            outer: (28, 34),
+                            inner: (29, 33),
                           ),
                         ),
                         PromptVar(
                           exp: "{city}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 64,
-                              end: 70,
-                            ),
-                            inner: Span(
-                              start: 65,
-                              end: 69,
-                            ),
+                            outer: (64, 70),
+                            inner: (65, 69),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],

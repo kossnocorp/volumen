@@ -20,27 +20,15 @@ fn simple() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 19,
-                          end: 49,
-                        ),
-                        inner: Span(
-                          start: 20,
-                          end: 48,
-                        ),
+                        outer: (19, 49),
+                        inner: (20, 48),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 49,
-                      ),
+                      enclosure: (0, 49),
                       exp: "\"You are a helpful assistant.\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -101,41 +89,23 @@ fn assigned() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 36,
-                          end: 55,
-                        ),
-                        inner: Span(
-                          start: 38,
-                          end: 54,
-                        ),
+                        outer: (36, 55),
+                        inner: (38, 54),
                       ),
-                      enclosure: Span(
-                        start: 25,
-                        end: 55,
-                      ),
+                      enclosure: (25, 55),
                       exp: "f\"Assigned {value}\"",
                       vars: [
                         PromptVar(
                           exp: "{value}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 47,
-                              end: 54,
-                            ),
-                            inner: Span(
-                              start: 48,
-                              end: 53,
-                            ),
+                            outer: (47, 54),
+                            inner: (48, 53),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -201,41 +171,23 @@ fn assigned_late_comment() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 36,
-                          end: 55,
-                        ),
-                        inner: Span(
-                          start: 38,
-                          end: 54,
-                        ),
+                        outer: (36, 55),
+                        inner: (38, 54),
                       ),
-                      enclosure: Span(
-                        start: 15,
-                        end: 55,
-                      ),
+                      enclosure: (15, 55),
                       exp: "f\"Assigned {value}\"",
                       vars: [
                         PromptVar(
                           exp: "{value}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 47,
-                              end: 54,
-                            ),
-                            inner: Span(
-                              start: 48,
-                              end: 53,
-                            ),
+                            outer: (47, 54),
+                            inner: (48, 53),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 15,
-                            end: 24,
-                          ),
+                          span: (15, 24),
                           exp: "# @prompt",
                         ),
                       ],
@@ -302,41 +254,23 @@ fn reassigned() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 75,
-                          end: 96,
-                        ),
-                        inner: Span(
-                          start: 77,
-                          end: 95,
-                        ),
+                        outer: (75, 96),
+                        inner: (77, 95),
                       ),
-                      enclosure: Span(
-                        start: 62,
-                        end: 96,
-                      ),
+                      enclosure: (62, 96),
                       exp: "f\"Reassigned {value}\"",
                       vars: [
                         PromptVar(
                           exp: "{value}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 88,
-                              end: 95,
-                            ),
-                            inner: Span(
-                              start: 89,
-                              end: 94,
-                            ),
+                            outer: (88, 95),
+                            inner: (89, 94),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -473,19 +407,10 @@ fn mixed_nested() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 118,
-                          end: 123,
-                        ),
-                        inner: Span(
-                          start: 119,
-                          end: 122,
-                        ),
+                        outer: (118, 123),
+                        inner: (119, 122),
                       ),
-                      enclosure: Span(
-                        start: 113,
-                        end: 123,
-                      ),
+                      enclosure: (113, 123),
                       exp: "\"Hi!\"",
                       vars: [],
                       annotations: [],
@@ -581,27 +506,15 @@ fn mixed_assign() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 49,
-                          end: 53,
-                        ),
-                        inner: Span(
-                          start: 50,
-                          end: 52,
-                        ),
+                        outer: (49, 53),
+                        inner: (50, 52),
                       ),
-                      enclosure: Span(
-                        start: 25,
-                        end: 53,
-                      ),
+                      enclosure: (25, 53),
                       exp: "\"Hi\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 25,
-                            end: 40,
-                          ),
+                          span: (25, 40),
                           exp: "# @prompt fresh",
                         ),
                       ],
@@ -664,27 +577,15 @@ fn mixed_reassign() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 77,
-                          end: 81,
-                        ),
-                        inner: Span(
-                          start: 78,
-                          end: 80,
-                        ),
+                        outer: (77, 81),
+                        inner: (78, 80),
                       ),
-                      enclosure: Span(
-                        start: 56,
-                        end: 81,
-                      ),
+                      enclosure: (56, 81),
                       exp: "\"Hi\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 13,
-                          ),
+                          span: (0, 13),
                           exp: "# @prompt def",
                         ),
                       ],
@@ -751,27 +652,15 @@ fn spaced() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 20,
-                          end: 35,
-                        ),
-                        inner: Span(
-                          start: 21,
-                          end: 34,
-                        ),
+                        outer: (20, 35),
+                        inner: (21, 34),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 35,
-                      ),
+                      enclosure: (0, 35),
                       exp: "\"Hello, world!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -831,27 +720,15 @@ fn dirty() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 26,
-                          end: 56,
-                        ),
-                        inner: Span(
-                          start: 27,
-                          end: 55,
-                        ),
+                        outer: (26, 56),
+                        inner: (27, 55),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 56,
-                      ),
+                      enclosure: (0, 56),
                       exp: "\"You are a helpful assistant.\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 16,
-                          ),
+                          span: (0, 16),
                           exp: "# @prompt system",
                         ),
                       ],
@@ -911,27 +788,15 @@ fn multi() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 25,
-                          end: 32,
-                        ),
-                        inner: Span(
-                          start: 26,
-                          end: 31,
-                        ),
+                        outer: (25, 32),
+                        inner: (26, 31),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 41,
-                      ),
+                      enclosure: (0, 41),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -939,27 +804,15 @@ fn multi() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 34,
-                          end: 41,
-                        ),
-                        inner: Span(
-                          start: 35,
-                          end: 40,
-                        ),
+                        outer: (34, 41),
+                        inner: (35, 40),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 41,
-                      ),
+                      enclosure: (0, 41),
                       exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1039,27 +892,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 28,
-                          end: 35,
-                        ),
-                        inner: Span(
-                          start: 29,
-                          end: 34,
-                        ),
+                        outer: (28, 35),
+                        inner: (29, 34),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 45,
-                      ),
+                      enclosure: (0, 45),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1067,27 +908,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 37,
-                          end: 44,
-                        ),
-                        inner: Span(
-                          start: 38,
-                          end: 43,
-                        ),
+                        outer: (37, 44),
+                        inner: (38, 43),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 45,
-                      ),
+                      enclosure: (0, 45),
                       exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1095,27 +924,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 76,
-                          end: 83,
-                        ),
-                        inner: Span(
-                          start: 77,
-                          end: 82,
-                        ),
+                        outer: (76, 83),
+                        inner: (77, 82),
                       ),
-                      enclosure: Span(
-                        start: 46,
-                        end: 93,
-                      ),
+                      enclosure: (46, 93),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 46,
-                            end: 55,
-                          ),
+                          span: (46, 55),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1123,27 +940,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 85,
-                          end: 92,
-                        ),
-                        inner: Span(
-                          start: 86,
-                          end: 91,
-                        ),
+                        outer: (85, 92),
+                        inner: (86, 91),
                       ),
-                      enclosure: Span(
-                        start: 46,
-                        end: 93,
-                      ),
+                      enclosure: (46, 93),
                       exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 46,
-                            end: 55,
-                          ),
+                          span: (46, 55),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1151,27 +956,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 124,
-                          end: 131,
-                        ),
-                        inner: Span(
-                          start: 125,
-                          end: 130,
-                        ),
+                        outer: (124, 131),
+                        inner: (125, 130),
                       ),
-                      enclosure: Span(
-                        start: 94,
-                        end: 141,
-                      ),
+                      enclosure: (94, 141),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 94,
-                            end: 103,
-                          ),
+                          span: (94, 103),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1179,27 +972,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 133,
-                          end: 140,
-                        ),
-                        inner: Span(
-                          start: 134,
-                          end: 139,
-                        ),
+                        outer: (133, 140),
+                        inner: (134, 139),
                       ),
-                      enclosure: Span(
-                        start: 94,
-                        end: 141,
-                      ),
+                      enclosure: (94, 141),
                       exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 94,
-                            end: 103,
-                          ),
+                          span: (94, 103),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1207,27 +988,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 170,
-                          end: 177,
-                        ),
-                        inner: Span(
-                          start: 171,
-                          end: 176,
-                        ),
+                        outer: (170, 177),
+                        inner: (171, 176),
                       ),
-                      enclosure: Span(
-                        start: 142,
-                        end: 187,
-                      ),
+                      enclosure: (142, 187),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 142,
-                            end: 151,
-                          ),
+                          span: (142, 151),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1235,27 +1004,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 179,
-                          end: 186,
-                        ),
-                        inner: Span(
-                          start: 180,
-                          end: 185,
-                        ),
+                        outer: (179, 186),
+                        inner: (180, 185),
                       ),
-                      enclosure: Span(
-                        start: 142,
-                        end: 187,
-                      ),
+                      enclosure: (142, 187),
                       exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 142,
-                            end: 151,
-                          ),
+                          span: (142, 151),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1263,27 +1020,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 218,
-                          end: 225,
-                        ),
-                        inner: Span(
-                          start: 219,
-                          end: 224,
-                        ),
+                        outer: (218, 225),
+                        inner: (219, 224),
                       ),
-                      enclosure: Span(
-                        start: 188,
-                        end: 235,
-                      ),
+                      enclosure: (188, 235),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 188,
-                            end: 197,
-                          ),
+                          span: (188, 197),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1291,27 +1036,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 227,
-                          end: 234,
-                        ),
-                        inner: Span(
-                          start: 228,
-                          end: 233,
-                        ),
+                        outer: (227, 234),
+                        inner: (228, 233),
                       ),
-                      enclosure: Span(
-                        start: 188,
-                        end: 235,
-                      ),
+                      enclosure: (188, 235),
                       exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 188,
-                            end: 197,
-                          ),
+                          span: (188, 197),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1319,27 +1052,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 266,
-                          end: 273,
-                        ),
-                        inner: Span(
-                          start: 267,
-                          end: 272,
-                        ),
+                        outer: (266, 273),
+                        inner: (267, 272),
                       ),
-                      enclosure: Span(
-                        start: 236,
-                        end: 283,
-                      ),
+                      enclosure: (236, 283),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 236,
-                            end: 245,
-                          ),
+                          span: (236, 245),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1347,27 +1068,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 275,
-                          end: 282,
-                        ),
-                        inner: Span(
-                          start: 276,
-                          end: 281,
-                        ),
+                        outer: (275, 282),
+                        inner: (276, 281),
                       ),
-                      enclosure: Span(
-                        start: 236,
-                        end: 283,
-                      ),
+                      enclosure: (236, 283),
                       exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 236,
-                            end: 245,
-                          ),
+                          span: (236, 245),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1537,27 +1246,15 @@ fn chained() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 26,
-                          end: 30,
-                        ),
-                        inner: Span(
-                          start: 27,
-                          end: 29,
-                        ),
+                        outer: (26, 30),
+                        inner: (27, 29),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 30,
-                      ),
+                      enclosure: (0, 30),
                       exp: "\"Hi\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1565,27 +1262,15 @@ fn chained() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 26,
-                          end: 30,
-                        ),
-                        inner: Span(
-                          start: 27,
-                          end: 29,
-                        ),
+                        outer: (26, 30),
+                        inner: (27, 29),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 30,
-                      ),
+                      enclosure: (0, 30),
                       exp: "\"Hi\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],

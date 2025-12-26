@@ -22,27 +22,15 @@ fn multiline() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 32,
-                          end: 39,
-                        ),
-                        inner: Span(
-                          start: 33,
-                          end: 38,
-                        ),
+                        outer: (32, 39),
+                        inner: (33, 38),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 39,
-                      ),
+                      enclosure: (0, 39),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 25,
-                          ),
+                          span: (0, 25),
                           exp: "# Hello\n# @prompt\n# world",
                         ),
                       ],
@@ -106,27 +94,15 @@ fn multiline_nested() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 55,
-                          end: 62,
-                        ),
-                        inner: Span(
-                          start: 56,
-                          end: 61,
-                        ),
+                        outer: (55, 62),
+                        inner: (56, 61),
                       ),
-                      enclosure: Span(
-                        start: 11,
-                        end: 62,
-                      ),
+                      enclosure: (11, 62),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 11,
-                            end: 44,
-                          ),
+                          span: (11, 44),
                           exp: "# Hello\n    # @prompt\n    # world",
                         ),
                       ],

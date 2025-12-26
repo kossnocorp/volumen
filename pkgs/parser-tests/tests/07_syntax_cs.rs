@@ -49,27 +49,15 @@ fn verbatim_string() {
                     Prompt(
                       file: "Prompts.cs",
                       span: SpanShape(
-                        outer: Span(
-                          start: 27,
-                          end: 91,
-                        ),
-                        inner: Span(
-                          start: 29,
-                          end: 90,
-                        ),
+                        outer: (27, 91),
+                        inner: (29, 90),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 92,
-                      ),
+                      enclosure: (0, 92),
                       exp: "@\"You are a helpful assistant.\nYou can help with various tasks.\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 10,
-                          ),
+                          span: (0, 10),
                           exp: "// @prompt",
                         ),
                       ],
@@ -127,54 +115,30 @@ fn interpolated_verbatim() {
                     Prompt(
                       file: "Prompts.cs",
                       span: SpanShape(
-                        outer: Span(
-                          start: 29,
-                          end: 66,
-                        ),
-                        inner: Span(
-                          start: 32,
-                          end: 65,
-                        ),
+                        outer: (29, 66),
+                        inner: (32, 65),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 67,
-                      ),
+                      enclosure: (0, 67),
                       exp: "$@\"Hello, {name}!\nWelcome to {city}.\"",
                       vars: [
                         PromptVar(
                           exp: "{name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 39,
-                              end: 45,
-                            ),
-                            inner: Span(
-                              start: 40,
-                              end: 44,
-                            ),
+                            outer: (39, 45),
+                            inner: (40, 44),
                           ),
                         ),
                         PromptVar(
                           exp: "{city}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 58,
-                              end: 64,
-                            ),
-                            inner: Span(
-                              start: 59,
-                              end: 63,
-                            ),
+                            outer: (58, 64),
+                            inner: (59, 63),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 10,
-                          ),
+                          span: (0, 10),
                           exp: "// @prompt",
                         ),
                       ],
@@ -240,54 +204,30 @@ fn multiline() {
                     Prompt(
                       file: "Prompts.cs",
                       span: SpanShape(
-                        outer: Span(
-                          start: 25,
-                          end: 81,
-                        ),
-                        inner: Span(
-                          start: 27,
-                          end: 80,
-                        ),
+                        outer: (25, 81),
+                        inner: (27, 80),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 82,
-                      ),
+                      enclosure: (0, 82),
                       exp: "$\"Hello, {name}!\\nHow is the weather today in {city}?\\n\"",
                       vars: [
                         PromptVar(
                           exp: "{name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 34,
-                              end: 40,
-                            ),
-                            inner: Span(
-                              start: 35,
-                              end: 39,
-                            ),
+                            outer: (34, 40),
+                            inner: (35, 39),
                           ),
                         ),
                         PromptVar(
                           exp: "{city}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 71,
-                              end: 77,
-                            ),
-                            inner: Span(
-                              start: 72,
-                              end: 76,
-                            ),
+                            outer: (71, 77),
+                            inner: (72, 76),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 10,
-                          ),
+                          span: (0, 10),
                           exp: "// @prompt",
                         ),
                       ],

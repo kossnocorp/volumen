@@ -57,27 +57,15 @@ fn heredoc() {
                     Prompt(
                       file: "prompts.php",
                       span: SpanShape(
-                        outer: Span(
-                          start: 27,
-                          end: 219,
-                        ),
-                        inner: Span(
-                          start: 27,
-                          end: 219,
-                        ),
+                        outer: (27, 219),
+                        inner: (27, 219),
                       ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 219,
-                      ),
+                      enclosure: (6, 219),
                       exp: "<<<TEXT\nYou are a helpful assistant.\nYou will answer the user\'s questions to the best of your ability.\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\nTEXT",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 6,
-                            end: 16,
-                          ),
+                          span: (6, 16),
                           exp: "// @prompt",
                         ),
                       ],
@@ -141,54 +129,30 @@ fn heredoc_interpolated() {
                     Prompt(
                       file: "prompts.php",
                       span: SpanShape(
-                        outer: Span(
-                          start: 25,
-                          end: 90,
-                        ),
-                        inner: Span(
-                          start: 25,
-                          end: 90,
-                        ),
+                        outer: (25, 90),
+                        inner: (25, 90),
                       ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 90,
-                      ),
+                      enclosure: (6, 90),
                       exp: "<<<TEXT\nHello, {$name}!\nHow is the weather today in {$city}?\nTEXT",
                       vars: [
                         PromptVar(
                           exp: "{$name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 40,
-                              end: 47,
-                            ),
-                            inner: Span(
-                              start: 41,
-                              end: 46,
-                            ),
+                            outer: (40, 47),
+                            inner: (41, 46),
                           ),
                         ),
                         PromptVar(
                           exp: "{$city}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 77,
-                              end: 84,
-                            ),
-                            inner: Span(
-                              start: 78,
-                              end: 83,
-                            ),
+                            outer: (77, 84),
+                            inner: (78, 83),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 6,
-                            end: 16,
-                          ),
+                          span: (6, 16),
                           exp: "// @prompt",
                         ),
                       ],

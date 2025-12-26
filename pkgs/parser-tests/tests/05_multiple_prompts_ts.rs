@@ -25,32 +25,17 @@ fn multiple() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 19,
-                          end: 36,
-                        ),
-                        inner: Span(
-                          start: 20,
-                          end: 35,
-                        ),
+                        outer: (19, 36),
+                        inner: (20, 35),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 37,
-                      ),
+                      enclosure: (0, 37),
                       exp: "`Hello, ${name}!`",
                       vars: [
                         PromptVar(
                           exp: "${name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 27,
-                              end: 34,
-                            ),
-                            inner: Span(
-                              start: 29,
-                              end: 33,
-                            ),
+                            outer: (27, 34),
+                            inner: (29, 33),
                           ),
                         ),
                       ],
@@ -59,41 +44,23 @@ fn multiple() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 69,
-                          end: 87,
-                        ),
-                        inner: Span(
-                          start: 70,
-                          end: 86,
-                        ),
+                        outer: (69, 87),
+                        inner: (70, 86),
                       ),
-                      enclosure: Span(
-                        start: 38,
-                        end: 88,
-                      ),
+                      enclosure: (38, 88),
                       exp: "`Welcome ${user}!`",
                       vars: [
                         PromptVar(
                           exp: "${user}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 78,
-                              end: 85,
-                            ),
-                            inner: Span(
-                              start: 80,
-                              end: 84,
-                            ),
+                            outer: (78, 85),
+                            inner: (80, 84),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 55,
-                            end: 68,
-                          ),
+                          span: (55, 68),
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -101,41 +68,23 @@ fn multiple() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 117,
-                          end: 140,
-                        ),
-                        inner: Span(
-                          start: 118,
-                          end: 139,
-                        ),
+                        outer: (117, 140),
+                        inner: (118, 139),
                       ),
-                      enclosure: Span(
-                        start: 89,
-                        end: 141,
-                      ),
+                      enclosure: (89, 141),
                       exp: "`Goodbye ${user.name}!`",
                       vars: [
                         PromptVar(
                           exp: "${user.name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 126,
-                              end: 138,
-                            ),
-                            inner: Span(
-                              start: 128,
-                              end: 137,
-                            ),
+                            outer: (126, 138),
+                            inner: (128, 137),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 89,
-                            end: 99,
-                          ),
+                          span: (89, 99),
                           exp: "// @prompt",
                         ),
                       ],
@@ -143,27 +92,15 @@ fn multiple() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 172,
-                          end: 197,
-                        ),
-                        inner: Span(
-                          start: 173,
-                          end: 196,
-                        ),
+                        outer: (172, 197),
+                        inner: (173, 196),
                       ),
-                      enclosure: Span(
-                        start: 142,
-                        end: 198,
-                      ),
+                      enclosure: (142, 198),
                       exp: "\"You are an AI assistant\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 142,
-                            end: 156,
-                          ),
+                          span: (142, 156),
                           exp: "/** @prompt */",
                         ),
                       ],

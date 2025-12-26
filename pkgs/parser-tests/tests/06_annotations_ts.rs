@@ -20,34 +20,19 @@ fn multiple() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 44,
-                          end: 49,
-                        ),
-                        inner: Span(
-                          start: 45,
-                          end: 48,
-                        ),
+                        outer: (44, 49),
+                        inner: (45, 48),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 50,
-                      ),
+                      enclosure: (0, 50),
                       exp: "\"asd\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 15,
-                          ),
+                          span: (0, 15),
                           exp: "// Hello, world",
                         ),
                         PromptAnnotation(
-                          span: Span(
-                            start: 30,
-                            end: 43,
-                          ),
+                          span: (30, 43),
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -112,34 +97,19 @@ fn multiline() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 54,
-                          end: 57,
-                        ),
-                        inner: Span(
-                          start: 55,
-                          end: 56,
-                        ),
+                        outer: (54, 57),
+                        inner: (55, 56),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 58,
-                      ),
+                      enclosure: (0, 58),
                       exp: "`x`",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 25,
-                          ),
+                          span: (0, 25),
                           exp: "/*\n Multi\n Line\n Block\n*/",
                         ),
                         PromptAnnotation(
-                          span: Span(
-                            start: 40,
-                            end: 53,
-                          ),
+                          span: (40, 53),
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -204,27 +174,15 @@ fn multiline_nested() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 73,
-                          end: 80,
-                        ),
-                        inner: Span(
-                          start: 74,
-                          end: 79,
-                        ),
+                        outer: (73, 80),
+                        inner: (74, 79),
                       ),
-                      enclosure: Span(
-                        start: 20,
-                        end: 81,
-                      ),
+                      enclosure: (20, 81),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 20,
-                            end: 56,
-                          ),
+                          span: (20, 56),
                           exp: "// Hello\n    // @prompt\n    // world",
                         ),
                       ],

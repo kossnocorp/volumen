@@ -19,32 +19,17 @@ fn single_var() {
                     Prompt(
                       file: "Prompts.cs",
                       span: SpanShape(
-                        outer: Span(
-                          start: 20,
-                          end: 39,
-                        ),
-                        inner: Span(
-                          start: 22,
-                          end: 38,
-                        ),
+                        outer: (20, 39),
+                        inner: (22, 38),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 40,
-                      ),
+                      enclosure: (0, 40),
                       exp: "$\"Welcome, {user}!\"",
                       vars: [
                         PromptVar(
                           exp: "{user}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 31,
-                              end: 37,
-                            ),
-                            inner: Span(
-                              start: 32,
-                              end: 36,
-                            ),
+                            outer: (31, 37),
+                            inner: (32, 36),
                           ),
                         ),
                       ],
@@ -104,45 +89,24 @@ fn multiple_vars() {
                     Prompt(
                       file: "Prompts.cs",
                       span: SpanShape(
-                        outer: Span(
-                          start: 20,
-                          end: 73,
-                        ),
-                        inner: Span(
-                          start: 22,
-                          end: 72,
-                        ),
+                        outer: (20, 73),
+                        inner: (22, 72),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 74,
-                      ),
+                      enclosure: (0, 74),
                       exp: "$\"Hello, {name}! How is the weather today in {city}?\"",
                       vars: [
                         PromptVar(
                           exp: "{name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 29,
-                              end: 35,
-                            ),
-                            inner: Span(
-                              start: 30,
-                              end: 34,
-                            ),
+                            outer: (29, 35),
+                            inner: (30, 34),
                           ),
                         ),
                         PromptVar(
                           exp: "{city}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 65,
-                              end: 71,
-                            ),
-                            inner: Span(
-                              start: 66,
-                              end: 70,
-                            ),
+                            outer: (65, 71),
+                            inner: (66, 70),
                           ),
                         ),
                       ],
@@ -206,45 +170,24 @@ fn exp() {
                     Prompt(
                       file: "Prompts.cs",
                       span: SpanShape(
-                        outer: Span(
-                          start: 20,
-                          end: 92,
-                        ),
-                        inner: Span(
-                          start: 22,
-                          end: 91,
-                        ),
+                        outer: (20, 92),
+                        inner: (22, 91),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 93,
-                      ),
+                      enclosure: (0, 93),
                       exp: "$\"Hello, {user.Name}! How is the weather today in {user.Location.City}?\"",
                       vars: [
                         PromptVar(
                           exp: "{user.Name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 29,
-                              end: 40,
-                            ),
-                            inner: Span(
-                              start: 30,
-                              end: 39,
-                            ),
+                            outer: (29, 40),
+                            inner: (30, 39),
                           ),
                         ),
                         PromptVar(
                           exp: "{user.Location.City}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 70,
-                              end: 90,
-                            ),
-                            inner: Span(
-                              start: 71,
-                              end: 89,
-                            ),
+                            outer: (70, 90),
+                            inner: (71, 89),
                           ),
                         ),
                       ],
@@ -308,32 +251,17 @@ fn exp_complex() {
                     Prompt(
                       file: "Prompts.cs",
                       span: SpanShape(
-                        outer: Span(
-                          start: 20,
-                          end: 78,
-                        ),
-                        inner: Span(
-                          start: 22,
-                          end: 77,
-                        ),
+                        outer: (20, 78),
+                        inner: (22, 77),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 79,
-                      ),
+                      enclosure: (0, 79),
                       exp: "$\"This item is {(price > 100 ? \"expensive\" : \"cheap\")}...\"",
                       vars: [
                         PromptVar(
                           exp: "{(price > 100 ? \"expensive\" : \"cheap\")}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 35,
-                              end: 74,
-                            ),
-                            inner: Span(
-                              start: 36,
-                              end: 73,
-                            ),
+                            outer: (35, 74),
+                            inner: (36, 73),
                           ),
                         ),
                       ],

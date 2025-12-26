@@ -50,27 +50,15 @@ fn text_block() {
                     Prompt(
                       file: "Prompts.java",
                       span: SpanShape(
-                        outer: Span(
-                          start: 27,
-                          end: 71,
-                        ),
-                        inner: Span(
-                          start: 28,
-                          end: 70,
-                        ),
+                        outer: (27, 71),
+                        inner: (28, 70),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 72,
-                      ),
+                      enclosure: (0, 72),
                       exp: "\"\"\"\n    You are a helpful assistant.\n    \"\"\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 10,
-                          ),
+                          span: (0, 10),
                           exp: "// @prompt",
                         ),
                       ],

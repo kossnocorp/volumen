@@ -20,41 +20,23 @@ fn simple() {
                     Prompt(
                       file: "prompts.php",
                       span: SpanShape(
-                        outer: Span(
-                          start: 32,
-                          end: 51,
-                        ),
-                        inner: Span(
-                          start: 33,
-                          end: 50,
-                        ),
+                        outer: (32, 51),
+                        inner: (33, 50),
                       ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 51,
-                      ),
+                      enclosure: (6, 51),
                       exp: "\"Welcome, {$user}!\"",
                       vars: [
                         PromptVar(
                           exp: "{$user}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 42,
-                              end: 49,
-                            ),
-                            inner: Span(
-                              start: 43,
-                              end: 48,
-                            ),
+                            outer: (42, 49),
+                            inner: (43, 48),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 18,
-                            end: 31,
-                          ),
+                          span: (18, 31),
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -119,27 +101,15 @@ fn phpdoc() {
                     Prompt(
                       file: "prompts.php",
                       span: SpanShape(
-                        outer: Span(
-                          start: 30,
-                          end: 45,
-                        ),
-                        inner: Span(
-                          start: 31,
-                          end: 44,
-                        ),
+                        outer: (30, 45),
+                        inner: (31, 44),
                       ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 45,
-                      ),
+                      enclosure: (6, 45),
                       exp: "\"Hello, world!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 15,
-                            end: 29,
-                          ),
+                          span: (15, 29),
                           exp: "/** @prompt */",
                         ),
                       ],
@@ -232,41 +202,23 @@ fn dirty() {
                     Prompt(
                       file: "prompts.php",
                       span: SpanShape(
-                        outer: Span(
-                          start: 41,
-                          end: 60,
-                        ),
-                        inner: Span(
-                          start: 42,
-                          end: 59,
-                        ),
+                        outer: (41, 60),
+                        inner: (42, 59),
                       ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 60,
-                      ),
+                      enclosure: (6, 60),
                       exp: "\"Welcome, {$user}!\"",
                       vars: [
                         PromptVar(
                           exp: "{$user}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 51,
-                              end: 58,
-                            ),
-                            inner: Span(
-                              start: 52,
-                              end: 57,
-                            ),
+                            outer: (51, 58),
+                            inner: (52, 57),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 18,
-                            end: 40,
-                          ),
+                          span: (18, 40),
                           exp: "/* @prompt greeting */",
                         ),
                       ],

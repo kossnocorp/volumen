@@ -19,32 +19,17 @@ fn single_var() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 18,
-                          end: 37,
-                        ),
-                        inner: Span(
-                          start: 20,
-                          end: 36,
-                        ),
+                        outer: (18, 37),
+                        inner: (20, 36),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 37,
-                      ),
+                      enclosure: (0, 37),
                       exp: "f\"Welcome, {user}!\"",
                       vars: [
                         PromptVar(
                           exp: "{user}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 29,
-                              end: 35,
-                            ),
-                            inner: Span(
-                              start: 30,
-                              end: 34,
-                            ),
+                            outer: (29, 35),
+                            inner: (30, 34),
                           ),
                         ),
                       ],
@@ -107,45 +92,24 @@ fn multiple_vars() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 14,
-                          end: 67,
-                        ),
-                        inner: Span(
-                          start: 16,
-                          end: 66,
-                        ),
+                        outer: (14, 67),
+                        inner: (16, 66),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 67,
-                      ),
+                      enclosure: (0, 67),
                       exp: "f\"Hello, {name}! How is the weather today in {city}?\"",
                       vars: [
                         PromptVar(
                           exp: "{name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 23,
-                              end: 29,
-                            ),
-                            inner: Span(
-                              start: 24,
-                              end: 28,
-                            ),
+                            outer: (23, 29),
+                            inner: (24, 28),
                           ),
                         ),
                         PromptVar(
                           exp: "{city}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 59,
-                              end: 65,
-                            ),
-                            inner: Span(
-                              start: 60,
-                              end: 64,
-                            ),
+                            outer: (59, 65),
+                            inner: (60, 64),
                           ),
                         ),
                       ],
@@ -212,45 +176,24 @@ fn exp() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 14,
-                          end: 86,
-                        ),
-                        inner: Span(
-                          start: 16,
-                          end: 85,
-                        ),
+                        outer: (14, 86),
+                        inner: (16, 85),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 86,
-                      ),
+                      enclosure: (0, 86),
                       exp: "f\"Hello, {user.name}! How is the weather today in {user.location.city}?\"",
                       vars: [
                         PromptVar(
                           exp: "{user.name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 23,
-                              end: 34,
-                            ),
-                            inner: Span(
-                              start: 24,
-                              end: 33,
-                            ),
+                            outer: (23, 34),
+                            inner: (24, 33),
                           ),
                         ),
                         PromptVar(
                           exp: "{user.location.city}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 64,
-                              end: 84,
-                            ),
-                            inner: Span(
-                              start: 65,
-                              end: 83,
-                            ),
+                            outer: (64, 84),
+                            inner: (65, 83),
                           ),
                         ),
                       ],
@@ -317,32 +260,17 @@ fn exp_complex() {
                     Prompt(
                       file: "prompts.py",
                       span: SpanShape(
-                        outer: Span(
-                          start: 14,
-                          end: 76,
-                        ),
-                        inner: Span(
-                          start: 16,
-                          end: 75,
-                        ),
+                        outer: (14, 76),
+                        inner: (16, 75),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 76,
-                      ),
+                      enclosure: (0, 76),
                       exp: "f\"This item is {(\'expensive\' if price > 100 else \'cheap\')}...\"",
                       vars: [
                         PromptVar(
                           exp: "{(\'expensive\' if price > 100 else \'cheap\')}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 29,
-                              end: 72,
-                            ),
-                            inner: Span(
-                              start: 30,
-                              end: 71,
-                            ),
+                            outer: (29, 72),
+                            inner: (30, 71),
                           ),
                         ),
                       ],

@@ -19,27 +19,15 @@ fn simple() {
                     Prompt(
                       file: "Prompts.java",
                       span: SpanShape(
-                        outer: Span(
-                          start: 32,
-                          end: 42,
-                        ),
-                        inner: Span(
-                          start: 33,
-                          end: 41,
-                        ),
+                        outer: (32, 42),
+                        inner: (33, 41),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 43,
-                      ),
+                      enclosure: (0, 43),
                       exp: "\"Welcome!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 18,
-                            end: 31,
-                          ),
+                          span: (18, 31),
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -95,27 +83,15 @@ fn javadoc() {
                     Prompt(
                       file: "Prompts.java",
                       span: SpanShape(
-                        outer: Span(
-                          start: 30,
-                          end: 45,
-                        ),
-                        inner: Span(
-                          start: 31,
-                          end: 44,
-                        ),
+                        outer: (30, 45),
+                        inner: (31, 44),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 46,
-                      ),
+                      enclosure: (0, 46),
                       exp: "\"Hello, world!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 15,
-                            end: 29,
-                          ),
+                          span: (15, 29),
                           exp: "/** @prompt */",
                         ),
                       ],
@@ -200,27 +176,15 @@ fn dirty() {
                     Prompt(
                       file: "Prompts.java",
                       span: SpanShape(
-                        outer: Span(
-                          start: 41,
-                          end: 51,
-                        ),
-                        inner: Span(
-                          start: 42,
-                          end: 50,
-                        ),
+                        outer: (41, 51),
+                        inner: (42, 50),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 52,
-                      ),
+                      enclosure: (0, 52),
                       exp: "\"Welcome!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 18,
-                            end: 40,
-                          ),
+                          span: (18, 40),
                           exp: "/* @prompt greeting */",
                         ),
                       ],

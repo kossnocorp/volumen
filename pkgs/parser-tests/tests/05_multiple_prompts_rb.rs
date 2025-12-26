@@ -22,32 +22,17 @@ fn multiple() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 14,
-                          end: 31,
-                        ),
-                        inner: Span(
-                          start: 15,
-                          end: 30,
-                        ),
+                        outer: (14, 31),
+                        inner: (15, 30),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 31,
-                      ),
+                      enclosure: (0, 31),
                       exp: "\"Hello, #{name}!\"",
                       vars: [
                         PromptVar(
                           exp: "#{name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 22,
-                              end: 29,
-                            ),
-                            inner: Span(
-                              start: 24,
-                              end: 28,
-                            ),
+                            outer: (22, 29),
+                            inner: (24, 28),
                           ),
                         ),
                       ],
@@ -56,41 +41,23 @@ fn multiple() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 53,
-                          end: 76,
-                        ),
-                        inner: Span(
-                          start: 54,
-                          end: 75,
-                        ),
+                        outer: (53, 76),
+                        inner: (54, 75),
                       ),
-                      enclosure: Span(
-                        start: 32,
-                        end: 76,
-                      ),
+                      enclosure: (32, 76),
                       exp: "\"Goodbye #{user.name}!\"",
                       vars: [
                         PromptVar(
                           exp: "#{user.name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 62,
-                              end: 74,
-                            ),
-                            inner: Span(
-                              start: 64,
-                              end: 73,
-                            ),
+                            outer: (62, 74),
+                            inner: (64, 73),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 32,
-                            end: 41,
-                          ),
+                          span: (32, 41),
                           exp: "# @prompt",
                         ),
                       ],

@@ -193,27 +193,15 @@ fn multiline_nested() {
                     Prompt(
                       file: "prompts.php",
                       span: SpanShape(
-                        outer: Span(
-                          start: 75,
-                          end: 82,
-                        ),
-                        inner: Span(
-                          start: 76,
-                          end: 81,
-                        ),
+                        outer: (75, 82),
+                        inner: (76, 81),
                       ),
-                      enclosure: Span(
-                        start: 27,
-                        end: 82,
-                      ),
+                      enclosure: (27, 82),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 27,
-                            end: 63,
-                          ),
+                          span: (27, 63),
                           exp: "// Hello\n    // @prompt\n    // world",
                         ),
                       ],

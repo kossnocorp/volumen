@@ -21,19 +21,10 @@ fn simple() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 19,
-                          end: 49,
-                        ),
-                        inner: Span(
-                          start: 20,
-                          end: 48,
-                        ),
+                        outer: (19, 49),
+                        inner: (20, 48),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 50,
-                      ),
+                      enclosure: (0, 50),
                       exp: "\"You are a helpful assistant.\"",
                       vars: [],
                       annotations: [],
@@ -89,19 +80,10 @@ fn simple() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 17,
-                          end: 47,
-                        ),
-                        inner: Span(
-                          start: 18,
-                          end: 46,
-                        ),
+                        outer: (17, 47),
+                        inner: (18, 46),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 48,
-                      ),
+                      enclosure: (0, 48),
                       exp: "\"You are a helpful assistant.\"",
                       vars: [],
                       annotations: [],
@@ -157,19 +139,10 @@ fn simple() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 17,
-                          end: 47,
-                        ),
-                        inner: Span(
-                          start: 18,
-                          end: 46,
-                        ),
+                        outer: (17, 47),
+                        inner: (18, 46),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 48,
-                      ),
+                      enclosure: (0, 48),
                       exp: "\"You are a helpful assistant.\"",
                       vars: [],
                       annotations: [],
@@ -237,32 +210,17 @@ fn nested() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 91,
-                          end: 108,
-                        ),
-                        inner: Span(
-                          start: 92,
-                          end: 107,
-                        ),
+                        outer: (91, 108),
+                        inner: (92, 107),
                       ),
-                      enclosure: Span(
-                        start: 71,
-                        end: 109,
-                      ),
+                      enclosure: (71, 109),
                       exp: "`Hello, ${name}!`",
                       vars: [
                         PromptVar(
                           exp: "${name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 99,
-                              end: 106,
-                            ),
-                            inner: Span(
-                              start: 101,
-                              end: 105,
-                            ),
+                            outer: (99, 106),
+                            inner: (101, 105),
                           ),
                         ),
                       ],
@@ -271,27 +229,15 @@ fn nested() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 164,
-                          end: 169,
-                        ),
-                        inner: Span(
-                          start: 165,
-                          end: 168,
-                        ),
+                        outer: (164, 169),
+                        inner: (165, 168),
                       ),
-                      enclosure: Span(
-                        start: 123,
-                        end: 170,
-                      ),
+                      enclosure: (123, 170),
                       exp: "\"Hi!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 123,
-                            end: 133,
-                          ),
+                          span: (123, 133),
                           exp: "// @prompt",
                         ),
                       ],

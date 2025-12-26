@@ -20,19 +20,10 @@ fn simple() {
                     Prompt(
                       file: "prompts.php",
                       span: SpanShape(
-                        outer: Span(
-                          start: 21,
-                          end: 51,
-                        ),
-                        inner: Span(
-                          start: 22,
-                          end: 50,
-                        ),
+                        outer: (21, 51),
+                        inner: (22, 50),
                       ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 51,
-                      ),
+                      enclosure: (6, 51),
                       exp: "\"You are a helpful assistant.\"",
                       vars: [],
                       annotations: [],
@@ -97,32 +88,17 @@ fn nested() {
                     Prompt(
                       file: "prompts.php",
                       span: SpanShape(
-                        outer: Span(
-                          start: 61,
-                          end: 78,
-                        ),
-                        inner: Span(
-                          start: 62,
-                          end: 77,
-                        ),
+                        outer: (61, 78),
+                        inner: (62, 77),
                       ),
-                      enclosure: Span(
-                        start: 45,
-                        end: 78,
-                      ),
+                      enclosure: (45, 78),
                       exp: "\"Hello, {$name}!\"",
                       vars: [
                         PromptVar(
                           exp: "{$name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 69,
-                              end: 76,
-                            ),
-                            inner: Span(
-                              start: 70,
-                              end: 75,
-                            ),
+                            outer: (69, 76),
+                            inner: (70, 75),
                           ),
                         ),
                       ],
@@ -131,27 +107,15 @@ fn nested() {
                     Prompt(
                       file: "prompts.php",
                       span: SpanShape(
-                        outer: Span(
-                          start: 115,
-                          end: 120,
-                        ),
-                        inner: Span(
-                          start: 116,
-                          end: 119,
-                        ),
+                        outer: (115, 120),
+                        inner: (116, 119),
                       ),
-                      enclosure: Span(
-                        start: 85,
-                        end: 120,
-                      ),
+                      enclosure: (85, 120),
                       exp: "\"Hi!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 85,
-                            end: 95,
-                          ),
+                          span: (85, 95),
                           exp: "// @prompt",
                         ),
                       ],

@@ -20,27 +20,15 @@ fn simple() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 19,
-                          end: 49,
-                        ),
-                        inner: Span(
-                          start: 20,
-                          end: 48,
-                        ),
+                        outer: (19, 49),
+                        inner: (20, 48),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 49,
-                      ),
+                      enclosure: (0, 49),
                       exp: "\"You are a helpful assistant.\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -98,41 +86,23 @@ fn assigned() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 31,
-                          end: 50,
-                        ),
-                        inner: Span(
-                          start: 32,
-                          end: 49,
-                        ),
+                        outer: (31, 50),
+                        inner: (32, 49),
                       ),
-                      enclosure: Span(
-                        start: 20,
-                        end: 50,
-                      ),
+                      enclosure: (20, 50),
                       exp: "\"Assigned #{value}\"",
                       vars: [
                         PromptVar(
                           exp: "#{value}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 41,
-                              end: 49,
-                            ),
-                            inner: Span(
-                              start: 43,
-                              end: 48,
-                            ),
+                            outer: (41, 49),
+                            inner: (43, 48),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -198,27 +168,15 @@ fn assigned_late_comment() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 31,
-                          end: 50,
-                        ),
-                        inner: Span(
-                          start: 32,
-                          end: 49,
-                        ),
+                        outer: (31, 50),
+                        inner: (32, 49),
                       ),
-                      enclosure: Span(
-                        start: 10,
-                        end: 50,
-                      ),
+                      enclosure: (10, 50),
                       exp: "\"Assigned ${value}\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 10,
-                            end: 19,
-                          ),
+                          span: (10, 19),
                           exp: "# @prompt",
                         ),
                       ],
@@ -280,27 +238,15 @@ fn reassigned() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 57,
-                          end: 78,
-                        ),
-                        inner: Span(
-                          start: 58,
-                          end: 77,
-                        ),
+                        outer: (57, 78),
+                        inner: (58, 77),
                       ),
-                      enclosure: Span(
-                        start: 44,
-                        end: 78,
-                      ),
+                      enclosure: (44, 78),
                       exp: "\"Reassigned ${value}\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -433,27 +379,15 @@ fn mixed_nested() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 90,
-                          end: 95,
-                        ),
-                        inner: Span(
-                          start: 91,
-                          end: 94,
-                        ),
+                        outer: (90, 95),
+                        inner: (91, 94),
                       ),
-                      enclosure: Span(
-                        start: 85,
-                        end: 95,
-                      ),
+                      enclosure: (85, 95),
                       exp: "\"Hi!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 58,
-                            end: 67,
-                          ),
+                          span: (58, 67),
                           exp: "# @prompt",
                         ),
                       ],
@@ -545,27 +479,15 @@ fn mixed_assign() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 50,
-                          end: 54,
-                        ),
-                        inner: Span(
-                          start: 51,
-                          end: 53,
-                        ),
+                        outer: (50, 54),
+                        inner: (51, 53),
                       ),
-                      enclosure: Span(
-                        start: 26,
-                        end: 54,
-                      ),
+                      enclosure: (26, 54),
                       exp: "\"Hi\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 26,
-                            end: 41,
-                          ),
+                          span: (26, 41),
                           exp: "# @prompt fresh",
                         ),
                       ],
@@ -625,27 +547,15 @@ fn mixed_reassign() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 59,
-                          end: 63,
-                        ),
-                        inner: Span(
-                          start: 60,
-                          end: 62,
-                        ),
+                        outer: (59, 63),
+                        inner: (60, 62),
                       ),
-                      enclosure: Span(
-                        start: 38,
-                        end: 63,
-                      ),
+                      enclosure: (38, 63),
                       exp: "\"Hi\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 13,
-                          ),
+                          span: (0, 13),
                           exp: "# @prompt def",
                         ),
                       ],
@@ -712,27 +622,15 @@ fn spaced() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 20,
-                          end: 35,
-                        ),
-                        inner: Span(
-                          start: 21,
-                          end: 34,
-                        ),
+                        outer: (20, 35),
+                        inner: (21, 34),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 35,
-                      ),
+                      enclosure: (0, 35),
                       exp: "\"Hello, world!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -792,27 +690,15 @@ fn dirty() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 26,
-                          end: 56,
-                        ),
-                        inner: Span(
-                          start: 27,
-                          end: 55,
-                        ),
+                        outer: (26, 56),
+                        inner: (27, 55),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 56,
-                      ),
+                      enclosure: (0, 56),
                       exp: "\"You are a helpful assistant.\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 16,
-                          ),
+                          span: (0, 16),
                           exp: "# @prompt system",
                         ),
                       ],
@@ -869,27 +755,15 @@ fn multi() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 25,
-                          end: 32,
-                        ),
-                        inner: Span(
-                          start: 26,
-                          end: 31,
-                        ),
+                        outer: (25, 32),
+                        inner: (26, 31),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 41,
-                      ),
+                      enclosure: (0, 41),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -897,27 +771,15 @@ fn multi() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 34,
-                          end: 41,
-                        ),
-                        inner: Span(
-                          start: 35,
-                          end: 40,
-                        ),
+                        outer: (34, 41),
+                        inner: (35, 40),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 41,
-                      ),
+                      enclosure: (0, 41),
                       exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -989,27 +851,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 28,
-                          end: 35,
-                        ),
-                        inner: Span(
-                          start: 29,
-                          end: 34,
-                        ),
+                        outer: (28, 35),
+                        inner: (29, 34),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 45,
-                      ),
+                      enclosure: (0, 45),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1017,27 +867,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 37,
-                          end: 44,
-                        ),
-                        inner: Span(
-                          start: 38,
-                          end: 43,
-                        ),
+                        outer: (37, 44),
+                        inner: (38, 43),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 45,
-                      ),
+                      enclosure: (0, 45),
                       exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1045,27 +883,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 73,
-                          end: 80,
-                        ),
-                        inner: Span(
-                          start: 74,
-                          end: 79,
-                        ),
+                        outer: (73, 80),
+                        inner: (74, 79),
                       ),
-                      enclosure: Span(
-                        start: 46,
-                        end: 89,
-                      ),
+                      enclosure: (46, 89),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 46,
-                            end: 55,
-                          ),
+                          span: (46, 55),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1073,27 +899,15 @@ fn destructuring() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 82,
-                          end: 89,
-                        ),
-                        inner: Span(
-                          start: 83,
-                          end: 88,
-                        ),
+                        outer: (82, 89),
+                        inner: (83, 88),
                       ),
-                      enclosure: Span(
-                        start: 46,
-                        end: 89,
-                      ),
+                      enclosure: (46, 89),
                       exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 46,
-                            end: 55,
-                          ),
+                          span: (46, 55),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1183,27 +997,15 @@ fn chained() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 26,
-                          end: 30,
-                        ),
-                        inner: Span(
-                          start: 27,
-                          end: 29,
-                        ),
+                        outer: (26, 30),
+                        inner: (27, 29),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 30,
-                      ),
+                      enclosure: (0, 30),
                       exp: "\"Hi\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],
@@ -1211,27 +1013,15 @@ fn chained() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 26,
-                          end: 30,
-                        ),
-                        inner: Span(
-                          start: 27,
-                          end: 29,
-                        ),
+                        outer: (26, 30),
+                        inner: (27, 29),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 30,
-                      ),
+                      enclosure: (0, 30),
                       exp: "\"Hi\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
+                          span: (0, 9),
                           exp: "# @prompt",
                         ),
                       ],

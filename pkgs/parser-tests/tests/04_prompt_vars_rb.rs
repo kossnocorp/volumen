@@ -19,32 +19,17 @@ fn single_var() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 14,
-                          end: 33,
-                        ),
-                        inner: Span(
-                          start: 15,
-                          end: 32,
-                        ),
+                        outer: (14, 33),
+                        inner: (15, 32),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 33,
-                      ),
+                      enclosure: (0, 33),
                       exp: "\"Welcome, #{user}!\"",
                       vars: [
                         PromptVar(
                           exp: "#{user}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 24,
-                              end: 31,
-                            ),
-                            inner: Span(
-                              start: 26,
-                              end: 30,
-                            ),
+                            outer: (24, 31),
+                            inner: (26, 30),
                           ),
                         ),
                       ],
@@ -107,45 +92,24 @@ fn multiple_vars() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 14,
-                          end: 68,
-                        ),
-                        inner: Span(
-                          start: 15,
-                          end: 67,
-                        ),
+                        outer: (14, 68),
+                        inner: (15, 67),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 68,
-                      ),
+                      enclosure: (0, 68),
                       exp: "\"Hello, #{name}! How is the weather today in #{city}?\"",
                       vars: [
                         PromptVar(
                           exp: "#{name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 22,
-                              end: 29,
-                            ),
-                            inner: Span(
-                              start: 24,
-                              end: 28,
-                            ),
+                            outer: (22, 29),
+                            inner: (24, 28),
                           ),
                         ),
                         PromptVar(
                           exp: "#{city}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 59,
-                              end: 66,
-                            ),
-                            inner: Span(
-                              start: 61,
-                              end: 65,
-                            ),
+                            outer: (59, 66),
+                            inner: (61, 65),
                           ),
                         ),
                       ],
@@ -212,45 +176,24 @@ fn exp() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 14,
-                          end: 87,
-                        ),
-                        inner: Span(
-                          start: 15,
-                          end: 86,
-                        ),
+                        outer: (14, 87),
+                        inner: (15, 86),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 87,
-                      ),
+                      enclosure: (0, 87),
                       exp: "\"Hello, #{user.name}! How is the weather today in #{user.location.city}?\"",
                       vars: [
                         PromptVar(
                           exp: "#{user.name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 22,
-                              end: 34,
-                            ),
-                            inner: Span(
-                              start: 24,
-                              end: 33,
-                            ),
+                            outer: (22, 34),
+                            inner: (24, 33),
                           ),
                         ),
                         PromptVar(
                           exp: "#{user.location.city}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 64,
-                              end: 85,
-                            ),
-                            inner: Span(
-                              start: 66,
-                              end: 84,
-                            ),
+                            outer: (64, 85),
+                            inner: (66, 84),
                           ),
                         ),
                       ],
@@ -317,32 +260,17 @@ fn exp_complex() {
                     Prompt(
                       file: "prompts.rb",
                       span: SpanShape(
-                        outer: Span(
-                          start: 14,
-                          end: 70,
-                        ),
-                        inner: Span(
-                          start: 15,
-                          end: 69,
-                        ),
+                        outer: (14, 70),
+                        inner: (15, 69),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 70,
-                      ),
+                      enclosure: (0, 70),
                       exp: "\"This item is #{price > 100 ? \'expensive\' : \'cheap\'}...\"",
                       vars: [
                         PromptVar(
                           exp: "#{price > 100 ? \'expensive\' : \'cheap\'}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 28,
-                              end: 66,
-                            ),
-                            inner: Span(
-                              start: 30,
-                              end: 65,
-                            ),
+                            outer: (28, 66),
+                            inner: (30, 65),
                           ),
                         ),
                       ],

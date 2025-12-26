@@ -54,41 +54,23 @@ fn jsx() {
                     Prompt(
                       file: "prompts.tsx",
                       span: SpanShape(
-                        outer: Span(
-                          start: 29,
-                          end: 47,
-                        ),
-                        inner: Span(
-                          start: 30,
-                          end: 46,
-                        ),
+                        outer: (29, 47),
+                        inner: (30, 46),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 48,
-                      ),
+                      enclosure: (0, 48),
                       exp: "`Hello, ${world}!`",
                       vars: [
                         PromptVar(
                           exp: "${world}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 37,
-                              end: 45,
-                            ),
-                            inner: Span(
-                              start: 39,
-                              end: 44,
-                            ),
+                            outer: (37, 45),
+                            inner: (39, 44),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 15,
-                            end: 28,
-                          ),
+                          span: (15, 28),
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -155,41 +137,23 @@ fn ts() {
                     Prompt(
                       file: "prompts.ts",
                       span: SpanShape(
-                        outer: Span(
-                          start: 37,
-                          end: 54,
-                        ),
-                        inner: Span(
-                          start: 38,
-                          end: 53,
-                        ),
+                        outer: (37, 54),
+                        inner: (38, 53),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 55,
-                      ),
+                      enclosure: (0, 55),
                       exp: "`Hello ${world}!`",
                       vars: [
                         PromptVar(
                           exp: "${world}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 44,
-                              end: 52,
-                            ),
-                            inner: Span(
-                              start: 46,
-                              end: 51,
-                            ),
+                            outer: (44, 52),
+                            inner: (46, 51),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 23,
-                            end: 36,
-                          ),
+                          span: (23, 36),
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -257,41 +221,23 @@ fn tsx() {
                     Prompt(
                       file: "prompts.tsx",
                       span: SpanShape(
-                        outer: Span(
-                          start: 37,
-                          end: 54,
-                        ),
-                        inner: Span(
-                          start: 38,
-                          end: 53,
-                        ),
+                        outer: (37, 54),
+                        inner: (38, 53),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 55,
-                      ),
+                      enclosure: (0, 55),
                       exp: "`Hello ${world}!`",
                       vars: [
                         PromptVar(
                           exp: "${world}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 44,
-                              end: 52,
-                            ),
-                            inner: Span(
-                              start: 46,
-                              end: 51,
-                            ),
+                            outer: (44, 52),
+                            inner: (46, 51),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 23,
-                            end: 36,
-                          ),
+                          span: (23, 36),
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -358,54 +304,30 @@ fn multiline() {
                     Prompt(
                       file: "prompts.js",
                       span: SpanShape(
-                        outer: Span(
-                          start: 24,
-                          end: 79,
-                        ),
-                        inner: Span(
-                          start: 25,
-                          end: 78,
-                        ),
+                        outer: (24, 79),
+                        inner: (25, 78),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 80,
-                      ),
+                      enclosure: (0, 80),
                       exp: "`Hello, ${name}!\nHow is the weather today in ${city}?\n`",
                       vars: [
                         PromptVar(
                           exp: "${name}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 32,
-                              end: 39,
-                            ),
-                            inner: Span(
-                              start: 34,
-                              end: 38,
-                            ),
+                            outer: (32, 39),
+                            inner: (34, 38),
                           ),
                         ),
                         PromptVar(
                           exp: "${city}",
                           span: SpanShape(
-                            outer: Span(
-                              start: 69,
-                              end: 76,
-                            ),
-                            inner: Span(
-                              start: 71,
-                              end: 75,
-                            ),
+                            outer: (69, 76),
+                            inner: (71, 75),
                           ),
                         ),
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 10,
-                          ),
+                          span: (0, 10),
                           exp: "// @prompt",
                         ),
                       ],
