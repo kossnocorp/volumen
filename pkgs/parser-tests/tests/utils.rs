@@ -121,25 +121,33 @@ impl ParseTest {
                                 .prompts
                                 .iter()
                                 .map(|prompt| {
-                                    // TEMP: Extract from first content token (single str token for now)
-                                    // TODO: Once we add variable tokens, this logic will change to iterate all tokens
-                                    if let Some(PromptContentToken::PromptContentTokenStr(str_token)) = prompt.content.first() {
-                                        let content_span = str_token.span;
-                                        let mut interpolated = lang.source[content_span.0 as usize..content_span.1 as usize].to_owned();
-                                        
-                                        // Replace variables with {0}, {1}, etc.
-                                        prompt.vars.iter().enumerate().rev().for_each(|(var_index, var)| {
-                                            let var_start = (var.span.outer.0 - content_span.0) as usize;
-                                            let var_end = (var.span.outer.1 - content_span.0) as usize;
-                                            let range = var_start..var_end;
-                                            interpolated.replace_range(range, &format!("{{{}}}", var_index));
-                                        });
-                                        interpolated
-                                    } else {
-                                        // TEMP: Fallback for empty content (shouldn't happen in practice)
-                                        // Later we will use join(joint_content) and [].join("") will be ""
-                                        String::new()
-                                    }
+                                    // Iterate through content tokens, mapping str tokens to substrings
+                                    // and var tokens to {index} placeholders
+                                    let joint_content = &lang.source[prompt.joint.inner.0 as usize..prompt.joint.inner.1 as usize];
+                                    let parts: Vec<String> = prompt.content
+                                        .iter()
+                                        .map(|token| {
+                                            match token {
+                                                PromptContentToken::PromptContentTokenStr(str_token) => {
+                                                    lang.source[str_token.span.0 as usize..str_token.span.1 as usize].to_string()
+                                                }
+                                                PromptContentToken::PromptContentTokenVar(var_token) => {
+                                                    // Find the index of this var in prompt.vars by matching span
+                                                    let var_index = prompt.vars
+                                                        .iter()
+                                                        .position(|v| v.span.outer == var_token.span)
+                                                        .unwrap_or(0);
+                                                    format!("{{{}}}", var_index)
+                                                }
+                                                PromptContentToken::PromptContentTokenJoint(_) => {
+                                                    // Should not appear in this step (joint tokens are for array.join())
+                                                    String::new()
+                                                }
+                                            }
+                                        })
+                                        .collect();
+
+                                    parts.join(joint_content)  // Will be "" for now
                                 })
                                 .collect();
 

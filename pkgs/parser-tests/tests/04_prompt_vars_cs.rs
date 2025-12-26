@@ -26,7 +26,15 @@ fn single_var() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (22, 38),
+                          span: (22, 31),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (31, 37),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (37, 38),
                         ),
                       ],
                       joint: SpanShape(
@@ -106,7 +114,23 @@ fn multiple_vars() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (22, 72),
+                          span: (22, 29),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (29, 35),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (35, 65),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (65, 71),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (71, 72),
                         ),
                       ],
                       joint: SpanShape(
@@ -197,7 +221,23 @@ fn exp() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (22, 91),
+                          span: (22, 29),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (29, 40),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (40, 70),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (70, 90),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (90, 91),
                         ),
                       ],
                       joint: SpanShape(
@@ -288,7 +328,15 @@ fn exp_complex() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (22, 77),
+                          span: (22, 35),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (35, 74),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (74, 77),
                         ),
                       ],
                       joint: SpanShape(

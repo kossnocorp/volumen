@@ -497,7 +497,11 @@ fn percent_q_upper() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (31, 44),
+                          span: (31, 37),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (37, 44),
                         ),
                       ],
                       joint: SpanShape(
@@ -597,7 +601,11 @@ fn percent_q_pipe() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (30, 43),
+                          span: (30, 36),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (36, 43),
                         ),
                       ],
                       joint: SpanShape(
@@ -695,7 +703,11 @@ fn percent_q_angle() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (31, 45),
+                          span: (31, 38),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (38, 45),
                         ),
                       ],
                       joint: SpanShape(

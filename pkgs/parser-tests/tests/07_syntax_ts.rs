@@ -61,7 +61,15 @@ fn jsx() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (30, 46),
+                          span: (30, 37),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (37, 45),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (45, 46),
                         ),
                       ],
                       joint: SpanShape(
@@ -164,7 +172,15 @@ fn ts() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (38, 53),
+                          span: (38, 44),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (44, 52),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (52, 53),
                         ),
                       ],
                       joint: SpanShape(
@@ -268,7 +284,15 @@ fn tsx() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (38, 53),
+                          span: (38, 44),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (44, 52),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (52, 53),
                         ),
                       ],
                       joint: SpanShape(
@@ -371,7 +395,23 @@ fn multiline() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (25, 78),
+                          span: (25, 32),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (32, 39),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (39, 69),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (69, 76),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (76, 78),
                         ),
                       ],
                       joint: SpanShape(

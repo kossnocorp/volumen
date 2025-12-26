@@ -653,6 +653,58 @@ fn process_assignment_expression(
     }
 }
 
+/// Build content tokens from span and variables.
+/// For prompts without variables, returns a single str token.
+/// For prompts with variables, returns interleaved str and var tokens.
+fn build_content_tokens(span: &SpanShape, vars: &[PromptVar]) -> Vec<PromptContentToken> {
+    if vars.is_empty() {
+        // Simple case: single str token
+        return vec![PromptContentToken::PromptContentTokenStr(
+            PromptContentTokenStr {
+                r#type: PromptContentTokenStrTypeStr,
+                span: span.inner,
+            },
+        )];
+    }
+
+    let mut tokens = Vec::new();
+    let mut pos = span.inner.0;
+
+    for var in vars {
+        // Add str token before variable (if any content)
+        if pos < var.span.outer.0 {
+            tokens.push(PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: (pos, var.span.outer.0),
+                },
+            ));
+        }
+
+        // Add var token
+        tokens.push(PromptContentToken::PromptContentTokenVar(
+            PromptContentTokenVar {
+                r#type: PromptContentTokenVarTypeVar,
+                span: var.span.outer,
+            },
+        ));
+
+        pos = var.span.outer.1;
+    }
+
+    // Add trailing str token (if any content)
+    if pos < span.inner.1 {
+        tokens.push(PromptContentToken::PromptContentTokenStr(
+            PromptContentTokenStr {
+                r#type: PromptContentTokenStrTypeStr,
+                span: (pos, span.inner.1),
+            },
+        ));
+    }
+
+    tokens
+}
+
 /// Create a prompt from a string or template string node.
 fn create_prompt_from_string(
     string_node: &Node,
@@ -667,7 +719,6 @@ fn create_prompt_from_string(
 ) {
     // Calculate spans
     let span = span_shape_string_like(string_node, source);
-    let content_span = span.inner;
 
     // Extract expression text
     let exp = source[span.outer.0 as usize..span.outer.1 as usize].to_string();
@@ -678,6 +729,9 @@ fn create_prompt_from_string(
     } else {
         Vec::new()
     };
+
+    // Build content tokens
+    let content = build_content_tokens(&span, &vars);
 
     // Calculate enclosure
     // Always check for leading comments, even if they're invalid annotations
@@ -711,12 +765,7 @@ fn create_prompt_from_string(
         exp,
         vars,
         annotations: annotations.to_vec(),
-        content: vec![PromptContentToken::PromptContentTokenStr(
-            PromptContentTokenStr {
-                r#type: PromptContentTokenStrTypeStr,
-                span: content_span,
-            }
-        )],
+        content,
         joint: SpanShape {
             outer: (0, 0),
             inner: (0, 0),

@@ -142,7 +142,23 @@ fn interpolated_verbatim() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (32, 65),
+                          span: (32, 39),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (39, 45),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (45, 58),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (58, 64),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (64, 65),
                         ),
                       ],
                       joint: SpanShape(
@@ -251,7 +267,23 @@ fn multiline() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (27, 80),
+                          span: (27, 34),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (34, 40),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (40, 71),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (71, 77),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (77, 80),
                         ),
                       ],
                       joint: SpanShape(

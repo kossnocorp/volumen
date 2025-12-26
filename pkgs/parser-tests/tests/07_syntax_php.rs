@@ -156,7 +156,23 @@ fn heredoc_interpolated() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (25, 90),
+                          span: (25, 40),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (40, 47),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (47, 77),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (77, 84),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (84, 90),
                         ),
                       ],
                       joint: SpanShape(

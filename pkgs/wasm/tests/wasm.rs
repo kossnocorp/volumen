@@ -80,12 +80,26 @@ fn parse_py_value() {
                     }],
                     exp: "# @prompt".into(),
                 }],
-                content: vec![PromptContentToken::PromptContentTokenStr(
-                    PromptContentTokenStr {
-                        r#type: PromptContentTokenStrTypeStr,
-                        span: (18, 31),
-                    }
-                )],
+                content: vec![
+                    PromptContentToken::PromptContentTokenStr(
+                        PromptContentTokenStr {
+                            r#type: PromptContentTokenStrTypeStr,
+                            span: (18, 24),
+                        }
+                    ),
+                    PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: (24, 30),
+                        }
+                    ),
+                    PromptContentToken::PromptContentTokenStr(
+                        PromptContentTokenStr {
+                            r#type: PromptContentTokenStrTypeStr,
+                            span: (30, 31),
+                        }
+                    ),
+                ],
                 joint: SpanShape {
                     outer: (0, 0),
                     inner: (0, 0),

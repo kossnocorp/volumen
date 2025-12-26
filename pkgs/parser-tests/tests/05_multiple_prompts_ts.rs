@@ -32,7 +32,15 @@ fn multiple() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (20, 35),
+                          span: (20, 27),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (27, 34),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (34, 35),
                         ),
                       ],
                       joint: SpanShape(
@@ -61,7 +69,15 @@ fn multiple() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (70, 86),
+                          span: (70, 78),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (78, 85),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (85, 86),
                         ),
                       ],
                       joint: SpanShape(
@@ -100,7 +116,15 @@ fn multiple() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (118, 139),
+                          span: (118, 126),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (126, 138),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (138, 139),
                         ),
                       ],
                       joint: SpanShape(

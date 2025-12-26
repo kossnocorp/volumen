@@ -113,7 +113,11 @@ fn assigned() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (32, 49),
+                          span: (32, 41),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (41, 49),
                         ),
                       ],
                       joint: SpanShape(

@@ -27,7 +27,15 @@ fn single_var() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (22, 39),
+                          span: (22, 31),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (31, 38),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (38, 39),
                         ),
                       ],
                       joint: SpanShape(
@@ -111,7 +119,23 @@ fn multiple_vars() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (22, 74),
+                          span: (22, 29),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (29, 36),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (36, 66),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (66, 73),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (73, 74),
                         ),
                       ],
                       joint: SpanShape(

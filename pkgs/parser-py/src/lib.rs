@@ -140,6 +140,55 @@ impl<'a> PyPromptVisitor<'a> {
         SpanShape { outer, inner }
     }
 
+    fn build_content_tokens(&self, span: &SpanShape, vars: &[PromptVar]) -> Vec<PromptContentToken> {
+        if vars.is_empty() {
+            // Simple case: single str token
+            return vec![PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: span.inner,
+                },
+            )];
+        }
+
+        let mut tokens = Vec::new();
+        let mut pos = span.inner.0;
+
+        for var in vars {
+            // Add str token before variable (if any content)
+            if pos < var.span.outer.0 {
+                tokens.push(PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (pos, var.span.outer.0),
+                    },
+                ));
+            }
+
+            // Add var token
+            tokens.push(PromptContentToken::PromptContentTokenVar(
+                PromptContentTokenVar {
+                    r#type: PromptContentTokenVarTypeVar,
+                    span: var.span.outer,
+                },
+            ));
+
+            pos = var.span.outer.1;
+        }
+
+        // Add trailing str token (if any content)
+        if pos < span.inner.1 {
+            tokens.push(PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: (pos, span.inner.1),
+                },
+            ));
+        }
+
+        tokens
+    }
+
     fn collect_vars_from_joined_str(&self, joined: &ast::ExprJoinedStr) -> Vec<PromptVar> {
         let mut vars = Vec::new();
         for value in &joined.values {
@@ -299,19 +348,17 @@ impl<'a> PyPromptVisitor<'a> {
             .unwrap_or(stmt_range.start().to_usize() as u32);
         let enclosure = (leading_start, stmt_range.end().to_usize() as u32);
 
+        let span = self.span_shape_string_like(node_range);
+        let content = self.build_content_tokens(&span, &vars);
+
         let prompt = Prompt {
             file: self.file.clone(),
-            span: self.span_shape_string_like(node_range),
+            span,
             enclosure,
             exp: self.code[node_range].to_string(),
             vars,
             annotations,
-            content: vec![PromptContentToken::PromptContentTokenStr(
-                PromptContentTokenStr {
-                    r#type: PromptContentTokenStrTypeStr,
-                    span: self.span_shape_string_like(node_range).inner,
-                }
-            )],
+            content,
             joint: SpanShape {
                 outer: (0, 0),
                 inner: (0, 0),

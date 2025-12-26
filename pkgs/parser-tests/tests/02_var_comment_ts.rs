@@ -294,7 +294,11 @@ fn assigned() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (37, 54),
+                          span: (37, 46),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (46, 54),
                         ),
                       ],
                       joint: SpanShape(
@@ -396,7 +400,11 @@ fn assigned_late_comment() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (37, 54),
+                          span: (37, 46),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (46, 54),
                         ),
                       ],
                       joint: SpanShape(
@@ -499,7 +507,11 @@ fn reassigned() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (65, 84),
+                          span: (65, 76),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (76, 84),
                         ),
                       ],
                       joint: SpanShape(

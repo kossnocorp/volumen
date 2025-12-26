@@ -27,7 +27,15 @@ fn simple() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (33, 50),
+                          span: (33, 42),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (42, 49),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (49, 50),
                         ),
                       ],
                       joint: SpanShape(
@@ -249,7 +257,15 @@ fn dirty() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (42, 59),
+                          span: (42, 51),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (51, 58),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (58, 59),
                         ),
                       ],
                       joint: SpanShape(

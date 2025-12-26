@@ -150,7 +150,23 @@ fn multiline_fstr() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (21, 72),
+                          span: (21, 28),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (28, 34),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (34, 64),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (64, 70),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (70, 72),
                         ),
                       ],
                       joint: SpanShape(

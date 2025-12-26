@@ -97,6 +97,55 @@ impl<'a> PromptVisitor<'a> {
         SpanShape { outer, inner }
     }
 
+    fn build_content_tokens(&self, span: &SpanShape, vars: &[PromptVar]) -> Vec<PromptContentToken> {
+        if vars.is_empty() {
+            // Simple case: single str token
+            return vec![PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: span.inner,
+                },
+            )];
+        }
+
+        let mut tokens = Vec::new();
+        let mut pos = span.inner.0;
+
+        for var in vars {
+            // Add str token before variable (if any content)
+            if pos < var.span.outer.0 {
+                tokens.push(PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (pos, var.span.outer.0),
+                    },
+                ));
+            }
+
+            // Add var token
+            tokens.push(PromptContentToken::PromptContentTokenVar(
+                PromptContentTokenVar {
+                    r#type: PromptContentTokenVarTypeVar,
+                    span: var.span.outer,
+                },
+            ));
+
+            pos = var.span.outer.1;
+        }
+
+        // Add trailing str token (if any content)
+        if pos < span.inner.1 {
+            tokens.push(PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: (pos, span.inner.1),
+                },
+            ));
+        }
+
+        tokens
+    }
+
     fn process_variable_declarator(
         &mut self,
         declarator: &ast::VariableDeclarator<'a>,
@@ -142,7 +191,6 @@ impl<'a> PromptVisitor<'a> {
 
                             if has_prompt {
                                 let span = self.span_shape_literal(value_span);
-                                let content_span = span.inner;
                                 let exp = value_span.source_text(self.code).to_string();
 
                                 let vars = if *is_template {
@@ -154,6 +202,8 @@ impl<'a> PromptVisitor<'a> {
                                     Vec::new()
                                 };
 
+                                let content = self.build_content_tokens(&span, &vars);
+
             let prompt = Prompt {
                 file: self.file.clone(),
                 span,
@@ -161,12 +211,7 @@ impl<'a> PromptVisitor<'a> {
                 exp,
                 vars,
                 annotations,
-                content: vec![PromptContentToken::PromptContentTokenStr(
-                    PromptContentTokenStr {
-                        r#type: PromptContentTokenStrTypeStr,
-                        span: content_span,
-                    }
-                )],
+                content,
                 joint: SpanShape {
                     outer: (0, 0),
                     inner: (0, 0),
@@ -355,20 +400,16 @@ impl<'a> PromptVisitor<'a> {
             self.resolve_prompt_meta(ident_name, &template.span);
         if has_prompt {
             let span = self.span_shape_literal(&template.span);
-            let content_span = span.inner;
+            let vars = self.extract_template_vars(template);
+            let content = self.build_content_tokens(&span, &vars);
             let prompt = Prompt {
                 file: self.file.clone(),
                 span,
                 enclosure,
                 exp: self.get_template_text(template),
-                vars: self.extract_template_vars(template),
+                vars,
                 annotations,
-                content: vec![PromptContentToken::PromptContentTokenStr(
-                    PromptContentTokenStr {
-                        r#type: PromptContentTokenStrTypeStr,
-                        span: content_span,
-                    }
-                )],
+                content,
                 joint: SpanShape {
                     outer: (0, 0),
                     inner: (0, 0),
@@ -383,20 +424,16 @@ impl<'a> PromptVisitor<'a> {
             self.resolve_prompt_meta(ident_name, &string.span);
         if has_prompt {
             let span = self.span_shape_literal(&string.span);
-            let content_span = span.inner;
+            let vars = Vec::new();
+            let content = self.build_content_tokens(&span, &vars);
             let prompt = Prompt {
                 file: self.file.clone(),
                 span,
                 enclosure,
                 exp: string.span().source_text(self.code).to_string(),
-                vars: Vec::new(),
+                vars,
                 annotations,
-                content: vec![PromptContentToken::PromptContentTokenStr(
-                    PromptContentTokenStr {
-                        r#type: PromptContentTokenStrTypeStr,
-                        span: content_span,
-                    }
-                )],
+                content,
                 joint: SpanShape {
                     outer: (0, 0),
                     inner: (0, 0),

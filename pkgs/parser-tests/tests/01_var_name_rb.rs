@@ -106,7 +106,15 @@ fn nested() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (57, 72),
+                          span: (57, 64),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (64, 71),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (71, 72),
                         ),
                       ],
                       joint: SpanShape(
