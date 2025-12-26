@@ -1,18 +1,66 @@
 PromptVar = {
-  exp: string
   span: ./span/SpanShape
+  /// @deprecated, use `span` to get the variable expression or content.
+  exp: string
 }
 
 Prompt = {
   file: string
-  span: ./span/SpanShape,
+  /// Enclosure span pointing to the prompt with associated expression, e.g.,
+  /// for `const prompt = "Hi!";`, the enclosure spans from `const` to `;`.
+  /// It allows to find prompts related to a specific cursor position.
   enclosure: ./span/Span
-  exp: string,
+  /// Prompt expression span shape, e.g., for `const prompt = "Hi!";`,
+  /// the outer span includes `"Hi!"` and the inner spans the string content
+  /// `Hi!` without quotes. The inner span musn't be used to extract the
+  /// expression text, and only serves to locate content surroundings, i.e.,
+  /// `"` characters in this case.
+  span: ./span/SpanShape,
+  /// Content tokens that defines the prompt chunks. Simple prompts will have
+  /// a single string token. More complex prompts with variable interpolations
+  /// or prompts defined as joined array, or indentation-altered multi-line
+  /// strings (e.g., heredoc in Ruby) will have multiple tokens. The tokens
+  /// can be used to render the prompt accurately as defined in source.
+  content: [PromptContentToken],
+  /// Expression joint span shape, e.g., for `["foo", "bar"].join(", ")`, the
+  /// joint is `", "` with outer covering the entire expression and inner the
+  /// span of the joint itself i.e., `, `. The internal span can be used to
+  /// render the prompt content joint tokens.
+  joint: ./span/SpanShape,
+  /// Variables used in the prompt expression. The order corresponds to
+  /// the order of appearance in the prompt content tokens.
   vars: [PromptVar],
+  /// Associated annotations found in comments related to the prompt. Each
+  /// annotation represents a continuous block of comment lines or a single
+  /// comment chunk. The order corresponds to the order of appearance in
+  /// the source code.
   annotations: [PromptAnnotation]
+  /// @deprecated, use `content` tokens to render the prompt content.
+  exp: string
+}
+
+PromptContentToken = PromptContentTokenStr | PromptContentTokenVar | PromptContentTokenJoint
+
+PromptContentTokenStr = {
+  type: "str"
+  span: ./span/Span
+}
+
+PromptContentTokenVar = {
+  type: "var"
+  span: ./span/Span
+}
+
+PromptContentTokenJoint = {
+  type: "joint"
 }
 
 PromptAnnotation = {
-  span: ./span/Span
+  /// Prompt annotation span shapes. Each span shape represents a line as it
+  /// appears in source code. The outer span covers the entire comment line
+  /// e.g., `// @prompt hello`, and the inner span covers just the content,
+  /// e.g., ` @prompt hello`.
+  spans: [./span/SpanShape]
+  /// @deprecated, use `span` tokens to render the prompt content.
   exp: string
 }

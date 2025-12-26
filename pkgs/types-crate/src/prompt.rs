@@ -18,6 +18,11 @@ pub struct Prompt {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PromptAnnotation {
-    pub span: super::span::Span,
+    /// Prompt annotation span shapes. Each span shape represents a line as it
+    /// appears in source code. The outer span covers the entire comment line
+    /// e.g., `// @prompt hello`, and the inner span covers just the content,
+    /// e.g., ` @prompt hello`.
+    pub spans: Vec<super::span::SpanShape>,
+    /// @deprecated, use `span` tokens to render the prompt content.
     pub exp: String,
 }
