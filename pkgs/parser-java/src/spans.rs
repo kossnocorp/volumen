@@ -1,5 +1,5 @@
 use tree_sitter::Node;
-use volumen_types::{Span, SpanShape};
+use volumen_types::SpanShape;
 
 /// Calculate outer and inner spans for a string-like node.
 /// For Java, this handles string literals and text blocks (Java 15+).
@@ -7,10 +7,7 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
     let start = node.start_byte();
     let end = node.end_byte();
 
-    let outer = Span {
-        start: start as u32,
-        end: end as u32,
-    };
+    let outer = (start as u32, end as u32);
 
     let kind = node.kind();
 
@@ -30,20 +27,13 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
         }
 
         // Check for closing """
-        if end >= 3
-            && bytes[end - 3] == b'"'
-            && bytes[end - 2] == b'"'
-            && bytes[end - 1] == b'"'
-        {
+        if end >= 3 && bytes[end - 3] == b'"' && bytes[end - 2] == b'"' && bytes[end - 1] == b'"' {
             inner_end = (end as u32) - 3;
         }
 
         return SpanShape {
             outer,
-            inner: Span {
-                start: inner_start,
-                end: inner_end,
-            },
+            inner: (inner_start, inner_end),
         };
     }
 
@@ -55,10 +45,10 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
         quote_len = 1;
     }
 
-    let inner = Span {
-        start: (start as u32).saturating_add(quote_len),
-        end: (end as u32).saturating_sub(quote_len),
-    };
+    let inner = (
+        (start as u32).saturating_add(quote_len),
+        (end as u32).saturating_sub(quote_len),
+    );
 
     SpanShape { outer, inner }
 }

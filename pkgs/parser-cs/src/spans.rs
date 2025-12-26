@@ -1,5 +1,5 @@
 use tree_sitter::Node;
-use volumen_types::{PromptVar, Span, SpanShape};
+use volumen_types::{PromptVar, SpanShape};
 
 /// Calculate outer and inner spans for a string-like node.
 /// For C#, this handles string literals, interpolated strings, and verbatim strings.
@@ -7,10 +7,7 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
     let start = node.start_byte();
     let end = node.end_byte();
 
-    let outer = Span {
-        start: start as u32,
-        end: end as u32,
-    };
+    let outer = (start as u32, end as u32);
 
     let kind = node.kind();
     let bytes = source.as_bytes();
@@ -36,10 +33,7 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
 
         return SpanShape {
             outer,
-            inner: Span {
-                start: inner_start,
-                end: inner_end,
-            },
+            inner: (inner_start, inner_end),
         };
     }
 
@@ -51,19 +45,16 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
 
         return SpanShape {
             outer,
-            inner: Span {
-                start: inner_start,
-                end: inner_end,
-            },
+            inner: (inner_start, inner_end),
         };
     }
 
     // For regular string literals ("...")
     let quote_len = 1u32;
-    let inner = Span {
-        start: (start as u32).saturating_add(quote_len),
-        end: (end as u32).saturating_sub(quote_len),
-    };
+    let inner = (
+        (start as u32).saturating_add(quote_len),
+        (end as u32).saturating_sub(quote_len),
+    );
 
     SpanShape { outer, inner }
 }
@@ -96,14 +87,8 @@ pub fn extract_interpolation_vars(node: &Node, source: &str) -> Vec<PromptVar> {
                 vars.push(PromptVar {
                     exp,
                     span: SpanShape {
-                        outer: Span {
-                            start: outer_start,
-                            end: outer_end,
-                        },
-                        inner: Span {
-                            start: inner_start,
-                            end: inner_end,
-                        },
+                        outer: (outer_start, outer_end),
+                        inner: (inner_start, inner_end),
                     },
                 });
             }

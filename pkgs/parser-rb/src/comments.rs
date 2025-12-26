@@ -8,10 +8,7 @@ fn extract_comments_recursive(node: &Node, source: &str, comments: &mut Vec<Comm
         comments.push(CommentNode {
             start: node.start_byte() as u32,
             end: node.end_byte() as u32,
-            text: node
-                .utf8_text(source.as_bytes())
-                .unwrap_or("")
-                .to_string(),
+            text: node.utf8_text(source.as_bytes()).unwrap_or("").to_string(),
         });
     }
 
@@ -125,7 +122,7 @@ impl CommentTracker {
         let block_text = &self.source[start as usize..end as usize];
 
         vec![PromptAnnotation {
-            span: Span { start, end },
+            span: (start, end),
             exp: block_text.to_string(),
         }]
     }
@@ -137,10 +134,7 @@ impl CommentTracker {
             .filter(|c| c.start >= stmt_start && c.start < stmt_end)
             .filter(|c| parse_annotation(&c.text).unwrap_or(false))
             .map(|c| PromptAnnotation {
-                span: Span {
-                    start: c.start,
-                    end: c.end,
-                },
+                span: (c.start, c.end),
                 exp: c.text.clone(),
             })
             .collect()

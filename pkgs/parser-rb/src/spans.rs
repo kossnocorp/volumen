@@ -15,15 +15,9 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
             loop {
                 let child = cursor.node();
                 if child.kind() == "heredoc_body" {
-                    let outer = Span {
-                        start: start as u32,
-                        end: end as u32,
-                    };
+                    let outer = (start as u32, end as u32);
 
-                    let inner = Span {
-                        start: child.start_byte() as u32,
-                        end: child.end_byte() as u32,
-                    };
+                    let inner = (child.start_byte() as u32, child.end_byte() as u32);
 
                     return SpanShape { outer, inner };
                 }
@@ -55,9 +49,7 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
                     }
                 } else {
                     let rest = &text[label_start..];
-                    let end_idx = rest
-                        .find(|c: char| c.is_whitespace())
-                        .unwrap_or(rest.len());
+                    let end_idx = rest.find(|c: char| c.is_whitespace()).unwrap_or(rest.len());
                     label = &rest[..end_idx];
                 }
             }
@@ -79,23 +71,14 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
                     cursor += line.len();
                 }
 
-                let outer = Span {
-                    start: start as u32,
-                    end: body_end as u32,
-                };
-                let inner = Span {
-                    start: body_start as u32,
-                    end: body_end as u32,
-                };
+                let outer = (start as u32, body_end as u32);
+                let inner = (body_start as u32, body_end as u32);
 
                 return SpanShape { outer, inner };
             }
         }
 
-        let fallback = Span {
-            start: start as u32,
-            end: end as u32,
-        };
+        let fallback = (start as u32, end as u32);
         return SpanShape {
             outer: fallback.clone(),
             inner: fallback,
@@ -103,10 +86,7 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
     }
 
     if kind == "heredoc_body" {
-        let outer = Span {
-            start: start as u32,
-            end: end as u32,
-        };
+        let outer = (start as u32, end as u32);
         return SpanShape {
             outer: outer.clone(),
             inner: outer,
@@ -115,7 +95,10 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
 
     // For percent strings, skip the leading "%q"/"%Q" and the closing delimiter
     let bytes = source.as_bytes();
-    if start + 2 < bytes.len() && bytes[start] == b'%' && (bytes[start + 1] == b'q' || bytes[start + 1] == b'Q') {
+    if start + 2 < bytes.len()
+        && bytes[start] == b'%'
+        && (bytes[start + 1] == b'q' || bytes[start + 1] == b'Q')
+    {
         let delimiter = bytes[start + 2];
         let closing = match delimiter {
             b'(' => b')',
@@ -133,14 +116,8 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
         }
 
         return SpanShape {
-            outer: Span {
-                start: start as u32,
-                end: end as u32,
-            },
-            inner: Span {
-                start: inner_start,
-                end: inner_end,
-            },
+            outer: (start as u32, end as u32),
+            inner: (inner_start, inner_end),
         };
     }
 
@@ -161,15 +138,12 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
         }
     }
 
-    let outer = Span {
-        start: start as u32,
-        end: end as u32,
-    };
+    let outer = (start as u32, end as u32);
 
-    let inner = Span {
-        start: (start as u32).saturating_add(quote_len),
-        end: (end as u32).saturating_sub(quote_len),
-    };
+    let inner = (
+        (start as u32).saturating_add(quote_len),
+        (end as u32).saturating_sub(quote_len),
+    );
 
     SpanShape { outer, inner }
 }
@@ -191,14 +165,8 @@ pub fn extract_interpolation_vars(node: &Node, source: &str) -> Vec<PromptVar> {
             vars.push(PromptVar {
                 exp,
                 span: SpanShape {
-                    outer: Span {
-                        start: outer_start,
-                        end: outer_end,
-                    },
-                    inner: Span {
-                        start: inner_start,
-                        end: inner_end,
-                    },
+                    outer: (outer_start, outer_end),
+                    inner: (inner_start, inner_end),
                 },
             });
             return;
@@ -246,5 +214,8 @@ pub fn is_interpolated_string(node: &Node) -> bool {
 
 /// Check if a node is a string-like node (including heredocs).
 pub fn is_string_like(node: &Node) -> bool {
-    matches!(node.kind(), "string" | "string_content" | "heredoc_body" | "heredoc_beginning")
+    matches!(
+        node.kind(),
+        "string" | "string_content" | "heredoc_body" | "heredoc_beginning"
+    )
 }

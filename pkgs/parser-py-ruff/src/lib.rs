@@ -96,10 +96,10 @@ impl<'a> PyPromptVisitor<'a> {
     }
 
     fn span(&self, range: TextRange) -> Span {
-        Span {
-            start: range.start().to_usize() as u32,
-            end: range.end().to_usize() as u32,
-        }
+        (
+            range.start().to_usize() as u32,
+            range.end().to_usize() as u32,
+        )
     }
 
     fn span_shape_string_like(&self, range: TextRange) -> SpanShape {
@@ -136,11 +136,8 @@ impl<'a> PyPromptVisitor<'a> {
 
         let outer = self.span(range);
         let inner_start = (quote_pos as u32).saturating_add(quote_len);
-        let inner_end = outer.end.saturating_sub(quote_len);
-        let inner = Span {
-            start: inner_start,
-            end: inner_end,
-        };
+        let inner_end = outer.1.saturating_sub(quote_len);
+        let inner = (inner_start, inner_end);
 
         SpanShape { outer, inner }
     }
@@ -156,10 +153,10 @@ impl<'a> PyPromptVisitor<'a> {
                             exp: self.code[range].to_string(),
                             span: SpanShape {
                                 outer: self.span(range),
-                                inner: Span {
-                                    start: self.span(range).start + 1,
-                                    end: self.span(range).end.saturating_sub(1),
-                                },
+                                inner: (
+                                    self.span(range).0 + 1,
+                                    self.span(range).1.saturating_sub(1),
+                                ),
                             },
                         });
                     }
@@ -178,10 +175,7 @@ impl<'a> PyPromptVisitor<'a> {
                     exp: self.code[r].to_string(),
                     span: SpanShape {
                         outer: self.span(r),
-                        inner: Span {
-                            start: self.span(r).start + 1,
-                            end: self.span(r).end.saturating_sub(1),
-                        },
+                        inner: (self.span(r).0 + 1, self.span(r).1.saturating_sub(1)),
                     },
                 });
             }
@@ -302,11 +296,8 @@ impl<'a> PyPromptVisitor<'a> {
             .last()
             .copied()
             .flatten()
-            .unwrap_or(self.span(stmt_range).start);
-        let enclosure = Span {
-            start: leading_start,
-            end: self.span(stmt_range).end,
-        };
+            .unwrap_or(self.span(stmt_range).0);
+        let enclosure = (leading_start, self.span(stmt_range).1);
 
         let prompt = Prompt {
             file: self.file.clone(),
@@ -362,7 +353,7 @@ impl<'a> PyPromptVisitor<'a> {
         let end = last.end().to_u32();
         let block_text = &self.code[TextRange::new(first.start(), last.end())];
         vec![PromptAnnotation {
-            span: Span { start, end },
+            span: (start, end),
             exp: block_text.to_string(),
         }]
     }
@@ -375,10 +366,7 @@ impl<'a> PyPromptVisitor<'a> {
                 let text = self.code[cr].to_string();
                 if parse_annotation(&text).unwrap_or(false) {
                     out.push(PromptAnnotation {
-                        span: Span {
-                            start: cr.start().to_u32(),
-                            end: cr.end().to_u32(),
-                        },
+                        span: (cr.start().to_u32(), cr.end().to_u32()),
                         exp: text,
                     });
                 }
@@ -399,7 +387,7 @@ impl<'a> Visitor<'a> for PyPromptVisitor<'a> {
         let leading = self.collect_adjacent_leading_comments(stmt);
         let inline = self.collect_inline_prompt_comments(stmt);
         let mut annotations: Vec<PromptAnnotation> = Vec::new();
-        let leading_start = leading.first().map(|a| a.span.start);
+        let leading_start = leading.first().map(|a| a.span.0);
         for a in leading.into_iter().chain(inline.into_iter()) {
             annotations.push(a);
         }

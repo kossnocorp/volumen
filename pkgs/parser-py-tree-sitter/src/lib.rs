@@ -517,15 +517,12 @@ fn create_prompt_from_range(
         quote_len = 3;
     }
 
-    let outer = Span {
-        start: start as u32,
-        end: end as u32,
-    };
+    let outer = (start as u32, end as u32);
 
-    let inner = Span {
-        start: (quote_pos as u32).saturating_add(quote_len),
-        end: outer.end.saturating_sub(quote_len),
-    };
+    let inner = (
+        (quote_pos as u32).saturating_add(quote_len),
+        outer.1.saturating_sub(quote_len),
+    );
 
     let span = SpanShape { outer, inner };
 
@@ -536,11 +533,10 @@ fn create_prompt_from_range(
     let vars = Vec::new(); // TODO: Extract vars from f-string in multi-assignment
 
     // Calculate enclosure - use get_any_leading_start to include ANY leading comment (valid or not)
-    let enclosure_start = comments.get_any_leading_start(stmt_start).unwrap_or(stmt_start);
-    let enclosure = Span {
-        start: enclosure_start,
-        end: stmt_end,
-    };
+    let enclosure_start = comments
+        .get_any_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+    let enclosure = (enclosure_start, stmt_end);
 
     prompts.push(Prompt {
         file: filename.to_string(),
@@ -593,7 +589,7 @@ fn create_prompt_from_string(
     let span = span_shape_string_like(string_node, source);
 
     // Extract expression text
-    let exp = source[span.outer.start as usize..span.outer.end as usize].to_string();
+    let exp = source[span.outer.0 as usize..span.outer.1 as usize].to_string();
 
     // Extract variables if f-string
     let vars = if is_fstring(string_node, source) {
@@ -603,11 +599,10 @@ fn create_prompt_from_string(
     };
 
     // Calculate enclosure - use get_any_leading_start to include ANY leading comment (valid or not)
-    let enclosure_start = comments.get_any_leading_start(stmt_start).unwrap_or(stmt_start);
-    let enclosure = Span {
-        start: enclosure_start,
-        end: stmt_end,
-    };
+    let enclosure_start = comments
+        .get_any_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+    let enclosure = (enclosure_start, stmt_end);
 
     prompts.push(Prompt {
         file: filename.to_string(),

@@ -455,7 +455,10 @@ fn is_prompt_variable(ident_name: &str, has_annotation: bool, scopes: &ScopeTrac
 
 /// Check if a node represents a string literal or heredoc.
 fn is_string_like(node: &Node) -> bool {
-    matches!(node.kind(), "string" | "string_content" | "heredoc_body" | "heredoc_beginning")
+    matches!(
+        node.kind(),
+        "string" | "string_content" | "heredoc_body" | "heredoc_beginning"
+    )
 }
 
 /// Extract identifiers from a left_assignment_list or similar pattern.
@@ -485,11 +488,7 @@ fn extract_value_ranges(node: &Node, values: &mut Vec<(u32, u32, &'static str)>)
     let kind = node.kind();
 
     if kind == "string" || kind == "string_content" {
-        values.push((
-            node.start_byte() as u32,
-            node.end_byte() as u32,
-            kind,
-        ));
+        values.push((node.start_byte() as u32, node.end_byte() as u32, kind));
         return;
     }
 
@@ -551,7 +550,7 @@ fn create_prompt_from_string(
     let span = span_shape_string_like(&normalized_node, source);
 
     // Extract expression text
-    let exp = source[span.outer.start as usize..span.outer.end as usize].to_string();
+    let exp = source[span.outer.0 as usize..span.outer.1 as usize].to_string();
 
     // Extract variables if interpolated string
     let vars = spans::extract_interpolation_vars(&normalized_node, source);
@@ -560,10 +559,7 @@ fn create_prompt_from_string(
     let enclosure_start = comments
         .get_any_leading_start(stmt_start)
         .unwrap_or(stmt_start);
-    let enclosure = Span {
-        start: enclosure_start,
-        end: stmt_end,
-    };
+    let enclosure = (enclosure_start, stmt_end);
 
     prompts.push(Prompt {
         file: filename.to_string(),
@@ -593,21 +589,18 @@ fn create_prompt_from_range(
 
     // For simple strings, outer and inner are close
     let span = SpanShape {
-        outer: Span { start, end },
-        inner: Span {
-            start: start + 1, // Skip opening quote
-            end: end.saturating_sub(1), // Skip closing quote
-        },
+        outer: (start, end),
+        inner: (
+            start + 1,             // Skip opening quote
+            end.saturating_sub(1), // Skip closing quote
+        ),
     };
 
     // Calculate enclosure
     let enclosure_start = comments
         .get_any_leading_start(stmt_start)
         .unwrap_or(stmt_start);
-    let enclosure = Span {
-        start: enclosure_start,
-        end: stmt_end,
-    };
+    let enclosure = (enclosure_start, stmt_end);
 
     prompts.push(Prompt {
         file: filename.to_string(),

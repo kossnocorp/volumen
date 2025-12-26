@@ -1,7 +1,4 @@
-Span = {
-  start: u32,
-  end: u32,
-}
+Span = (u32, u32)
 
 SpanShape = {
   outer: Span

@@ -53,15 +53,15 @@ pub struct PromptSourceCutVar {
 
 impl PromptSourceCuts {
     pub fn cut(source: &'static str, prompt: &Prompt) -> Self {
-        let enclosure = &source[prompt.enclosure.start as usize..prompt.enclosure.end as usize];
-        let outer = &source[prompt.span.outer.start as usize..prompt.span.outer.end as usize];
-        let inner = &source[prompt.span.inner.start as usize..prompt.span.inner.end as usize];
+        let enclosure = &source[prompt.enclosure.0 as usize..prompt.enclosure.1 as usize];
+        let outer = &source[prompt.span.outer.0 as usize..prompt.span.outer.1 as usize];
+        let inner = &source[prompt.span.inner.0 as usize..prompt.span.inner.1 as usize];
         let vars = prompt
             .vars
             .iter()
             .map(|var| PromptSourceCutVar {
-                outer: &source[var.span.outer.start as usize..var.span.outer.end as usize],
-                inner: &source[var.span.inner.start as usize..var.span.inner.end as usize],
+                outer: &source[var.span.outer.0 as usize..var.span.outer.1 as usize],
+                inner: &source[var.span.inner.0 as usize..var.span.inner.1 as usize],
             })
             .collect();
 
@@ -115,12 +115,12 @@ impl ParseTest {
                                 .prompts
                                 .iter()
                                 .map(|prompt| {
-                                    let interpolated_start = prompt.span.inner.start - prompt.span.outer.start;
-                                    let interpolated_end = prompt.span.inner.end - prompt.span.outer.start;
+                                    let interpolated_start = prompt.span.inner.0 - prompt.span.outer.0;
+                                    let interpolated_end = prompt.span.inner.1 - prompt.span.outer.0;
                                     let mut interpolated = prompt.exp[interpolated_start as usize..interpolated_end as usize].to_owned();
                                     prompt.vars.iter().enumerate().rev().for_each(|(var_index, var)| {
-                                        let var_start = (var.span.outer.start - prompt.span.inner.start) as usize;
-                                        let var_end = (var.span.outer.end - prompt.span.inner.start) as usize;
+                                        let var_start = (var.span.outer.0 - prompt.span.inner.0) as usize;
+                                        let var_end = (var.span.outer.1 - prompt.span.inner.0) as usize;
                                         let range = var_start..var_end;
                                         interpolated.replace_range(range, &format!("{{{}}}", var_index));
                                     });
@@ -141,7 +141,7 @@ impl ParseTest {
                                         .annotations
                                         .iter()
                                         .map(|annotation| {
-                                            let annotation_str = &lang.source[annotation.span.start as usize..annotation.span.end as usize];
+                                            let annotation_str = &lang.source[annotation.span.0 as usize..annotation.span.1 as usize];
                                             annotation_str.to_owned()
                                         })
                                         .collect()

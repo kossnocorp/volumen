@@ -130,7 +130,11 @@ fn traverse_node(
     let kind = node.kind();
 
     // Handle scope boundaries (method, class, interface)
-    if kind == "method_declaration" || kind == "class_declaration" || kind == "interface_declaration" || kind == "constructor_declaration" {
+    if kind == "method_declaration"
+        || kind == "class_declaration"
+        || kind == "interface_declaration"
+        || kind == "constructor_declaration"
+    {
         scopes.enter_scope();
 
         // Process children
@@ -362,7 +366,7 @@ fn create_prompt_from_string(
     let span = span_shape_string_like(string_node, source);
 
     // Extract expression text
-    let exp = source[span.outer.start as usize..span.outer.end as usize].to_string();
+    let exp = source[span.outer.0 as usize..span.outer.1 as usize].to_string();
 
     // Java doesn't have native string interpolation, so vars is always empty
     let vars = Vec::new();
@@ -371,10 +375,7 @@ fn create_prompt_from_string(
     let enclosure_start = comments
         .get_any_leading_start(stmt_start)
         .unwrap_or(stmt_start);
-    let enclosure = Span {
-        start: enclosure_start,
-        end: stmt_end,
-    };
+    let enclosure = (enclosure_start, stmt_end);
 
     prompts.push(Prompt {
         file: filename.to_string(),

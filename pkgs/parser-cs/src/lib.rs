@@ -427,7 +427,7 @@ fn create_prompt_from_string(
     let span = span_shape_string_like(string_node, source);
 
     // Extract expression text
-    let exp = source[span.outer.start as usize..span.outer.end as usize].to_string();
+    let exp = source[span.outer.0 as usize..span.outer.1 as usize].to_string();
 
     // Extract variables if interpolated string (C# has string interpolation)
     let vars = spans::extract_interpolation_vars(string_node, source);
@@ -436,10 +436,7 @@ fn create_prompt_from_string(
     let enclosure_start = comments
         .get_any_leading_start(stmt_start)
         .unwrap_or(stmt_start);
-    let enclosure = Span {
-        start: enclosure_start,
-        end: stmt_end,
-    };
+    let enclosure = (enclosure_start, stmt_end);
 
     prompts.push(Prompt {
         file: filename.to_string(),

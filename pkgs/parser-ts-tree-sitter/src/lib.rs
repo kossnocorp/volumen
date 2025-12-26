@@ -669,7 +669,7 @@ fn create_prompt_from_string(
     let span = span_shape_string_like(string_node, source);
 
     // Extract expression text
-    let exp = source[span.outer.start as usize..span.outer.end as usize].to_string();
+    let exp = source[span.outer.0 as usize..span.outer.1 as usize].to_string();
 
     // Extract variables if template string
     let vars = if is_template_string(string_node) {
@@ -684,12 +684,12 @@ fn create_prompt_from_string(
     let enclosure_start = if annotations_from_current_stmt && !annotations.is_empty() {
         if annotations.len() >= 2 {
             // Multiple annotations: first one is leading comment
-            annotations.first().unwrap().span.start
+            annotations.first().unwrap().span.0
         } else {
             let ann = annotations.first().unwrap();
             // Check if annotation is before statement (leading)
-            if ann.span.start < stmt_start {
-                ann.span.start
+            if ann.span.0 < stmt_start {
+                ann.span.0
             } else {
                 // Inline annotation
                 stmt_start
@@ -700,10 +700,7 @@ fn create_prompt_from_string(
         leading_start.unwrap_or(stmt_start)
     };
 
-    let enclosure = Span {
-        start: enclosure_start,
-        end: stmt_end,
-    };
+    let enclosure = (enclosure_start, stmt_end);
 
     prompts.push(Prompt {
         file: filename.to_string(),

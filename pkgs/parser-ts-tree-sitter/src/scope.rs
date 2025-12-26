@@ -138,7 +138,7 @@ mod tests {
         let mut tracker = ScopeTracker::new();
 
         let annotations = vec![PromptAnnotation {
-            span: Span { start: 0, end: 10 },
+            span: (0, 10),
             exp: "// @prompt".to_string(),
         }];
 

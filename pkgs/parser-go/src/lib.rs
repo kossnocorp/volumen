@@ -365,7 +365,10 @@ fn is_prompt_variable(ident_name: &str, has_annotation: bool, scopes: &ScopeTrac
 
 /// Check if a node represents a string literal.
 fn is_string_like(node: &Node) -> bool {
-    matches!(node.kind(), "interpreted_string_literal" | "raw_string_literal")
+    matches!(
+        node.kind(),
+        "interpreted_string_literal" | "raw_string_literal"
+    )
 }
 
 /// Extract identifiers from an expression_list or identifier.
@@ -396,7 +399,6 @@ fn extract_identifiers(node: &Node, source: &str, identifiers: &mut Vec<String>)
     }
 }
 
-
 /// Create a prompt from a string node.
 fn create_prompt_from_string(
     string_node: &Node,
@@ -412,7 +414,7 @@ fn create_prompt_from_string(
     let span = span_shape_string_like(string_node, source);
 
     // Extract expression text
-    let exp = source[span.outer.start as usize..span.outer.end as usize].to_string();
+    let exp = source[span.outer.0 as usize..span.outer.1 as usize].to_string();
 
     // Go doesn't have native string interpolation, so vars is always empty
     let vars = Vec::new();
@@ -421,10 +423,7 @@ fn create_prompt_from_string(
     let enclosure_start = comments
         .get_any_leading_start(stmt_start)
         .unwrap_or(stmt_start);
-    let enclosure = Span {
-        start: enclosure_start,
-        end: stmt_end,
-    };
+    let enclosure = (enclosure_start, stmt_end);
 
     prompts.push(Prompt {
         file: filename.to_string(),

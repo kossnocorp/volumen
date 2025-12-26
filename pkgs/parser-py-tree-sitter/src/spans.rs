@@ -34,15 +34,12 @@ pub fn span_shape_string_like(node: &Node, source: &str) -> SpanShape {
         quote_len = 3;
     }
 
-    let outer = Span {
-        start: start as u32,
-        end: end as u32,
-    };
+    let outer = (start as u32, end as u32);
 
-    let inner = Span {
-        start: (quote_pos as u32).saturating_add(quote_len),
-        end: outer.end.saturating_sub(quote_len),
-    };
+    let inner = (
+        (quote_pos as u32).saturating_add(quote_len),
+        outer.1.saturating_sub(quote_len),
+    );
 
     SpanShape { outer, inner }
 }
@@ -86,15 +83,9 @@ pub fn extract_fstring_vars(node: &Node, source: &str) -> Vec<PromptVar> {
                 }
             }
 
-            let outer = Span {
-                start: outer_start as u32,
-                end: outer_end as u32,
-            };
+            let outer = (outer_start as u32, outer_end as u32);
 
-            let inner = Span {
-                start: expr_start as u32,
-                end: expr_end as u32,
-            };
+            let inner = (expr_start as u32, expr_end as u32);
 
             let exp = &source[outer_start..outer_end];
 
@@ -154,10 +145,10 @@ mod tests {
 
         let span = span_shape_string_like(&string_node, source);
 
-        assert_eq!(span.outer.start, 0);
-        assert_eq!(span.outer.end, 7);
-        assert_eq!(span.inner.start, 1);
-        assert_eq!(span.inner.end, 6);
+        assert_eq!(span.outer.0, 0);
+        assert_eq!(span.outer.1, 7);
+        assert_eq!(span.inner.0, 1);
+        assert_eq!(span.inner.1, 6);
     }
 
     #[test]
@@ -176,10 +167,10 @@ mod tests {
 
         let span = span_shape_string_like(&string_node, source);
 
-        assert_eq!(span.outer.start, 0);
-        assert_eq!(span.outer.end, 15);
-        assert_eq!(span.inner.start, 2); // After f"
-        assert_eq!(span.inner.end, 14); // Before "
+        assert_eq!(span.outer.0, 0);
+        assert_eq!(span.outer.1, 15);
+        assert_eq!(span.inner.0, 2); // After f"
+        assert_eq!(span.inner.1, 14); // Before "
     }
 
     #[test]
@@ -200,8 +191,8 @@ mod tests {
 
         assert_eq!(vars.len(), 1);
         assert_eq!(vars[0].exp, "{name}");
-        assert_eq!(vars[0].span.outer.start, 8);
-        assert_eq!(vars[0].span.outer.end, 14);
+        assert_eq!(vars[0].span.outer.0, 8);
+        assert_eq!(vars[0].span.outer.1, 14);
     }
 
     #[test]

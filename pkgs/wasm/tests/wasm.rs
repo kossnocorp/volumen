@@ -18,14 +18,14 @@ fn parse_js_value() {
             prompts: vec![Prompt {
                 file: "prompts.js".into(),
                 span: SpanShape {
-                    outer: Span { start: 27, end: 42 },
-                    inner: Span { start: 28, end: 41 },
+                    outer: (27, 42),
+                    inner: (28, 41),
                 },
-                enclosure: Span { start: 0, end: 43 },
+                enclosure: (0, 43),
                 exp: "\"Hello, world!\"".into(),
                 vars: vec![],
                 annotations: vec![PromptAnnotation {
-                    span: Span { start: 12, end: 26 },
+                    span: (12, 26),
                     exp: "/** @prompt */".into(),
                 }]
             }]
@@ -48,20 +48,20 @@ fn parse_py_value() {
             prompts: vec![Prompt {
                 file: "prompts.py".into(),
                 span: SpanShape {
-                    outer: Span { start: 16, end: 32 },
-                    inner: Span { start: 18, end: 31 }
+                    outer: (16, 32),
+                    inner: (18, 31)
                 },
-                enclosure: Span { start: 0, end: 32 },
+                enclosure: (0, 32),
                 exp: "f\"Hello {name}!\"".into(),
                 vars: vec![PromptVar {
                     exp: "{name}".into(),
                     span: SpanShape {
-                        outer: Span { start: 24, end: 30 },
-                        inner: Span { start: 25, end: 29 },
+                        outer: (24, 30),
+                        inner: (25, 29),
                     }
                 }],
                 annotations: vec![PromptAnnotation {
-                    span: Span { start: 0, end: 9 },
+                    span: (0, 9),
                     exp: "# @prompt".into(),
                 }]
             }]

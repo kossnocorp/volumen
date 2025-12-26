@@ -21,7 +21,7 @@ struct BenchmarkJson {
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum ThroughputData {
-    Bytes { Bytes: u64 },
+    Bytes { bytes: u64 },
     Array(Vec<ThroughputEntry>),
 }
 
@@ -121,7 +121,7 @@ fn parse_benchmark(
         let content = fs::read_to_string(benchmark_path).ok()?;
         let benchmark: BenchmarkJson = serde_json::from_str(&content).ok()?;
         match benchmark.throughput {
-            Some(ThroughputData::Bytes { Bytes }) => Bytes,
+            Some(ThroughputData::Bytes { bytes }) => bytes,
             Some(ThroughputData::Array(ref arr)) => {
                 arr.first().map(|e| e.per_iteration).unwrap_or(0)
             }

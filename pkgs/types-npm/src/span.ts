@@ -1,7 +1,4 @@
-export interface Span {
-  start: number;
-  end: number;
-}
+export type Span = [number, number];
 
 export interface SpanShape {
   outer: Span;

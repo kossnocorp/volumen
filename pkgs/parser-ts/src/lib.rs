@@ -86,20 +86,14 @@ impl<'a> PromptVisitor<'a> {
     }
 
     fn span_outer(&self, span: &oxc_span::Span) -> Span {
-        Span {
-            start: span.start,
-            end: span.end,
-        }
+        (span.start, span.end)
     }
 
     fn span_shape_literal(&self, span: &oxc_span::Span) -> SpanShape {
         let outer = self.span_outer(span);
-        let inner_start = outer.start.saturating_add(1);
-        let inner_end = outer.end.saturating_sub(1);
-        let inner = Span {
-            start: inner_start,
-            end: inner_end,
-        };
+        let inner_start = outer.0.saturating_add(1);
+        let inner_end = outer.1.saturating_sub(1);
+        let inner = (inner_start, inner_end);
         SpanShape { outer, inner }
     }
 
@@ -330,11 +324,8 @@ impl<'a> PromptVisitor<'a> {
             }
 
             let exp = &self.code[start as usize..end as usize];
-            let outer = Span { start, end };
-            let inner = Span {
-                start: expr_span.start,
-                end: expr_span.end,
-            };
+            let outer = (start, end);
+            let inner = (expr_span.start, expr_span.end);
             vars.push(PromptVar {
                 exp: exp.to_string(),
                 span: SpanShape { outer, inner },
@@ -395,7 +386,11 @@ impl<'a> PromptVisitor<'a> {
     }
 
     /// Recursively extract all binding identifiers from a binding pattern
-    fn extract_binding_identifiers(&self, pattern: &ast::BindingPattern<'a>, identifiers: &mut Vec<String>) {
+    fn extract_binding_identifiers(
+        &self,
+        pattern: &ast::BindingPattern<'a>,
+        identifiers: &mut Vec<String>,
+    ) {
         match &pattern.kind {
             ast::BindingPatternKind::BindingIdentifier(ident) => {
                 identifiers.push(ident.name.to_string());
@@ -423,7 +418,11 @@ impl<'a> PromptVisitor<'a> {
     }
 
     /// Helper to extract values from an array expression
-    fn extract_values_from_array(&self, array: &ast::ArrayExpression<'a>, values: &mut Vec<(oxc_span::Span, bool)>) {
+    fn extract_values_from_array(
+        &self,
+        array: &ast::ArrayExpression<'a>,
+        values: &mut Vec<(oxc_span::Span, bool)>,
+    ) {
         for element in array.elements.iter() {
             match element {
                 ast::ArrayExpressionElement::SpreadElement(_) => {}
@@ -446,7 +445,11 @@ impl<'a> PromptVisitor<'a> {
     }
 
     /// Helper to extract values from an object expression
-    fn extract_values_from_object(&self, obj: &ast::ObjectExpression<'a>, values: &mut Vec<(oxc_span::Span, bool)>) {
+    fn extract_values_from_object(
+        &self,
+        obj: &ast::ObjectExpression<'a>,
+        values: &mut Vec<(oxc_span::Span, bool)>,
+    ) {
         for prop in &obj.properties {
             match prop {
                 ast::ObjectPropertyKind::ObjectProperty(obj_prop) => {
@@ -458,7 +461,11 @@ impl<'a> PromptVisitor<'a> {
     }
 
     /// Recursively extract all string/template literal values from an expression
-    fn extract_expression_values(&self, expr: &ast::Expression<'a>, values: &mut Vec<(oxc_span::Span, bool)>) {
+    fn extract_expression_values(
+        &self,
+        expr: &ast::Expression<'a>,
+        values: &mut Vec<(oxc_span::Span, bool)>,
+    ) {
         match expr {
             ast::Expression::StringLiteral(string) => {
                 values.push((string.span, false)); // false = string literal
@@ -543,7 +550,7 @@ impl<'a> PromptVisitor<'a> {
         let block_text = &self.code[start as usize..end as usize];
 
         vec![PromptAnnotation {
-            span: Span { start, end },
+            span: (start, end),
             exp: block_text.to_string(),
         }]
     }
@@ -561,10 +568,7 @@ impl<'a> PromptVisitor<'a> {
                 let full = c.span.source_text(self.code);
                 if parse_annotation(full).unwrap_or(false) {
                     out.push(PromptAnnotation {
-                        span: Span {
-                            start: c.span.start,
-                            end: c.span.end,
-                        },
+                        span: (c.span.start, c.span.end),
                         exp: full.to_string(),
                     });
                 }
@@ -616,10 +620,7 @@ impl<'a> PromptVisitor<'a> {
             .copied()
             .flatten()
             .unwrap_or(stmt_span.start);
-        let enclosure = Span {
-            start: leading_start,
-            end: stmt_span.end,
-        };
+        let enclosure = (leading_start, stmt_span.end);
 
         (is_prompt, annotations, enclosure)
     }
@@ -633,7 +634,7 @@ impl<'a> Visit<'a> for PromptVisitor<'a> {
                 let leading = self.collect_adjacent_leading_comments(&expr.span);
                 let inline = self.collect_inline_prompt_comments(&expr.span, None);
                 let mut annotations: Vec<PromptAnnotation> = Vec::new();
-                let leading_start = leading.first().map(|first| first.span.start);
+                let leading_start = leading.first().map(|first| first.span.0);
                 for a in leading.into_iter().chain(inline.into_iter()) {
                     annotations.push(a);
                 }
@@ -651,7 +652,7 @@ impl<'a> Visit<'a> for PromptVisitor<'a> {
                 let leading = self.collect_adjacent_leading_comments(&decl.span);
                 let inline = self.collect_inline_prompt_comments(&decl.span, None);
                 let mut annotations: Vec<PromptAnnotation> = Vec::new();
-                let leading_start = leading.first().map(|first| first.span.start);
+                let leading_start = leading.first().map(|first| first.span.0);
                 for a in leading.into_iter().chain(inline.into_iter()) {
                     annotations.push(a);
                 }

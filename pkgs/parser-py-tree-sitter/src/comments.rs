@@ -119,7 +119,7 @@ impl<'a> CommentTracker<'a> {
         let block_text = &self.source[start as usize..end as usize];
 
         vec![PromptAnnotation {
-            span: Span { start, end },
+            span: (start, end),
             exp: block_text.to_string(),
         }]
     }
@@ -131,10 +131,7 @@ impl<'a> CommentTracker<'a> {
             .filter(|c| c.start >= stmt_start && c.start < stmt_end)
             .filter(|c| parse_annotation(&c.text).unwrap_or(false))
             .map(|c| PromptAnnotation {
-                span: Span {
-                    start: c.start,
-                    end: c.end,
-                },
+                span: (c.start, c.end),
                 exp: c.text.clone(),
             })
             .collect()
@@ -143,7 +140,7 @@ impl<'a> CommentTracker<'a> {
     /// Get the start position of the first leading comment, if any.
     pub fn get_leading_start(&self, stmt_start: u32) -> Option<u32> {
         let annotations = self.collect_adjacent_leading(stmt_start);
-        annotations.first().map(|a| a.span.start)
+        annotations.first().map(|a| a.span.0)
     }
 
     /// Get the start position of any adjacent leading comment, regardless of whether it's valid.

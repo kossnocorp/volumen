@@ -94,10 +94,10 @@ impl<'a> PyPromptVisitor<'a> {
     }
 
     fn span(&self, range: TextRange) -> Span {
-        Span {
-            start: range.start().to_usize() as u32,
-            end: range.end().to_usize() as u32,
-        }
+        (
+            range.start().to_usize() as u32,
+            range.end().to_usize() as u32,
+        )
     }
 
     fn span_shape_string_like(&self, range: TextRange) -> SpanShape {
@@ -134,11 +134,8 @@ impl<'a> PyPromptVisitor<'a> {
 
         let outer = self.span(range);
         let inner_start = (quote_pos as u32).saturating_add(quote_len);
-        let inner_end = outer.end.saturating_sub(quote_len);
-        let inner = Span {
-            start: inner_start,
-            end: inner_end,
-        };
+        let inner_end = outer.1.saturating_sub(quote_len);
+        let inner = (inner_start, inner_end);
 
         SpanShape { outer, inner }
     }
@@ -174,17 +171,11 @@ impl<'a> PyPromptVisitor<'a> {
                     j += 1;
                 }
 
-                let outer = Span {
-                    start: outer_start as u32,
-                    end: outer_end as u32,
-                };
-                let inner = Span {
-                    start: outer.start + 1,
-                    end: outer.end.saturating_sub(1),
-                };
+                let outer = (outer_start as u32, outer_end as u32);
+                let inner = (outer.0 + 1, outer.1.saturating_sub(1));
                 let exp_range = TextRange::new(
-                    rustpython_ast::text_size::TextSize::from(outer.start),
-                    rustpython_ast::text_size::TextSize::from(outer.end),
+                    rustpython_ast::text_size::TextSize::from(outer.0),
+                    rustpython_ast::text_size::TextSize::from(outer.1),
                 );
 
                 vars.push(PromptVar {
@@ -306,10 +297,7 @@ impl<'a> PyPromptVisitor<'a> {
             .copied()
             .flatten()
             .unwrap_or(stmt_range.start().to_usize() as u32);
-        let enclosure = Span {
-            start: leading_start,
-            end: stmt_range.end().to_usize() as u32,
-        };
+        let enclosure = (leading_start, stmt_range.end().to_usize() as u32);
 
         let prompt = Prompt {
             file: self.file.clone(),
@@ -375,7 +363,7 @@ impl<'a> PyPromptVisitor<'a> {
         let end = last.end().to_usize() as u32;
         let block_text = &self.code[TextRange::new(first.start(), last.end())];
         vec![PromptAnnotation {
-            span: Span { start, end },
+            span: (start, end),
             exp: block_text.to_string(),
         }]
     }
@@ -388,10 +376,7 @@ impl<'a> PyPromptVisitor<'a> {
                 let text = self.code[cr].to_string();
                 if parse_annotation(&text).unwrap_or(false) {
                     out.push(PromptAnnotation {
-                        span: Span {
-                            start: cr.start().to_usize() as u32,
-                            end: cr.end().to_usize() as u32,
-                        },
+                        span: (cr.start().to_usize() as u32, cr.end().to_usize() as u32),
                         exp: text,
                     });
                 }
@@ -413,7 +398,7 @@ impl<'a> Visitor for PyPromptVisitor<'a> {
         let leading = self.collect_adjacent_leading_comments(&node);
         let inline = self.collect_inline_prompt_comments(&node);
         let mut annotations: Vec<PromptAnnotation> = Vec::new();
-        let leading_start = leading.first().map(|a| a.span.start);
+        let leading_start = leading.first().map(|a| a.span.0);
         for a in leading.into_iter().chain(inline.into_iter()) {
             annotations.push(a);
         }
