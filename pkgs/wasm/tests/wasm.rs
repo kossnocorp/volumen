@@ -111,7 +111,7 @@ fn parse_cs_value() {
         }
     "#};
     let result = parse_test_code_wasm(cs_source, "prompts.cs");
-    assert_prompt_count(result, 0);
+    assert_prompt_count(result, 1);
 }
 
 #[wasm_bindgen_test]

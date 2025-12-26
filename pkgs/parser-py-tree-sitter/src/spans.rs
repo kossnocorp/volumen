@@ -115,7 +115,28 @@ pub fn extract_fstring_vars(node: &Node, source: &str) -> Vec<PromptVar> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tree_sitter::Parser;
+    use tree_sitter::{Node, Parser};
+
+    fn find_node_by_kind<'a>(node: &Node<'a>, kind: &str) -> Option<Node<'a>> {
+        if node.kind() == kind {
+            return Some(*node);
+        }
+
+        let mut cursor = node.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                if let Some(found) = find_node_by_kind(&child, kind) {
+                    return Some(found);
+                }
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+
+        None
+    }
 
     #[test]
     fn test_span_shape_string_simple() {
@@ -129,10 +150,7 @@ mod tests {
         let root = tree.root_node();
 
         // Find the string node: module > expression_statement > string
-        let mut cursor = root.walk();
-        cursor.goto_first_child(); // Go to expression_statement
-        cursor.goto_first_child(); // Go to string
-        let string_node = cursor.node();
+        let string_node = find_node_by_kind(&root, "string").unwrap();
 
         let span = span_shape_string_like(&string_node, source);
 
@@ -154,10 +172,7 @@ mod tests {
         let root = tree.root_node();
 
         // Find the string node: module > expression_statement > string
-        let mut cursor = root.walk();
-        cursor.goto_first_child(); // Go to expression_statement
-        cursor.goto_first_child(); // Go to string
-        let string_node = cursor.node();
+        let string_node = find_node_by_kind(&root, "string").unwrap();
 
         let span = span_shape_string_like(&string_node, source);
 
@@ -179,10 +194,7 @@ mod tests {
         let root = tree.root_node();
 
         // Find the string node: module > expression_statement > string
-        let mut cursor = root.walk();
-        cursor.goto_first_child(); // Go to expression_statement
-        cursor.goto_first_child(); // Go to string
-        let string_node = cursor.node();
+        let string_node = find_node_by_kind(&root, "string").unwrap();
 
         let vars = extract_fstring_vars(&string_node, source);
 
@@ -204,10 +216,7 @@ mod tests {
         let root = tree.root_node();
 
         // Find the string node: module > expression_statement > string
-        let mut cursor = root.walk();
-        cursor.goto_first_child(); // Go to expression_statement
-        cursor.goto_first_child(); // Go to string
-        let string_node = cursor.node();
+        let string_node = find_node_by_kind(&root, "string").unwrap();
 
         let vars = extract_fstring_vars(&string_node, source);
 

@@ -8,10 +8,7 @@ fn extract_comments_recursive(node: &Node, source: &str, comments: &mut Vec<Comm
         comments.push(CommentNode {
             start: node.start_byte() as u32,
             end: node.end_byte() as u32,
-            text: node
-                .utf8_text(source.as_bytes())
-                .unwrap_or("")
-                .to_string(),
+            text: node.utf8_text(source.as_bytes()).unwrap_or("").to_string(),
         });
     }
 
@@ -107,7 +104,9 @@ impl<'a> CommentTracker<'a> {
         }
 
         // Check if any comment in the block contains @prompt
-        let has_prompt = block_ranges.iter().any(|c| parse_annotation(&c.text).unwrap_or(false));
+        let has_prompt = block_ranges
+            .iter()
+            .any(|c| parse_annotation(&c.text).unwrap_or(false));
         if !has_prompt {
             return Vec::new();
         }
@@ -198,7 +197,28 @@ impl<'a> CommentTracker<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tree_sitter::Parser;
+    use tree_sitter::{Node, Parser};
+
+    fn find_node_by_kind<'a>(node: &Node<'a>, kind: &str) -> Option<Node<'a>> {
+        if node.kind() == kind {
+            return Some(*node);
+        }
+
+        let mut cursor = node.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                if let Some(found) = find_node_by_kind(&child, kind) {
+                    return Some(found);
+                }
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+
+        None
+    }
 
     #[test]
     fn test_extract_comments() {
@@ -235,23 +255,7 @@ x = "hello""#;
 
         // Find the statement start - need to skip comment nodes
         let root = tree.root_node();
-        let mut cursor = root.walk();
-        cursor.goto_first_child();
-
-        // Find the expression_statement (skip comments)
-        let mut expr_stmt = None;
-        loop {
-            let node = cursor.node();
-            if node.kind() == "expression_statement" {
-                expr_stmt = Some(node);
-                break;
-            }
-            if !cursor.goto_next_sibling() {
-                break;
-            }
-        }
-
-        let assignment = expr_stmt.unwrap();
+        let assignment = find_node_by_kind(&root, "assignment").unwrap();
         let stmt_start = assignment.start_byte() as u32;
 
         let annotations = tracker.collect_adjacent_leading(stmt_start);

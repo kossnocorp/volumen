@@ -177,7 +177,7 @@ fn multiline_nested() {
     ParseTest::test(
         &ParseTestLang::php(indoc! {r#"
             <?php
-            function fn() {
+            function foo() {
                 // Hello
                 // @prompt
                 // world
@@ -194,25 +194,25 @@ fn multiline_nested() {
                       file: "prompts.php",
                       span: SpanShape(
                         outer: Span(
-                          start: 74,
-                          end: 81,
+                          start: 75,
+                          end: 82,
                         ),
                         inner: Span(
-                          start: 75,
-                          end: 80,
+                          start: 76,
+                          end: 81,
                         ),
                       ),
                       enclosure: Span(
-                        start: 26,
-                        end: 81,
+                        start: 27,
+                        end: 82,
                       ),
                       exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
                           span: Span(
-                            start: 26,
-                            end: 62,
+                            start: 27,
+                            end: 63,
                           ),
                           exp: "// Hello\n    // @prompt\n    // world",
                         ),

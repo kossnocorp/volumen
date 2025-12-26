@@ -130,9 +130,7 @@ fn traverse_node(
     let kind = node.kind();
 
     // Handle scope boundaries (function, class, method)
-    if kind == "function_definition"
-        || kind == "class_declaration"
-        || kind == "method_declaration"
+    if kind == "function_definition" || kind == "class_declaration" || kind == "method_declaration"
     {
         scopes.enter_scope();
 
@@ -366,7 +364,10 @@ fn is_prompt_variable(ident_name: &str, has_annotation: bool, scopes: &ScopeTrac
 
 /// Check if a node represents a string literal.
 fn is_string_like(node: &Node) -> bool {
-    matches!(node.kind(), "string" | "encapsed_string" | "string_value" | "heredoc" | "nowdoc" | "heredoc_body")
+    matches!(
+        node.kind(),
+        "string" | "encapsed_string" | "string_value" | "heredoc" | "nowdoc" | "heredoc_body"
+    )
 }
 
 /// Extract identifiers from a list_literal or similar pattern.
@@ -491,7 +492,7 @@ fn create_prompt_from_range(
     let span = SpanShape {
         outer: Span { start, end },
         inner: Span {
-            start: start + 1, // Skip opening quote
+            start: start + 1,           // Skip opening quote
             end: end.saturating_sub(1), // Skip closing quote
         },
     };

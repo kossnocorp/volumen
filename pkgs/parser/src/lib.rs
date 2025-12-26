@@ -180,7 +180,7 @@ const prompt = "Hello, {name}!";
           }
         "# };
         let cs_result = Parser::parse(cs_source, "example.cs");
-        assert_prompts_size(cs_result, 0);
+        assert_prompts_size(cs_result, 1);
     }
 
     #[test]
@@ -219,4 +219,3 @@ const prompt = "Hello, {name}!";
         }
     }
 }
-
