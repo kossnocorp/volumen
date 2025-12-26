@@ -517,7 +517,7 @@ fn mixed_nested() {
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r"
+                assert_json_snapshot!(annotations, @"
                 [
                   []
                 ]

@@ -65,7 +65,7 @@ fn simple() {
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r"
+                assert_json_snapshot!(annotations, @"
                 [
                   []
                 ]
@@ -133,7 +133,7 @@ fn simple() {
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r"
+                assert_json_snapshot!(annotations, @"
                 [
                   []
                 ]
@@ -201,7 +201,7 @@ fn simple() {
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r"
+                assert_json_snapshot!(annotations, @"
                 [
                   []
                 ]

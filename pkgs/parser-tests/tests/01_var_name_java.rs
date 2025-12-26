@@ -60,7 +60,7 @@ fn simple() {
                 "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @r"
+                assert_json_snapshot!(annot, @"
                 [
                   []
                 ]

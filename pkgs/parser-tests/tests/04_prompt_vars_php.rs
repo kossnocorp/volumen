@@ -83,7 +83,7 @@ fn single_var() {
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r"
+                assert_json_snapshot!(annotations, @"
                 [
                   []
                 ]
@@ -189,7 +189,7 @@ fn multiple_vars() {
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r"
+                assert_json_snapshot!(annotations, @"
                 [
                   []
                 ]
