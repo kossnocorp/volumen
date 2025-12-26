@@ -21,12 +21,21 @@ fn multiline() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (0, 39),
                       span: SpanShape(
                         outer: (32, 39),
                         inner: (33, 38),
                       ),
-                      enclosure: (0, 39),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (33, 38),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -47,6 +56,7 @@ fn multiline() {
                           exp: "# Hello\n# @prompt\n# world",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                   ],
                 )
@@ -118,12 +128,21 @@ fn multiline_nested() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (14, 65),
                       span: SpanShape(
                         outer: (58, 65),
                         inner: (59, 64),
                       ),
-                      enclosure: (14, 65),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (59, 64),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -144,6 +163,7 @@ fn multiline_nested() {
                           exp: "# Hello\n    # @prompt\n    # world",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                   ],
                 )

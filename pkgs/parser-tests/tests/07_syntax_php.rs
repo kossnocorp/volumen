@@ -56,12 +56,21 @@ fn heredoc() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 219),
                       span: SpanShape(
                         outer: (27, 219),
                         inner: (27, 219),
                       ),
-                      enclosure: (6, 219),
-                      exp: "<<<TEXT\nYou are a helpful assistant.\nYou will answer the user\'s questions to the best of your ability.\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\nTEXT",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (27, 219),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -74,6 +83,7 @@ fn heredoc() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "<<<TEXT\nYou are a helpful assistant.\nYou will answer the user\'s questions to the best of your ability.\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\nTEXT",
                     ),
                   ],
                 )
@@ -138,26 +148,35 @@ fn heredoc_interpolated() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 90),
                       span: SpanShape(
                         outer: (25, 90),
                         inner: (25, 90),
                       ),
-                      enclosure: (6, 90),
-                      exp: "<<<TEXT\nHello, {$name}!\nHow is the weather today in {$city}?\nTEXT",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (25, 90),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{$name}",
                           span: SpanShape(
                             outer: (40, 47),
                             inner: (41, 46),
                           ),
+                          exp: "{$name}",
                         ),
                         PromptVar(
-                          exp: "{$city}",
                           span: SpanShape(
                             outer: (77, 84),
                             inner: (78, 83),
                           ),
+                          exp: "{$city}",
                         ),
                       ],
                       annotations: [
@@ -171,6 +190,7 @@ fn heredoc_interpolated() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "<<<TEXT\nHello, {$name}!\nHow is the weather today in {$city}?\nTEXT",
                     ),
                   ],
                 )

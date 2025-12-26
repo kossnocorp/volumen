@@ -18,19 +18,28 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 50),
                       span: SpanShape(
                         outer: (31, 50),
                         inner: (32, 49),
                       ),
-                      enclosure: (0, 50),
-                      exp: "`Welcome, ${user}!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (32, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${user}",
                           span: SpanShape(
                             outer: (41, 48),
                             inner: (43, 47),
                           ),
+                          exp: "${user}",
                         ),
                       ],
                       annotations: [
@@ -44,6 +53,7 @@ fn simple() {
                           exp: "/* @prompt */",
                         ),
                       ],
+                      exp: "`Welcome, ${user}!`",
                     ),
                   ],
                 )
@@ -108,12 +118,21 @@ fn doc() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 45),
                       span: SpanShape(
                         outer: (29, 44),
                         inner: (30, 43),
                       ),
-                      enclosure: (0, 45),
-                      exp: "\"Hello, world!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (30, 43),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -126,6 +145,7 @@ fn doc() {
                           exp: "/** @prompt */",
                         ),
                       ],
+                      exp: "\"Hello, world!\"",
                     ),
                   ],
                 )
@@ -217,19 +237,28 @@ fn dirty() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 60),
                       span: SpanShape(
                         outer: (40, 59),
                         inner: (41, 58),
                       ),
-                      enclosure: (0, 60),
-                      exp: "`Welcome, ${user}!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (41, 58),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${user}",
                           span: SpanShape(
                             outer: (50, 57),
                             inner: (52, 56),
                           ),
+                          exp: "${user}",
                         ),
                       ],
                       annotations: [
@@ -243,6 +272,7 @@ fn dirty() {
                           exp: "/* @prompt greeting */",
                         ),
                       ],
+                      exp: "`Welcome, ${user}!`",
                     ),
                   ],
                 )

@@ -19,14 +19,24 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 51),
                       span: SpanShape(
                         outer: (21, 51),
                         inner: (22, 50),
                       ),
-                      enclosure: (6, 51),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (22, 50),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -87,31 +97,50 @@ fn nested() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (45, 78),
                       span: SpanShape(
                         outer: (61, 78),
                         inner: (62, 77),
                       ),
-                      enclosure: (45, 78),
-                      exp: "\"Hello, {$name}!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (62, 77),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{$name}",
                           span: SpanShape(
                             outer: (69, 76),
                             inner: (70, 75),
                           ),
+                          exp: "{$name}",
                         ),
                       ],
                       annotations: [],
+                      exp: "\"Hello, {$name}!\"",
                     ),
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (85, 120),
                       span: SpanShape(
                         outer: (115, 120),
                         inner: (116, 119),
                       ),
-                      enclosure: (85, 120),
-                      exp: "\"Hi!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (116, 119),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -124,6 +153,7 @@ fn nested() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hi!\"",
                     ),
                   ],
                 )

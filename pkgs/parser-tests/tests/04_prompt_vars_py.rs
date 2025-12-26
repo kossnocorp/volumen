@@ -18,22 +18,32 @@ fn single_var() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (0, 37),
                       span: SpanShape(
                         outer: (18, 37),
                         inner: (20, 36),
                       ),
-                      enclosure: (0, 37),
-                      exp: "f\"Welcome, {user}!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (20, 36),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{user}",
                           span: SpanShape(
                             outer: (29, 35),
                             inner: (30, 34),
                           ),
+                          exp: "{user}",
                         ),
                       ],
                       annotations: [],
+                      exp: "f\"Welcome, {user}!\"",
                     ),
                   ],
                 )
@@ -91,29 +101,39 @@ fn multiple_vars() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (0, 67),
                       span: SpanShape(
                         outer: (14, 67),
                         inner: (16, 66),
                       ),
-                      enclosure: (0, 67),
-                      exp: "f\"Hello, {name}! How is the weather today in {city}?\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (16, 66),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{name}",
                           span: SpanShape(
                             outer: (23, 29),
                             inner: (24, 28),
                           ),
+                          exp: "{name}",
                         ),
                         PromptVar(
-                          exp: "{city}",
                           span: SpanShape(
                             outer: (59, 65),
                             inner: (60, 64),
                           ),
+                          exp: "{city}",
                         ),
                       ],
                       annotations: [],
+                      exp: "f\"Hello, {name}! How is the weather today in {city}?\"",
                     ),
                   ],
                 )
@@ -175,29 +195,39 @@ fn exp() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (0, 86),
                       span: SpanShape(
                         outer: (14, 86),
                         inner: (16, 85),
                       ),
-                      enclosure: (0, 86),
-                      exp: "f\"Hello, {user.name}! How is the weather today in {user.location.city}?\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (16, 85),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{user.name}",
                           span: SpanShape(
                             outer: (23, 34),
                             inner: (24, 33),
                           ),
+                          exp: "{user.name}",
                         ),
                         PromptVar(
-                          exp: "{user.location.city}",
                           span: SpanShape(
                             outer: (64, 84),
                             inner: (65, 83),
                           ),
+                          exp: "{user.location.city}",
                         ),
                       ],
                       annotations: [],
+                      exp: "f\"Hello, {user.name}! How is the weather today in {user.location.city}?\"",
                     ),
                   ],
                 )
@@ -259,22 +289,32 @@ fn exp_complex() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (0, 76),
                       span: SpanShape(
                         outer: (14, 76),
                         inner: (16, 75),
                       ),
-                      enclosure: (0, 76),
-                      exp: "f\"This item is {(\'expensive\' if price > 100 else \'cheap\')}...\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (16, 75),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{(\'expensive\' if price > 100 else \'cheap\')}",
                           span: SpanShape(
                             outer: (29, 72),
                             inner: (30, 71),
                           ),
+                          exp: "{(\'expensive\' if price > 100 else \'cheap\')}",
                         ),
                       ],
                       annotations: [],
+                      exp: "f\"This item is {(\'expensive\' if price > 100 else \'cheap\')}...\"",
                     ),
                   ],
                 )

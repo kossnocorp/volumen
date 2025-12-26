@@ -30,7 +30,17 @@ fn parse_js_value() {
                         inner: (14, 24),
                     }],
                     exp: "/** @prompt */".into(),
-                }]
+                }],
+                content: vec![PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (28, 41),
+                    }
+                )],
+                joint: SpanShape {
+                    outer: (0, 0),
+                    inner: (0, 0),
+                },
             }]
         })
     );
@@ -69,7 +79,17 @@ fn parse_py_value() {
                         inner: (1, 9),
                     }],
                     exp: "# @prompt".into(),
-                }]
+                }],
+                content: vec![PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (18, 31),
+                    }
+                )],
+                joint: SpanShape {
+                    outer: (0, 0),
+                    inner: (0, 0),
+                },
             }]
         })
     );

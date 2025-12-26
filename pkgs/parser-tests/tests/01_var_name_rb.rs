@@ -18,14 +18,24 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 44),
                       span: SpanShape(
                         outer: (14, 44),
                         inner: (15, 43),
                       ),
-                      enclosure: (0, 44),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (15, 43),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -88,31 +98,50 @@ fn nested() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (41, 73),
                       span: SpanShape(
                         outer: (56, 73),
                         inner: (57, 72),
                       ),
-                      enclosure: (41, 73),
-                      exp: "\"Hello, #{name}!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (57, 72),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{name}",
                           span: SpanShape(
                             outer: (64, 71),
                             inner: (66, 70),
                           ),
+                          exp: "#{name}",
                         ),
                       ],
                       annotations: [],
+                      exp: "\"Hello, #{name}!\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (81, 116),
                       span: SpanShape(
                         outer: (111, 116),
                         inner: (112, 115),
                       ),
-                      enclosure: (81, 116),
-                      exp: "\"Hi!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (112, 115),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -125,6 +154,7 @@ fn nested() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Hi!\"",
                     ),
                   ],
                 )

@@ -18,14 +18,24 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (0, 44),
                       span: SpanShape(
                         outer: (14, 44),
                         inner: (15, 43),
                       ),
-                      enclosure: (0, 44),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (15, 43),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -85,31 +95,50 @@ fn nested() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (64, 96),
                       span: SpanShape(
                         outer: (79, 96),
                         inner: (81, 95),
                       ),
-                      enclosure: (64, 96),
-                      exp: "f\"Hello, {name}!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (81, 95),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{name}",
                           span: SpanShape(
                             outer: (88, 94),
                             inner: (89, 93),
                           ),
+                          exp: "{name}",
                         ),
                       ],
                       annotations: [],
+                      exp: "f\"Hello, {name}!\"",
                     ),
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (110, 150),
                       span: SpanShape(
                         outer: (145, 150),
                         inner: (146, 149),
                       ),
-                      enclosure: (110, 150),
-                      exp: "\"Hi!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (146, 149),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -122,6 +151,7 @@ fn nested() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Hi!\"",
                     ),
                   ],
                 )

@@ -19,19 +19,28 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 51),
                       span: SpanShape(
                         outer: (32, 51),
                         inner: (33, 50),
                       ),
-                      enclosure: (6, 51),
-                      exp: "\"Welcome, {$user}!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (33, 50),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{$user}",
                           span: SpanShape(
                             outer: (42, 49),
                             inner: (43, 48),
                           ),
+                          exp: "{$user}",
                         ),
                       ],
                       annotations: [
@@ -45,6 +54,7 @@ fn simple() {
                           exp: "/* @prompt */",
                         ),
                       ],
+                      exp: "\"Welcome, {$user}!\"",
                     ),
                   ],
                 )
@@ -110,12 +120,21 @@ fn phpdoc() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 45),
                       span: SpanShape(
                         outer: (30, 45),
                         inner: (31, 44),
                       ),
-                      enclosure: (6, 45),
-                      exp: "\"Hello, world!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (31, 44),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -128,6 +147,7 @@ fn phpdoc() {
                           exp: "/** @prompt */",
                         ),
                       ],
+                      exp: "\"Hello, world!\"",
                     ),
                   ],
                 )
@@ -221,19 +241,28 @@ fn dirty() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 60),
                       span: SpanShape(
                         outer: (41, 60),
                         inner: (42, 59),
                       ),
-                      enclosure: (6, 60),
-                      exp: "\"Welcome, {$user}!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (42, 59),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{$user}",
                           span: SpanShape(
                             outer: (51, 58),
                             inner: (52, 57),
                           ),
+                          exp: "{$user}",
                         ),
                       ],
                       annotations: [
@@ -247,6 +276,7 @@ fn dirty() {
                           exp: "/* @prompt greeting */",
                         ),
                       ],
+                      exp: "\"Welcome, {$user}!\"",
                     ),
                   ],
                 )

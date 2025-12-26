@@ -54,12 +54,21 @@ fn heredoc() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 26),
                       span: SpanShape(
                         outer: (19, 213),
                         inner: (27, 213),
                       ),
-                      enclosure: (0, 26),
-                      exp: "<<~TEXT\n  You are a helpful assistant.\n  You will answer the user\'s questions to the best of your ability.\n  If you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\n",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (27, 213),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -72,6 +81,7 @@ fn heredoc() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "<<~TEXT\n  You are a helpful assistant.\n  You will answer the user\'s questions to the best of your ability.\n  If you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\n",
                     ),
                   ],
                 )
@@ -135,12 +145,21 @@ fn heredoc_interpolated() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 24),
                       span: SpanShape(
                         outer: (17, 82),
                         inner: (25, 82),
                       ),
-                      enclosure: (0, 24),
-                      exp: "<<~TEXT\n  Hello, #{name}!\n  How is the weather today in #{city}?\n",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (25, 82),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -153,6 +172,7 @@ fn heredoc_interpolated() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "<<~TEXT\n  Hello, #{name}!\n  How is the weather today in #{city}?\n",
                     ),
                   ],
                 )
@@ -213,12 +233,21 @@ fn single_quote() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 38),
                       span: SpanShape(
                         outer: (25, 38),
                         inner: (26, 37),
                       ),
-                      enclosure: (0, 38),
-                      exp: "\'hello world\'",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (26, 37),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -231,6 +260,7 @@ fn single_quote() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\'hello world\'",
                     ),
                   ],
                 )
@@ -288,12 +318,21 @@ fn percent_q_paren() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 43),
                       span: SpanShape(
                         outer: (28, 43),
                         inner: (31, 42),
                       ),
-                      enclosure: (0, 43),
-                      exp: "%q(hello world)",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (31, 42),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -306,6 +345,7 @@ fn percent_q_paren() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "%q(hello world)",
                     ),
                   ],
                 )
@@ -363,12 +403,21 @@ fn percent_q_brace() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 53),
                       span: SpanShape(
                         outer: (28, 53),
                         inner: (31, 52),
                       ),
-                      enclosure: (0, 53),
-                      exp: "%q{no interpolation #{x}}",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (31, 52),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -381,6 +430,7 @@ fn percent_q_brace() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "%q{no interpolation #{x}}",
                     ),
                   ],
                 )
@@ -439,19 +489,28 @@ fn percent_q_upper() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 45),
                       span: SpanShape(
                         outer: (28, 45),
                         inner: (31, 44),
                       ),
-                      enclosure: (0, 45),
-                      exp: "%Q(Hello #{name})",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (31, 44),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{name}",
                           span: SpanShape(
                             outer: (37, 44),
                             inner: (39, 43),
                           ),
+                          exp: "#{name}",
                         ),
                       ],
                       annotations: [
@@ -465,6 +524,7 @@ fn percent_q_upper() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "%Q(Hello #{name})",
                     ),
                   ],
                 )
@@ -529,19 +589,28 @@ fn percent_q_pipe() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 44),
                       span: SpanShape(
                         outer: (27, 44),
                         inner: (30, 43),
                       ),
-                      enclosure: (0, 44),
-                      exp: "%Q|Pipes #{name}|",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (30, 43),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{name}",
                           span: SpanShape(
                             outer: (36, 43),
                             inner: (38, 42),
                           ),
+                          exp: "#{name}",
                         ),
                       ],
                       annotations: [
@@ -555,6 +624,7 @@ fn percent_q_pipe() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "%Q|Pipes #{name}|",
                     ),
                   ],
                 )
@@ -617,19 +687,28 @@ fn percent_q_angle() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 46),
                       span: SpanShape(
                         outer: (28, 46),
                         inner: (31, 45),
                       ),
-                      enclosure: (0, 46),
-                      exp: "%Q<Angles #{name}>",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (31, 45),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{name}",
                           span: SpanShape(
                             outer: (38, 45),
                             inner: (40, 44),
                           ),
+                          exp: "#{name}",
                         ),
                       ],
                       annotations: [
@@ -643,6 +722,7 @@ fn percent_q_angle() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "%Q<Angles #{name}>",
                     ),
                   ],
                 )
@@ -707,12 +787,21 @@ fn heredoc_plain() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 25),
                       span: SpanShape(
                         outer: (20, 40),
                         inner: (26, 40),
                       ),
-                      enclosure: (0, 25),
-                      exp: "<<EOF\nHello #{name}\n",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (26, 40),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -725,6 +814,7 @@ fn heredoc_plain() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "<<EOF\nHello #{name}\n",
                     ),
                   ],
                 )
@@ -784,12 +874,21 @@ fn heredoc_squiggly() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 35),
                       span: SpanShape(
                         outer: (29, 50),
                         inner: (36, 50),
                       ),
-                      enclosure: (0, 35),
-                      exp: "<<~EOF\nHello #{name}\n",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (36, 50),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -802,6 +901,7 @@ fn heredoc_squiggly() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "<<~EOF\nHello #{name}\n",
                     ),
                   ],
                 )
@@ -861,12 +961,21 @@ fn heredoc_single() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 34),
                       span: SpanShape(
                         outer: (27, 49),
                         inner: (35, 49),
                       ),
-                      enclosure: (0, 34),
-                      exp: "<<\'EOF\'\nHello #{name}\n",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (35, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -879,6 +988,7 @@ fn heredoc_single() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "<<\'EOF\'\nHello #{name}\n",
                     ),
                   ],
                 )
@@ -938,12 +1048,21 @@ fn heredoc_double() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 34),
                       span: SpanShape(
                         outer: (27, 49),
                         inner: (35, 49),
                       ),
-                      enclosure: (0, 34),
-                      exp: "<<\"EOF\"\nHello #{name}\n",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (35, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -956,6 +1075,7 @@ fn heredoc_double() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "<<\"EOF\"\nHello #{name}\n",
                     ),
                   ],
                 )

@@ -306,6 +306,16 @@ impl<'a> PyPromptVisitor<'a> {
             exp: self.code[node_range].to_string(),
             vars,
             annotations,
+            content: vec![PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: self.span_shape_string_like(node_range).inner,
+                }
+            )],
+            joint: SpanShape {
+                outer: (0, 0),
+                inner: (0, 0),
+            },
         };
         self.prompts.push(prompt);
     }

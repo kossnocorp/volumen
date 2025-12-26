@@ -52,12 +52,21 @@ fn multiline_str() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (0, 204),
                       span: SpanShape(
                         outer: (19, 204),
                         inner: (22, 201),
                       ),
-                      enclosure: (0, 204),
-                      exp: "\"\"\"You are a helpful assistant.\nYou will answer the user\'s questions to the best of your ability.\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\"\"\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (22, 201),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -70,6 +79,7 @@ fn multiline_str() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"\"\"You are a helpful assistant.\nYou will answer the user\'s questions to the best of your ability.\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\"\"\"",
                     ),
                   ],
                 )
@@ -132,26 +142,35 @@ fn multiline_fstr() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
+                      enclosure: (0, 75),
                       span: SpanShape(
                         outer: (17, 75),
                         inner: (21, 72),
                       ),
-                      enclosure: (0, 75),
-                      exp: "f\"\"\"Hello, {name}!\nHow is the weather today in {city}?\n\"\"\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (21, 72),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{name}",
                           span: SpanShape(
                             outer: (28, 34),
                             inner: (29, 33),
                           ),
+                          exp: "{name}",
                         ),
                         PromptVar(
-                          exp: "{city}",
                           span: SpanShape(
                             outer: (64, 70),
                             inner: (65, 69),
                           ),
+                          exp: "{city}",
                         ),
                       ],
                       annotations: [
@@ -165,6 +184,7 @@ fn multiline_fstr() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "f\"\"\"Hello, {name}!\nHow is the weather today in {city}?\n\"\"\"",
                     ),
                   ],
                 )

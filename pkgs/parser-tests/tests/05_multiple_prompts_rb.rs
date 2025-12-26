@@ -21,38 +21,57 @@ fn multiple() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 31),
                       span: SpanShape(
                         outer: (14, 31),
                         inner: (15, 30),
                       ),
-                      enclosure: (0, 31),
-                      exp: "\"Hello, #{name}!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (15, 30),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{name}",
                           span: SpanShape(
                             outer: (22, 29),
                             inner: (24, 28),
                           ),
+                          exp: "#{name}",
                         ),
                       ],
                       annotations: [],
+                      exp: "\"Hello, #{name}!\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (32, 76),
                       span: SpanShape(
                         outer: (53, 76),
                         inner: (54, 75),
                       ),
-                      enclosure: (32, 76),
-                      exp: "\"Goodbye #{user.name}!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (54, 75),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{user.name}",
                           span: SpanShape(
                             outer: (62, 74),
                             inner: (64, 73),
                           ),
+                          exp: "#{user.name}",
                         ),
                       ],
                       annotations: [
@@ -66,6 +85,7 @@ fn multiple() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Goodbye #{user.name}!\"",
                     ),
                   ],
                 )

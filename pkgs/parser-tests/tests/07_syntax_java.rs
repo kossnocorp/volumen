@@ -49,12 +49,21 @@ fn text_block() {
                   prompts: [
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (0, 72),
                       span: SpanShape(
                         outer: (27, 71),
                         inner: (28, 70),
                       ),
-                      enclosure: (0, 72),
-                      exp: "\"\"\"\n    You are a helpful assistant.\n    \"\"\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (28, 70),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -67,6 +76,7 @@ fn text_block() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"\"\"\n    You are a helpful assistant.\n    \"\"\"",
                     ),
                   ],
                 )

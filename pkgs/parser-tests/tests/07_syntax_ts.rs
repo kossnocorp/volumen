@@ -53,19 +53,28 @@ fn jsx() {
                   prompts: [
                     Prompt(
                       file: "prompts.tsx",
+                      enclosure: (0, 48),
                       span: SpanShape(
                         outer: (29, 47),
                         inner: (30, 46),
                       ),
-                      enclosure: (0, 48),
-                      exp: "`Hello, ${world}!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (30, 46),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${world}",
                           span: SpanShape(
                             outer: (37, 45),
                             inner: (39, 44),
                           ),
+                          exp: "${world}",
                         ),
                       ],
                       annotations: [
@@ -79,6 +88,7 @@ fn jsx() {
                           exp: "/* @prompt */",
                         ),
                       ],
+                      exp: "`Hello, ${world}!`",
                     ),
                   ],
                 )
@@ -146,19 +156,28 @@ fn ts() {
                   prompts: [
                     Prompt(
                       file: "prompts.ts",
+                      enclosure: (0, 55),
                       span: SpanShape(
                         outer: (37, 54),
                         inner: (38, 53),
                       ),
-                      enclosure: (0, 55),
-                      exp: "`Hello ${world}!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (38, 53),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${world}",
                           span: SpanShape(
                             outer: (44, 52),
                             inner: (46, 51),
                           ),
+                          exp: "${world}",
                         ),
                       ],
                       annotations: [
@@ -172,6 +191,7 @@ fn ts() {
                           exp: "/* @prompt */",
                         ),
                       ],
+                      exp: "`Hello ${world}!`",
                     ),
                   ],
                 )
@@ -240,19 +260,28 @@ fn tsx() {
                   prompts: [
                     Prompt(
                       file: "prompts.tsx",
+                      enclosure: (0, 55),
                       span: SpanShape(
                         outer: (37, 54),
                         inner: (38, 53),
                       ),
-                      enclosure: (0, 55),
-                      exp: "`Hello ${world}!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (38, 53),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${world}",
                           span: SpanShape(
                             outer: (44, 52),
                             inner: (46, 51),
                           ),
+                          exp: "${world}",
                         ),
                       ],
                       annotations: [
@@ -266,6 +295,7 @@ fn tsx() {
                           exp: "/* @prompt */",
                         ),
                       ],
+                      exp: "`Hello ${world}!`",
                     ),
                   ],
                 )
@@ -333,26 +363,35 @@ fn multiline() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 80),
                       span: SpanShape(
                         outer: (24, 79),
                         inner: (25, 78),
                       ),
-                      enclosure: (0, 80),
-                      exp: "`Hello, ${name}!\nHow is the weather today in ${city}?\n`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (25, 78),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${name}",
                           span: SpanShape(
                             outer: (32, 39),
                             inner: (34, 38),
                           ),
+                          exp: "${name}",
                         ),
                         PromptVar(
-                          exp: "${city}",
                           span: SpanShape(
                             outer: (69, 76),
                             inner: (71, 75),
                           ),
+                          exp: "${city}",
                         ),
                       ],
                       annotations: [
@@ -366,6 +405,7 @@ fn multiline() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "`Hello, ${name}!\nHow is the weather today in ${city}?\n`",
                     ),
                   ],
                 )

@@ -20,14 +20,24 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 50),
                       span: SpanShape(
                         outer: (19, 49),
                         inner: (20, 48),
                       ),
-                      enclosure: (0, 50),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (20, 48),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -79,14 +89,24 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 48),
                       span: SpanShape(
                         outer: (17, 47),
                         inner: (18, 46),
                       ),
-                      enclosure: (0, 48),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (18, 46),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -138,14 +158,24 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 48),
                       span: SpanShape(
                         outer: (17, 47),
                         inner: (18, 46),
                       ),
-                      enclosure: (0, 48),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (18, 46),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -209,31 +239,50 @@ fn nested() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (71, 109),
                       span: SpanShape(
                         outer: (91, 108),
                         inner: (92, 107),
                       ),
-                      enclosure: (71, 109),
-                      exp: "`Hello, ${name}!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (92, 107),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${name}",
                           span: SpanShape(
                             outer: (99, 106),
                             inner: (101, 105),
                           ),
+                          exp: "${name}",
                         ),
                       ],
                       annotations: [],
+                      exp: "`Hello, ${name}!`",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (123, 170),
                       span: SpanShape(
                         outer: (164, 169),
                         inner: (165, 168),
                       ),
-                      enclosure: (123, 170),
-                      exp: "\"Hi!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (165, 168),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -246,6 +295,7 @@ fn nested() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hi!\"",
                     ),
                   ],
                 )

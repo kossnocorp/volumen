@@ -18,12 +18,21 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (0, 43),
                       span: SpanShape(
                         outer: (32, 42),
                         inner: (33, 41),
                       ),
-                      enclosure: (0, 43),
-                      exp: "\"Welcome!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (33, 41),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -36,6 +45,7 @@ fn simple() {
                           exp: "/* @prompt */",
                         ),
                       ],
+                      exp: "\"Welcome!\"",
                     ),
                   ],
                 )
@@ -92,12 +102,21 @@ fn javadoc() {
                   prompts: [
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (0, 46),
                       span: SpanShape(
                         outer: (30, 45),
                         inner: (31, 44),
                       ),
-                      enclosure: (0, 46),
-                      exp: "\"Hello, world!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (31, 44),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -110,6 +129,7 @@ fn javadoc() {
                           exp: "/** @prompt */",
                         ),
                       ],
+                      exp: "\"Hello, world!\"",
                     ),
                   ],
                 )
@@ -195,12 +215,21 @@ fn dirty() {
                   prompts: [
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (0, 52),
                       span: SpanShape(
                         outer: (41, 51),
                         inner: (42, 50),
                       ),
-                      enclosure: (0, 52),
-                      exp: "\"Welcome!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (42, 50),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -213,6 +242,7 @@ fn dirty() {
                           exp: "/* @prompt greeting */",
                         ),
                       ],
+                      exp: "\"Welcome!\"",
                     ),
                   ],
                 )

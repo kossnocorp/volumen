@@ -18,22 +18,32 @@ fn single_var() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 39),
                       span: SpanShape(
                         outer: (19, 38),
                         inner: (20, 37),
                       ),
-                      enclosure: (0, 39),
-                      exp: "`Welcome, ${user}!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (20, 37),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${user}",
                           span: SpanShape(
                             outer: (29, 36),
                             inner: (31, 35),
                           ),
+                          exp: "${user}",
                         ),
                       ],
                       annotations: [],
+                      exp: "`Welcome, ${user}!`",
                     ),
                   ],
                 )
@@ -91,29 +101,39 @@ fn multiple_vars() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 74),
                       span: SpanShape(
                         outer: (19, 73),
                         inner: (20, 72),
                       ),
-                      enclosure: (0, 74),
-                      exp: "`Hello, ${name}! How is the weather today in ${city}?`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (20, 72),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${name}",
                           span: SpanShape(
                             outer: (27, 34),
                             inner: (29, 33),
                           ),
+                          exp: "${name}",
                         ),
                         PromptVar(
-                          exp: "${city}",
                           span: SpanShape(
                             outer: (64, 71),
                             inner: (66, 70),
                           ),
+                          exp: "${city}",
                         ),
                       ],
                       annotations: [],
+                      exp: "`Hello, ${name}! How is the weather today in ${city}?`",
                     ),
                   ],
                 )
@@ -175,29 +195,39 @@ fn exp() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 93),
                       span: SpanShape(
                         outer: (19, 92),
                         inner: (20, 91),
                       ),
-                      enclosure: (0, 93),
-                      exp: "`Hello, ${user.name}! How is the weather today in ${user.location.city}?`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (20, 91),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${user.name}",
                           span: SpanShape(
                             outer: (27, 39),
                             inner: (29, 38),
                           ),
+                          exp: "${user.name}",
                         ),
                         PromptVar(
-                          exp: "${user.location.city}",
                           span: SpanShape(
                             outer: (69, 90),
                             inner: (71, 89),
                           ),
+                          exp: "${user.location.city}",
                         ),
                       ],
                       annotations: [],
+                      exp: "`Hello, ${user.name}! How is the weather today in ${user.location.city}?`",
                     ),
                   ],
                 )
@@ -259,22 +289,32 @@ fn exp_complex() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 76),
                       span: SpanShape(
                         outer: (19, 75),
                         inner: (20, 74),
                       ),
-                      enclosure: (0, 76),
-                      exp: "`This item is ${price > 100 ? \"expensive\" : \"cheap\"}...`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (20, 74),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${price > 100 ? \"expensive\" : \"cheap\"}",
                           span: SpanShape(
                             outer: (33, 71),
                             inner: (35, 70),
                           ),
+                          exp: "${price > 100 ? \"expensive\" : \"cheap\"}",
                         ),
                       ],
                       annotations: [],
+                      exp: "`This item is ${price > 100 ? \"expensive\" : \"cheap\"}...`",
                     ),
                   ],
                 )

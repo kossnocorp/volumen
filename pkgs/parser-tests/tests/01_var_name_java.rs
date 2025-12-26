@@ -18,14 +18,24 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (0, 51),
                       span: SpanShape(
                         outer: (20, 50),
                         inner: (21, 49),
                       ),
-                      enclosure: (0, 51),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (21, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -82,23 +92,42 @@ fn nested() {
                   prompts: [
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (41, 78),
                       span: SpanShape(
                         outer: (62, 77),
                         inner: (63, 76),
                       ),
-                      enclosure: (41, 78),
-                      exp: "\"Hello, world!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (63, 76),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [],
+                      exp: "\"Hello, world!\"",
                     ),
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (88, 133),
                       span: SpanShape(
                         outer: (127, 132),
                         inner: (128, 131),
                       ),
-                      enclosure: (88, 133),
-                      exp: "\"Hi!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (128, 131),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -111,6 +140,7 @@ fn nested() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hi!\"",
                     ),
                   ],
                 )

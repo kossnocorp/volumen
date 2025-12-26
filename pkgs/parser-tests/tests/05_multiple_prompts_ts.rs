@@ -24,38 +24,57 @@ fn multiple() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 37),
                       span: SpanShape(
                         outer: (19, 36),
                         inner: (20, 35),
                       ),
-                      enclosure: (0, 37),
-                      exp: "`Hello, ${name}!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (20, 35),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${name}",
                           span: SpanShape(
                             outer: (27, 34),
                             inner: (29, 33),
                           ),
+                          exp: "${name}",
                         ),
                       ],
                       annotations: [],
+                      exp: "`Hello, ${name}!`",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (38, 88),
                       span: SpanShape(
                         outer: (69, 87),
                         inner: (70, 86),
                       ),
-                      enclosure: (38, 88),
-                      exp: "`Welcome ${user}!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (70, 86),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${user}",
                           span: SpanShape(
                             outer: (78, 85),
                             inner: (80, 84),
                           ),
+                          exp: "${user}",
                         ),
                       ],
                       annotations: [
@@ -69,22 +88,32 @@ fn multiple() {
                           exp: "/* @prompt */",
                         ),
                       ],
+                      exp: "`Welcome ${user}!`",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (89, 141),
                       span: SpanShape(
                         outer: (117, 140),
                         inner: (118, 139),
                       ),
-                      enclosure: (89, 141),
-                      exp: "`Goodbye ${user.name}!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (118, 139),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${user.name}",
                           span: SpanShape(
                             outer: (126, 138),
                             inner: (128, 137),
                           ),
+                          exp: "${user.name}",
                         ),
                       ],
                       annotations: [
@@ -98,15 +127,25 @@ fn multiple() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "`Goodbye ${user.name}!`",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (142, 198),
                       span: SpanShape(
                         outer: (172, 197),
                         inner: (173, 196),
                       ),
-                      enclosure: (142, 198),
-                      exp: "\"You are an AI assistant\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (173, 196),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -119,6 +158,7 @@ fn multiple() {
                           exp: "/** @prompt */",
                         ),
                       ],
+                      exp: "\"You are an AI assistant\"",
                     ),
                   ],
                 )

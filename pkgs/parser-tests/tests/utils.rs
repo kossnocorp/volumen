@@ -10,7 +10,7 @@ use volumen_parser_py_tree_sitter::ParserPy as ParserPyTreeSitter;
 use volumen_parser_rb::ParserRb;
 use volumen_parser_ts::ParserTs as ParserTsOxc;
 use volumen_parser_ts_tree_sitter::ParserTs as ParserTsTreeSitter;
-use volumen_types::{ParseResult, Prompt};
+use volumen_types::{ParseResult, Prompt, PromptContentToken};
 
 type Parsers = [(&'static str, Parse)];
 
@@ -121,17 +121,25 @@ impl ParseTest {
                                 .prompts
                                 .iter()
                                 .map(|prompt| {
-                                    let interpolated_start = prompt.span.inner.0 - prompt.span.outer.0;
-                                    let interpolated_end = prompt.span.inner.1 - prompt.span.outer.0;
-                                    let mut interpolated = prompt.exp[interpolated_start as usize..interpolated_end as usize].to_owned();
-                                    prompt.vars.iter().enumerate().rev().for_each(|(var_index, var)| {
-                                        let var_start = (var.span.outer.0 - prompt.span.inner.0) as usize;
-                                        let var_end = (var.span.outer.1 - prompt.span.inner.0) as usize;
-                                        let range = var_start..var_end;
-                                        interpolated.replace_range(range, &format!("{{{}}}", var_index));
-                                    });
-                                    interpolated
-
+                                    // TEMP: Extract from first content token (single str token for now)
+                                    // TODO: Once we add variable tokens, this logic will change to iterate all tokens
+                                    if let Some(PromptContentToken::PromptContentTokenStr(str_token)) = prompt.content.first() {
+                                        let content_span = str_token.span;
+                                        let mut interpolated = lang.source[content_span.0 as usize..content_span.1 as usize].to_owned();
+                                        
+                                        // Replace variables with {0}, {1}, etc.
+                                        prompt.vars.iter().enumerate().rev().for_each(|(var_index, var)| {
+                                            let var_start = (var.span.outer.0 - content_span.0) as usize;
+                                            let var_end = (var.span.outer.1 - content_span.0) as usize;
+                                            let range = var_start..var_end;
+                                            interpolated.replace_range(range, &format!("{{{}}}", var_index));
+                                        });
+                                        interpolated
+                                    } else {
+                                        // TEMP: Fallback for empty content (shouldn't happen in practice)
+                                        // Later we will use join(joint_content) and [].join("") will be ""
+                                        String::new()
+                                    }
                                 })
                                 .collect();
 

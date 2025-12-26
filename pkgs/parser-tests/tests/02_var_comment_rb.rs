@@ -19,12 +19,21 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 49),
                       span: SpanShape(
                         outer: (19, 49),
                         inner: (20, 48),
                       ),
-                      enclosure: (0, 49),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (20, 48),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -37,6 +46,7 @@ fn simple() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -95,19 +105,28 @@ fn assigned() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (20, 50),
                       span: SpanShape(
                         outer: (31, 50),
                         inner: (32, 49),
                       ),
-                      enclosure: (20, 50),
-                      exp: "\"Assigned #{value}\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (32, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{value}",
                           span: SpanShape(
                             outer: (41, 49),
                             inner: (43, 48),
                           ),
+                          exp: "#{value}",
                         ),
                       ],
                       annotations: [
@@ -121,6 +140,7 @@ fn assigned() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Assigned #{value}\"",
                     ),
                   ],
                 )
@@ -187,12 +207,21 @@ fn assigned_late_comment() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (10, 50),
                       span: SpanShape(
                         outer: (31, 50),
                         inner: (32, 49),
                       ),
-                      enclosure: (10, 50),
-                      exp: "\"Assigned ${value}\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (32, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -205,6 +234,7 @@ fn assigned_late_comment() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Assigned ${value}\"",
                     ),
                   ],
                 )
@@ -267,12 +297,21 @@ fn reassigned() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (44, 78),
                       span: SpanShape(
                         outer: (57, 78),
                         inner: (58, 77),
                       ),
-                      enclosure: (44, 78),
-                      exp: "\"Reassigned ${value}\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (58, 77),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -285,6 +324,7 @@ fn reassigned() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Reassigned ${value}\"",
                     ),
                   ],
                 )
@@ -418,12 +458,21 @@ fn mixed_nested() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (85, 95),
                       span: SpanShape(
                         outer: (90, 95),
                         inner: (91, 94),
                       ),
-                      enclosure: (85, 95),
-                      exp: "\"Hi!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (91, 94),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -436,6 +485,7 @@ fn mixed_nested() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Hi!\"",
                     ),
                   ],
                 )
@@ -528,12 +578,21 @@ fn mixed_assign() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (26, 54),
                       span: SpanShape(
                         outer: (50, 54),
                         inner: (51, 53),
                       ),
-                      enclosure: (26, 54),
-                      exp: "\"Hi\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (51, 53),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -546,6 +605,7 @@ fn mixed_assign() {
                           exp: "# @prompt fresh",
                         ),
                       ],
+                      exp: "\"Hi\"",
                     ),
                   ],
                 )
@@ -606,12 +666,21 @@ fn mixed_reassign() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (38, 63),
                       span: SpanShape(
                         outer: (59, 63),
                         inner: (60, 62),
                       ),
-                      enclosure: (38, 63),
-                      exp: "\"Hi\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (60, 62),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -624,6 +693,7 @@ fn mixed_reassign() {
                           exp: "# @prompt def",
                         ),
                       ],
+                      exp: "\"Hi\"",
                     ),
                   ],
                 )
@@ -691,12 +761,21 @@ fn spaced() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 35),
                       span: SpanShape(
                         outer: (20, 35),
                         inner: (21, 34),
                       ),
-                      enclosure: (0, 35),
-                      exp: "\"Hello, world!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (21, 34),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -709,6 +788,7 @@ fn spaced() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Hello, world!\"",
                     ),
                   ],
                 )
@@ -769,12 +849,21 @@ fn dirty() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 56),
                       span: SpanShape(
                         outer: (26, 56),
                         inner: (27, 55),
                       ),
-                      enclosure: (0, 56),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (27, 55),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -787,6 +876,7 @@ fn dirty() {
                           exp: "# @prompt system",
                         ),
                       ],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -844,12 +934,21 @@ fn multi() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 41),
                       span: SpanShape(
                         outer: (25, 32),
                         inner: (26, 31),
                       ),
-                      enclosure: (0, 41),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (26, 31),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -862,15 +961,25 @@ fn multi() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 41),
                       span: SpanShape(
                         outer: (34, 41),
                         inner: (35, 40),
                       ),
-                      enclosure: (0, 41),
-                      exp: "\"World\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (35, 40),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -883,6 +992,7 @@ fn multi() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"World\"",
                     ),
                   ],
                 )
@@ -960,12 +1070,21 @@ fn destructuring() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 45),
                       span: SpanShape(
                         outer: (28, 35),
                         inner: (29, 34),
                       ),
-                      enclosure: (0, 45),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (29, 34),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -978,15 +1097,25 @@ fn destructuring() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 45),
                       span: SpanShape(
                         outer: (37, 44),
                         inner: (38, 43),
                       ),
-                      enclosure: (0, 45),
-                      exp: "\"World\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (38, 43),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -999,15 +1128,25 @@ fn destructuring() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (46, 89),
                       span: SpanShape(
                         outer: (73, 80),
                         inner: (74, 79),
                       ),
-                      enclosure: (46, 89),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (74, 79),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1020,15 +1159,25 @@ fn destructuring() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (46, 89),
                       span: SpanShape(
                         outer: (82, 89),
                         inner: (83, 88),
                       ),
-                      enclosure: (46, 89),
-                      exp: "\"World\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (83, 88),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1041,6 +1190,7 @@ fn destructuring() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"World\"",
                     ),
                   ],
                 )
@@ -1146,12 +1296,21 @@ fn chained() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 30),
                       span: SpanShape(
                         outer: (26, 30),
                         inner: (27, 29),
                       ),
-                      enclosure: (0, 30),
-                      exp: "\"Hi\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (27, 29),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1164,15 +1323,25 @@ fn chained() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Hi\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 30),
                       span: SpanShape(
                         outer: (26, 30),
                         inner: (27, 29),
                       ),
-                      enclosure: (0, 30),
-                      exp: "\"Hi\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (27, 29),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1185,6 +1354,7 @@ fn chained() {
                           exp: "# @prompt",
                         ),
                       ],
+                      exp: "\"Hi\"",
                     ),
                   ],
                 )

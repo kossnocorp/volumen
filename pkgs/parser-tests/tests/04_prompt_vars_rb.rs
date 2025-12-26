@@ -18,22 +18,32 @@ fn single_var() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 33),
                       span: SpanShape(
                         outer: (14, 33),
                         inner: (15, 32),
                       ),
-                      enclosure: (0, 33),
-                      exp: "\"Welcome, #{user}!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (15, 32),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{user}",
                           span: SpanShape(
                             outer: (24, 31),
                             inner: (26, 30),
                           ),
+                          exp: "#{user}",
                         ),
                       ],
                       annotations: [],
+                      exp: "\"Welcome, #{user}!\"",
                     ),
                   ],
                 )
@@ -91,29 +101,39 @@ fn multiple_vars() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 68),
                       span: SpanShape(
                         outer: (14, 68),
                         inner: (15, 67),
                       ),
-                      enclosure: (0, 68),
-                      exp: "\"Hello, #{name}! How is the weather today in #{city}?\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (15, 67),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{name}",
                           span: SpanShape(
                             outer: (22, 29),
                             inner: (24, 28),
                           ),
+                          exp: "#{name}",
                         ),
                         PromptVar(
-                          exp: "#{city}",
                           span: SpanShape(
                             outer: (59, 66),
                             inner: (61, 65),
                           ),
+                          exp: "#{city}",
                         ),
                       ],
                       annotations: [],
+                      exp: "\"Hello, #{name}! How is the weather today in #{city}?\"",
                     ),
                   ],
                 )
@@ -175,29 +195,39 @@ fn exp() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 87),
                       span: SpanShape(
                         outer: (14, 87),
                         inner: (15, 86),
                       ),
-                      enclosure: (0, 87),
-                      exp: "\"Hello, #{user.name}! How is the weather today in #{user.location.city}?\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (15, 86),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{user.name}",
                           span: SpanShape(
                             outer: (22, 34),
                             inner: (24, 33),
                           ),
+                          exp: "#{user.name}",
                         ),
                         PromptVar(
-                          exp: "#{user.location.city}",
                           span: SpanShape(
                             outer: (64, 85),
                             inner: (66, 84),
                           ),
+                          exp: "#{user.location.city}",
                         ),
                       ],
                       annotations: [],
+                      exp: "\"Hello, #{user.name}! How is the weather today in #{user.location.city}?\"",
                     ),
                   ],
                 )
@@ -259,22 +289,32 @@ fn exp_complex() {
                   prompts: [
                     Prompt(
                       file: "prompts.rb",
+                      enclosure: (0, 70),
                       span: SpanShape(
                         outer: (14, 70),
                         inner: (15, 69),
                       ),
-                      enclosure: (0, 70),
-                      exp: "\"This item is #{price > 100 ? \'expensive\' : \'cheap\'}...\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (15, 69),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "#{price > 100 ? \'expensive\' : \'cheap\'}",
                           span: SpanShape(
                             outer: (28, 66),
                             inner: (30, 65),
                           ),
+                          exp: "#{price > 100 ? \'expensive\' : \'cheap\'}",
                         ),
                       ],
                       annotations: [],
+                      exp: "\"This item is #{price > 100 ? \'expensive\' : \'cheap\'}...\"",
                     ),
                   ],
                 )

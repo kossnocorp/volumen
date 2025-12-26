@@ -77,12 +77,21 @@ fn multiline_nested() {
                   prompts: [
                     Prompt(
                       file: "Prompts.cs",
+                      enclosure: (16, 78),
                       span: SpanShape(
                         outer: (70, 77),
                         inner: (71, 76),
                       ),
-                      enclosure: (16, 78),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (71, 76),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -103,6 +112,7 @@ fn multiline_nested() {
                           exp: "// Hello\n    // @prompt\n    // world",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                   ],
                 )

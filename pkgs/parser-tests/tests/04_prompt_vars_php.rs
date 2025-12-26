@@ -19,22 +19,32 @@ fn single_var() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 40),
                       span: SpanShape(
                         outer: (21, 40),
                         inner: (22, 39),
                       ),
-                      enclosure: (6, 40),
-                      exp: "\"Welcome, {$user}!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (22, 39),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{$user}",
                           span: SpanShape(
                             outer: (31, 38),
                             inner: (32, 37),
                           ),
+                          exp: "{$user}",
                         ),
                       ],
                       annotations: [],
+                      exp: "\"Welcome, {$user}!\"",
                     ),
                   ],
                 )
@@ -93,29 +103,39 @@ fn multiple_vars() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 75),
                       span: SpanShape(
                         outer: (21, 75),
                         inner: (22, 74),
                       ),
-                      enclosure: (6, 75),
-                      exp: "\"Hello, {$name}! How is the weather today in {$city}?\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (22, 74),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{$name}",
                           span: SpanShape(
                             outer: (29, 36),
                             inner: (30, 35),
                           ),
+                          exp: "{$name}",
                         ),
                         PromptVar(
-                          exp: "{$city}",
                           span: SpanShape(
                             outer: (66, 73),
                             inner: (67, 72),
                           ),
+                          exp: "{$city}",
                         ),
                       ],
                       annotations: [],
+                      exp: "\"Hello, {$name}! How is the weather today in {$city}?\"",
                     ),
                   ],
                 )

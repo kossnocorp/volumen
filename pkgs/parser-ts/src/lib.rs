@@ -142,6 +142,7 @@ impl<'a> PromptVisitor<'a> {
 
                             if has_prompt {
                                 let span = self.span_shape_literal(value_span);
+                                let content_span = span.inner;
                                 let exp = value_span.source_text(self.code).to_string();
 
                                 let vars = if *is_template {
@@ -153,15 +154,25 @@ impl<'a> PromptVisitor<'a> {
                                     Vec::new()
                                 };
 
-                                let prompt = Prompt {
-                                    file: self.file.clone(),
-                                    span,
-                                    enclosure,
-                                    exp,
-                                    vars,
-                                    annotations,
-                                };
-                                self.prompts.push(prompt);
+            let prompt = Prompt {
+                file: self.file.clone(),
+                span,
+                enclosure,
+                exp,
+                vars,
+                annotations,
+                content: vec![PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: content_span,
+                    }
+                )],
+                joint: SpanShape {
+                    outer: (0, 0),
+                    inner: (0, 0),
+                },
+            };
+            self.prompts.push(prompt);
                             }
                         }
                     }
@@ -343,13 +354,25 @@ impl<'a> PromptVisitor<'a> {
         let (has_prompt, annotations, enclosure) =
             self.resolve_prompt_meta(ident_name, &template.span);
         if has_prompt {
+            let span = self.span_shape_literal(&template.span);
+            let content_span = span.inner;
             let prompt = Prompt {
                 file: self.file.clone(),
-                span: self.span_shape_literal(&template.span),
+                span,
                 enclosure,
                 exp: self.get_template_text(template),
                 vars: self.extract_template_vars(template),
                 annotations,
+                content: vec![PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: content_span,
+                    }
+                )],
+                joint: SpanShape {
+                    outer: (0, 0),
+                    inner: (0, 0),
+                },
             };
             self.prompts.push(prompt);
         }
@@ -359,13 +382,25 @@ impl<'a> PromptVisitor<'a> {
         let (has_prompt, annotations, enclosure) =
             self.resolve_prompt_meta(ident_name, &string.span);
         if has_prompt {
+            let span = self.span_shape_literal(&string.span);
+            let content_span = span.inner;
             let prompt = Prompt {
                 file: self.file.clone(),
-                span: self.span_shape_literal(&string.span),
+                span,
                 enclosure,
                 exp: string.span().source_text(self.code).to_string(),
                 vars: Vec::new(),
                 annotations,
+                content: vec![PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: content_span,
+                    }
+                )],
+                joint: SpanShape {
+                    outer: (0, 0),
+                    inner: (0, 0),
+                },
             };
             self.prompts.push(prompt);
         }

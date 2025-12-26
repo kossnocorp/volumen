@@ -412,6 +412,7 @@ fn create_prompt_from_string(
 ) {
     // Calculate spans
     let span = span_shape_string_like(string_node, source);
+    let content_span = span.inner;
 
     // Extract expression text
     let exp = source[span.outer.0 as usize..span.outer.1 as usize].to_string();
@@ -432,5 +433,15 @@ fn create_prompt_from_string(
         exp,
         vars,
         annotations: annotations.to_vec(),
+        content: vec![PromptContentToken::PromptContentTokenStr(
+            PromptContentTokenStr {
+                r#type: PromptContentTokenStrTypeStr,
+                span: content_span,
+            }
+        )],
+        joint: SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        },
     });
 }

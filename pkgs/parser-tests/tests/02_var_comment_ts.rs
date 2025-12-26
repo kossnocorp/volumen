@@ -19,12 +19,21 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 57),
                       span: SpanShape(
                         outer: (26, 56),
                         inner: (27, 55),
                       ),
-                      enclosure: (0, 57),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (27, 55),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -37,6 +46,7 @@ fn simple() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -97,12 +107,21 @@ fn inline() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 44),
                       span: SpanShape(
                         outer: (28, 43),
                         inner: (29, 42),
                       ),
-                      enclosure: (0, 44),
-                      exp: "`Hello, world!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (29, 42),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -115,6 +134,7 @@ fn inline() {
                           exp: "/* @prompt */",
                         ),
                       ],
+                      exp: "`Hello, world!`",
                     ),
                   ],
                 )
@@ -177,12 +197,21 @@ fn doc() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 49),
                       span: SpanShape(
                         outer: (33, 48),
                         inner: (34, 47),
                       ),
-                      enclosure: (0, 49),
-                      exp: "`Hello, world!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (34, 47),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -195,6 +224,7 @@ fn doc() {
                           exp: "/**\n * @prompt\n */",
                         ),
                       ],
+                      exp: "`Hello, world!`",
                     ),
                   ],
                 )
@@ -256,19 +286,28 @@ fn assigned() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (25, 56),
                       span: SpanShape(
                         outer: (36, 55),
                         inner: (37, 54),
                       ),
-                      enclosure: (25, 56),
-                      exp: "`Assigned ${value}`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (37, 54),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${value}",
                           span: SpanShape(
                             outer: (46, 54),
                             inner: (48, 53),
                           ),
+                          exp: "${value}",
                         ),
                       ],
                       annotations: [
@@ -282,6 +321,7 @@ fn assigned() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "`Assigned ${value}`",
                     ),
                   ],
                 )
@@ -348,19 +388,28 @@ fn assigned_late_comment() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (14, 56),
                       span: SpanShape(
                         outer: (36, 55),
                         inner: (37, 54),
                       ),
-                      enclosure: (14, 56),
-                      exp: "`Assigned ${value}`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (37, 54),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${value}",
                           span: SpanShape(
                             outer: (46, 54),
                             inner: (48, 53),
                           ),
+                          exp: "${value}",
                         ),
                       ],
                       annotations: [
@@ -374,6 +423,7 @@ fn assigned_late_comment() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "`Assigned ${value}`",
                     ),
                   ],
                 )
@@ -441,19 +491,28 @@ fn reassigned() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (51, 86),
                       span: SpanShape(
                         outer: (64, 85),
                         inner: (65, 84),
                       ),
-                      enclosure: (51, 86),
-                      exp: "`Reassigned ${value}`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (65, 84),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "${value}",
                           span: SpanShape(
                             outer: (76, 84),
                             inner: (78, 83),
                           ),
+                          exp: "${value}",
                         ),
                       ],
                       annotations: [
@@ -467,6 +526,7 @@ fn reassigned() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "`Reassigned ${value}`",
                     ),
                   ],
                 )
@@ -608,12 +668,21 @@ fn mixed_nested() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (125, 135),
                       span: SpanShape(
                         outer: (130, 135),
                         inner: (131, 134),
                       ),
-                      enclosure: (125, 135),
-                      exp: "\"Hi!\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (131, 134),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -626,6 +695,7 @@ fn mixed_nested() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hi!\"",
                     ),
                   ],
                 )
@@ -724,12 +794,21 @@ fn mixed_assign() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (26, 56),
                       span: SpanShape(
                         outer: (51, 55),
                         inner: (52, 54),
                       ),
-                      enclosure: (26, 56),
-                      exp: "`Hi`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (52, 54),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -742,6 +821,7 @@ fn mixed_assign() {
                           exp: "// @prompt fresh",
                         ),
                       ],
+                      exp: "`Hi`",
                     ),
                   ],
                 )
@@ -805,12 +885,21 @@ fn mixed_reassign() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (45, 72),
                       span: SpanShape(
                         outer: (67, 71),
                         inner: (68, 70),
                       ),
-                      enclosure: (45, 72),
-                      exp: "`Hi`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (68, 70),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -823,6 +912,7 @@ fn mixed_reassign() {
                           exp: "// @prompt def",
                         ),
                       ],
+                      exp: "`Hi`",
                     ),
                   ],
                 )
@@ -885,12 +975,21 @@ fn mixed_reassign_inline() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (32, 74),
                       span: SpanShape(
                         outer: (69, 73),
                         inner: (70, 72),
                       ),
-                      enclosure: (32, 74),
-                      exp: "`Hi`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (70, 72),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -912,6 +1011,7 @@ fn mixed_reassign_inline() {
                           exp: "/* @prompt fresh */",
                         ),
                       ],
+                      exp: "`Hi`",
                     ),
                   ],
                 )
@@ -985,12 +1085,21 @@ fn spaced() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 43),
                       span: SpanShape(
                         outer: (27, 42),
                         inner: (28, 41),
                       ),
-                      enclosure: (0, 43),
-                      exp: "`Hello, world!`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (28, 41),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1003,6 +1112,7 @@ fn spaced() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "`Hello, world!`",
                     ),
                   ],
                 )
@@ -1063,12 +1173,21 @@ fn dirty() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 64),
                       span: SpanShape(
                         outer: (33, 63),
                         inner: (34, 62),
                       ),
-                      enclosure: (0, 64),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (34, 62),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1081,6 +1200,7 @@ fn dirty() {
                           exp: "// @prompt system",
                         ),
                       ],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -1141,12 +1261,21 @@ fn multi() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 50),
                       span: SpanShape(
                         outer: (25, 32),
                         inner: (26, 31),
                       ),
-                      enclosure: (0, 50),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (26, 31),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1159,15 +1288,25 @@ fn multi() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 50),
                       span: SpanShape(
                         outer: (42, 49),
                         inner: (43, 48),
                       ),
-                      enclosure: (0, 50),
-                      exp: "\"World\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (43, 48),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1180,6 +1319,7 @@ fn multi() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"World\"",
                     ),
                   ],
                 )
@@ -1262,12 +1402,21 @@ fn destructuring() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 55),
                       span: SpanShape(
                         outer: (37, 44),
                         inner: (38, 43),
                       ),
-                      enclosure: (0, 55),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (38, 43),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1280,15 +1429,25 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 55),
                       span: SpanShape(
                         outer: (46, 53),
                         inner: (47, 52),
                       ),
-                      enclosure: (0, 55),
-                      exp: "\"World\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (47, 52),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1301,15 +1460,25 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (56, 131),
                       span: SpanShape(
                         outer: (104, 111),
                         inner: (105, 110),
                       ),
-                      enclosure: (56, 131),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (105, 110),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1322,15 +1491,25 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (56, 131),
                       span: SpanShape(
                         outer: (121, 128),
                         inner: (122, 127),
                       ),
-                      enclosure: (56, 131),
-                      exp: "\"World\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (122, 127),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1343,15 +1522,25 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (132, 211),
                       span: SpanShape(
                         outer: (183, 190),
                         inner: (184, 189),
                       ),
-                      enclosure: (132, 211),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (184, 189),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1364,15 +1553,25 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (132, 211),
                       span: SpanShape(
                         outer: (200, 207),
                         inner: (201, 206),
                       ),
-                      enclosure: (132, 211),
-                      exp: "\"World\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (201, 206),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1385,15 +1584,25 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (212, 303),
                       span: SpanShape(
                         outer: (270, 277),
                         inner: (271, 276),
                       ),
-                      enclosure: (212, 303),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (271, 276),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1406,15 +1615,25 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (212, 303),
                       span: SpanShape(
                         outer: (290, 297),
                         inner: (291, 296),
                       ),
-                      enclosure: (212, 303),
-                      exp: "\"World\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (291, 296),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1427,6 +1646,7 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"World\"",
                     ),
                   ],
                 )
@@ -1593,12 +1813,21 @@ fn chained() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (12, 50),
                       span: SpanShape(
                         outer: (46, 50),
                         inner: (47, 49),
                       ),
-                      enclosure: (12, 50),
-                      exp: "\"Hi\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (47, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1611,15 +1840,25 @@ fn chained() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hi\"",
                     ),
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (12, 50),
                       span: SpanShape(
                         outer: (46, 50),
                         inner: (47, 49),
                       ),
-                      enclosure: (12, 50),
-                      exp: "\"Hi\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (47, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -1632,6 +1871,7 @@ fn chained() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hi\"",
                     ),
                   ],
                 )

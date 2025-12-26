@@ -19,12 +19,21 @@ fn multiple() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 50),
                       span: SpanShape(
                         outer: (44, 49),
                         inner: (45, 48),
                       ),
-                      enclosure: (0, 50),
-                      exp: "\"asd\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (45, 48),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -46,6 +55,7 @@ fn multiple() {
                           exp: "/* @prompt */",
                         ),
                       ],
+                      exp: "\"asd\"",
                     ),
                   ],
                 )
@@ -116,12 +126,21 @@ fn multiline() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (0, 58),
                       span: SpanShape(
                         outer: (54, 57),
                         inner: (55, 56),
                       ),
-                      enclosure: (0, 58),
-                      exp: "`x`",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (55, 56),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -143,6 +162,7 @@ fn multiline() {
                           exp: "/* @prompt */",
                         ),
                       ],
+                      exp: "`x`",
                     ),
                   ],
                 )
@@ -213,12 +233,21 @@ fn multiline_nested() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
+                      enclosure: (20, 81),
                       span: SpanShape(
                         outer: (73, 80),
                         inner: (74, 79),
                       ),
-                      enclosure: (20, 81),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (74, 79),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -239,6 +268,7 @@ fn multiline_nested() {
                           exp: "// Hello\n    // @prompt\n    // world",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                   ],
                 )

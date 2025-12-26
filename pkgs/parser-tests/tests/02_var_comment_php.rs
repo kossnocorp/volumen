@@ -20,12 +20,21 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 57),
                       span: SpanShape(
                         outer: (27, 57),
                         inner: (28, 56),
                       ),
-                      enclosure: (6, 57),
-                      exp: "\"You are a helpful assistant.\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (28, 56),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -38,6 +47,7 @@ fn simple() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -153,19 +163,28 @@ fn assigned() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 48),
                       span: SpanShape(
                         outer: (29, 48),
                         inner: (30, 47),
                       ),
-                      enclosure: (6, 48),
-                      exp: "\"Assigned {$value}\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (30, 47),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [
                         PromptVar(
-                          exp: "{$value}",
                           span: SpanShape(
                             outer: (39, 47),
                             inner: (40, 46),
                           ),
+                          exp: "{$value}",
                         ),
                       ],
                       annotations: [
@@ -179,6 +198,7 @@ fn assigned() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Assigned {$value}\"",
                     ),
                   ],
                 )
@@ -246,12 +266,21 @@ fn assigned_late_comment() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (30, 69),
                       span: SpanShape(
                         outer: (53, 69),
                         inner: (54, 68),
                       ),
-                      enclosure: (30, 69),
-                      exp: "\"Assigned again\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (54, 68),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -264,6 +293,7 @@ fn assigned_late_comment() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Assigned again\"",
                     ),
                   ],
                 )
@@ -326,12 +356,21 @@ fn reassigned() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 38),
                       span: SpanShape(
                         outer: (31, 38),
                         inner: (32, 37),
                       ),
-                      enclosure: (6, 38),
-                      exp: "\"First\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (32, 37),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -344,15 +383,25 @@ fn reassigned() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"First\"",
                     ),
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (40, 62),
                       span: SpanShape(
                         outer: (54, 62),
                         inner: (55, 61),
                       ),
-                      enclosure: (40, 62),
-                      exp: "\"Second\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (55, 61),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -365,6 +414,7 @@ fn reassigned() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Second\"",
                     ),
                   ],
                 )
@@ -706,12 +756,21 @@ fn destructuring() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 60),
                       span: SpanShape(
                         outer: (43, 50),
                         inner: (44, 49),
                       ),
-                      enclosure: (6, 60),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (44, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -724,15 +783,25 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 60),
                       span: SpanShape(
                         outer: (52, 59),
                         inner: (53, 58),
                       ),
-                      enclosure: (6, 60),
-                      exp: "\"World\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (53, 58),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -745,15 +814,25 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (62, 112),
                       span: SpanShape(
                         outer: (95, 102),
                         inner: (96, 101),
                       ),
-                      enclosure: (62, 112),
-                      exp: "\"Hello\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (96, 101),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -766,15 +845,25 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (62, 112),
                       span: SpanShape(
                         outer: (104, 111),
                         inner: (105, 110),
                       ),
-                      enclosure: (62, 112),
-                      exp: "\"World\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (105, 110),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -787,6 +876,7 @@ fn destructuring() {
                           exp: "// @prompt",
                         ),
                       ],
+                      exp: "\"World\"",
                     ),
                   ],
                 )
@@ -978,12 +1068,21 @@ fn mixed_reassign() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (49, 76),
                       span: SpanShape(
                         outer: (72, 76),
                         inner: (73, 75),
                       ),
-                      enclosure: (49, 76),
-                      exp: "\"Hi\"",
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (73, 75),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -996,6 +1095,7 @@ fn mixed_reassign() {
                           exp: "// @prompt def",
                         ),
                       ],
+                      exp: "\"Hi\"",
                     ),
                   ],
                 )
