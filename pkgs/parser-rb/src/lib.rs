@@ -534,14 +534,27 @@ fn create_prompt_from_string(
     annotations: &[PromptAnnotation],
     prompts: &mut Vec<Prompt>,
 ) {
+    // Normalize heredoc nodes to the nearest enclosing "string" node so spans cover the body
+    let mut normalized_node = *string_node;
+    if matches!(string_node.kind(), "heredoc_beginning" | "heredoc_body") {
+        let mut current = Some(*string_node);
+        while let Some(node) = current {
+            if node.kind() == "string" {
+                normalized_node = node;
+                break;
+            }
+            current = node.parent();
+        }
+    }
+
     // Calculate spans
-    let span = span_shape_string_like(string_node, source);
+    let span = span_shape_string_like(&normalized_node, source);
 
     // Extract expression text
     let exp = source[span.outer.start as usize..span.outer.end as usize].to_string();
 
     // Extract variables if interpolated string
-    let vars = spans::extract_interpolation_vars(string_node, source);
+    let vars = spans::extract_interpolation_vars(&normalized_node, source);
 
     // Calculate enclosure - use get_any_leading_start to include ANY leading comment (valid or not)
     let enclosure_start = comments

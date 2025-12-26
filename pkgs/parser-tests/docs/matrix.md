@@ -8,9 +8,9 @@
 | `02_var_comment_{{lang}}.rs`      | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
 | `03_inline_comment_{{lang}}.rs`   | +++  | +++  | +++  | +++   | ++   | ++   | +++    |
 | `04_prompt_vars_{{lang}}.rs`      | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
-| `05_multiple_prompts_{{lang}}.rs` | +++  | +++  | ++   | ++    | ++   | ++   | +++    |
-| `06_annotations_{{lang}}.rs`      | +++  | ++   | ++   | ++!   | ++!  | ++!  | ++!    |
-| `07_syntax_{{lang}}.rs`           | +++  | +++  | ++!  | +++   | ++!  | +++  | ++     |
+| `05_multiple_prompts_{{lang}}.rs` | +++  | +++  | +++  | ++    | ++   | ++   | +++    |
+| `06_annotations_{{lang}}.rs`      | +++  | ++   | +++  | ++!   | ++!  | ++!  | ++!    |
+| `07_syntax_{{lang}}.rs`           | +++  | +++  | +++  | +++   | ++!  | +++  | ++     |
 | `08_concat_{{lang}}.rs`           | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
 | `09_fn_{{lang}}.rs`               | +++  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
 | `10_array_{{lang}}.rs`            | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
@@ -129,6 +129,7 @@ Additional legend:
 | `multiline_interpolated` | +++  | +++  | ++!  | +++   | -    | +++  | -      |
 
 - `rb` heredoc tests only capture the `<<~TEXT` marker, dropping the body and any interpolated vars.
+- `rb` also covers single quotes, `%q/%Q` delimiters, and multiple heredoc forms (snapshots remain empty).
 - `php` matches the TS/PY baselines, including annotations and interpolated vars.
 - `go` snapshots are empty (`@""`) and only cover a plain raw string; there is no interpolated variant.
 - `cs` matches TS/PY for verbatim and interpolated strings with annotations.
