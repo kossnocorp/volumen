@@ -1636,7 +1636,7 @@ fn destructuring() {
 fn chained() {
     ParseTest::test(
         &ParseTestLang::ts(indoc! {r#"
-			let world;
+	          let world;
             // @prompt
             const hello = world = "Hi"
         "#}),
@@ -1650,25 +1650,25 @@ fn chained() {
                       file: "prompts.js",
                       span: SpanShape(
                         outer: Span(
-                          start: 62,
-                          end: 66,
+                          start: 46,
+                          end: 50,
                         ),
                         inner: Span(
-                          start: 63,
-                          end: 65,
+                          start: 47,
+                          end: 49,
                         ),
                       ),
                       enclosure: Span(
-                        start: 20,
-                        end: 66,
+                        start: 12,
+                        end: 50,
                       ),
                       exp: "\"Hi\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
                           span: Span(
-                            start: 20,
-                            end: 30,
+                            start: 12,
+                            end: 22,
                           ),
                           exp: "// @prompt",
                         ),
@@ -1678,25 +1678,25 @@ fn chained() {
                       file: "prompts.js",
                       span: SpanShape(
                         outer: Span(
-                          start: 62,
-                          end: 66,
+                          start: 46,
+                          end: 50,
                         ),
                         inner: Span(
-                          start: 63,
-                          end: 65,
+                          start: 47,
+                          end: 49,
                         ),
                       ),
                       enclosure: Span(
-                        start: 20,
-                        end: 66,
+                        start: 12,
+                        end: 50,
                       ),
                       exp: "\"Hi\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
                           span: Span(
-                            start: 20,
-                            end: 30,
+                            start: 12,
+                            end: 22,
                           ),
                           exp: "// @prompt",
                         ),
@@ -1711,13 +1711,13 @@ fn chained() {
                 assert_json_snapshot!(prompt_source_cuts,  @r#"
                 [
                   {
-                    "enclosure": "// @prompt\n         const hello = world = \"Hi\"",
+                    "enclosure": "// @prompt\n const hello = world = \"Hi\"",
                     "outer": "\"Hi\"",
                     "inner": "Hi",
                     "vars": []
                   },
                   {
-                    "enclosure": "// @prompt\n         const hello = world = \"Hi\"",
+                    "enclosure": "// @prompt\n const hello = world = \"Hi\"",
                     "outer": "\"Hi\"",
                     "inner": "Hi",
                     "vars": []

@@ -149,6 +149,11 @@ fn traverse_node(
         return;
     }
 
+    // Handle prompt-marked identifier declarations (e.g., annotated standalone identifiers)
+    if kind == "identifier" {
+        process_identifier_declaration(node, source, comments, scopes);
+    }
+
     // Handle assignments
     if kind == "assignment" {
         process_assignment(node, source, filename, comments, scopes, prompts);
@@ -165,6 +170,30 @@ fn traverse_node(
                 break;
             }
         }
+    }
+}
+
+/// Mark annotated standalone identifiers as prompt definitions so later assignments inherit them.
+fn process_identifier_declaration(
+    node: &Node,
+    source: &str,
+    comments: &CommentTracker,
+    scopes: &mut ScopeTracker,
+) {
+    let stmt_start = node.start_byte() as u32;
+    let stmt_end = node.end_byte() as u32;
+
+    let mut annotations = comments.collect_adjacent_leading(stmt_start);
+    let inline_annotations = comments.collect_inline_prompt(stmt_start, stmt_end);
+    annotations.extend(inline_annotations);
+
+    if annotations.is_empty() {
+        return;
+    }
+
+    if let Ok(name) = node.utf8_text(source.as_bytes()) {
+        scopes.mark_prompt_ident(name);
+        scopes.store_def_annotation(name, annotations);
     }
 }
 
@@ -198,6 +227,23 @@ fn process_assignment(
         Some(n) => n,
         None => return,
     };
+
+    // Handle chained assignments like `a = b = "Hi"`
+    if right.kind() == "assignment" {
+        process_chained_assignment(
+            node,
+            source,
+            filename,
+            has_prompt_annotation,
+            &all_annotations,
+            stmt_start,
+            stmt_end,
+            comments,
+            scopes,
+            prompts,
+        );
+        return;
+    }
 
     // Handle different assignment patterns
     match left.kind() {
@@ -235,6 +281,64 @@ fn process_assignment(
             );
         }
         _ => {}
+    }
+}
+
+/// Process chained assignments (e.g., `a = b = "Hi"`).
+#[allow(clippy::too_many_arguments)]
+fn process_chained_assignment(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    has_prompt_annotation: bool,
+    annotations: &[PromptAnnotation],
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    scopes: &mut ScopeTracker,
+    prompts: &mut Vec<Prompt>,
+) {
+    let mut idents = Vec::new();
+    let mut current = node.clone();
+    let mut value_node: Option<Node> = None;
+
+    loop {
+        if let Some(left) = current.child_by_field_name("left") {
+            extract_identifiers(&left, source, &mut idents);
+        }
+
+        if let Some(right) = current.child_by_field_name("right") {
+            if right.kind() == "assignment" {
+                current = right;
+                continue;
+            }
+            value_node = Some(right);
+        }
+        break;
+    }
+
+    let Some(value) = value_node else {
+        return;
+    };
+
+    if !is_string_like(&value) {
+        return;
+    }
+
+    for ident in idents.iter() {
+        if is_prompt_variable(ident, has_prompt_annotation, scopes) {
+            scopes.mark_prompt_ident(ident);
+            create_prompt_from_string(
+                &value,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                annotations,
+                prompts,
+            );
+        }
     }
 }
 

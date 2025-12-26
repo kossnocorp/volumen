@@ -4,7 +4,6 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
-#[ignore]
 #[test]
 fn simple() {
     ParseTest::test(
@@ -14,16 +13,69 @@ fn simple() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r##"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.rb",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 19,
+                          end: 49,
+                        ),
+                        inner: Span(
+                          start: 20,
+                          end: 48,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 49,
+                      ),
+                      exp: "\"You are a helpful assistant.\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 9,
+                          ),
+                          exp: "# @prompt",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "##);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @r##"
+                [
+                  {
+                    "enclosure": "# @prompt\nsystem = \"You are a helpful assistant.\"",
+                    "outer": "\"You are a helpful assistant.\"",
+                    "inner": "You are a helpful assistant.",
+                    "vars": []
+                  }
+                ]
+                "##);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "You are a helpful assistant."
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @r##"
+                [
+                  [
+                    "# @prompt"
+                  ]
+                ]
+                "##);
             }),
         },
     );
@@ -34,6 +86,7 @@ fn assigned() {
     ParseTest::test(
         &ParseTestLang::rb(indoc! {r#"
             # @prompt
+            assigned;
             assigned = "Assigned #{value}"
         "#}),
         ParseAssertions {
@@ -46,17 +99,17 @@ fn assigned() {
                       file: "prompts.rb",
                       span: SpanShape(
                         outer: Span(
-                          start: 21,
-                          end: 40,
+                          start: 31,
+                          end: 50,
                         ),
                         inner: Span(
-                          start: 22,
-                          end: 39,
+                          start: 32,
+                          end: 49,
                         ),
                       ),
                       enclosure: Span(
-                        start: 0,
-                        end: 40,
+                        start: 20,
+                        end: 50,
                       ),
                       exp: "\"Assigned #{value}\"",
                       vars: [
@@ -64,12 +117,12 @@ fn assigned() {
                           exp: "#{value}",
                           span: SpanShape(
                             outer: Span(
-                              start: 31,
-                              end: 39,
+                              start: 41,
+                              end: 49,
                             ),
                             inner: Span(
-                              start: 33,
-                              end: 38,
+                              start: 43,
+                              end: 48,
                             ),
                           ),
                         ),
@@ -93,7 +146,7 @@ fn assigned() {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
                 [
                   {
-                    "enclosure": "# @prompt\nassigned = \"Assigned #{value}\"",
+                    "enclosure": "assigned = \"Assigned #{value}\"",
                     "outer": "\"Assigned #{value}\"",
                     "inner": "Assigned #{value}",
                     "vars": [
@@ -132,9 +185,9 @@ fn assigned() {
 fn assigned_late_comment() {
     ParseTest::test(
         &ParseTestLang::rb(indoc! {r#"
-            assigned = "Assigned"
+            assigned;
             # @prompt
-            assigned = "Assigned again"
+            assigned = "Assigned ${value}"
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -146,25 +199,25 @@ fn assigned_late_comment() {
                       file: "prompts.rb",
                       span: SpanShape(
                         outer: Span(
-                          start: 43,
-                          end: 59,
+                          start: 31,
+                          end: 50,
                         ),
                         inner: Span(
-                          start: 44,
-                          end: 58,
+                          start: 32,
+                          end: 49,
                         ),
                       ),
                       enclosure: Span(
-                        start: 22,
-                        end: 59,
+                        start: 10,
+                        end: 50,
                       ),
-                      exp: "\"Assigned again\"",
+                      exp: "\"Assigned ${value}\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
                           span: Span(
-                            start: 22,
-                            end: 31,
+                            start: 10,
+                            end: 19,
                           ),
                           exp: "# @prompt",
                         ),
@@ -179,9 +232,9 @@ fn assigned_late_comment() {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
                 [
                   {
-                    "enclosure": "# @prompt\nassigned = \"Assigned again\"",
-                    "outer": "\"Assigned again\"",
-                    "inner": "Assigned again",
+                    "enclosure": "# @prompt\nassigned = \"Assigned ${value}\"",
+                    "outer": "\"Assigned ${value}\"",
+                    "inner": "Assigned ${value}",
                     "vars": []
                   }
                 ]
@@ -191,7 +244,7 @@ fn assigned_late_comment() {
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
-                  "Assigned again"
+                  "Assigned ${value}"
                 ]
                 "#);
             }),
@@ -214,8 +267,9 @@ fn reassigned() {
     ParseTest::test(
         &ParseTestLang::rb(indoc! {r#"
             # @prompt
-            reassigned = "First"
-            reassigned = "Second"
+            reassigned = 123
+            reassigned = 456
+            reassigned = "Reassigned ${value}"
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -227,47 +281,19 @@ fn reassigned() {
                       file: "prompts.rb",
                       span: SpanShape(
                         outer: Span(
-                          start: 23,
-                          end: 30,
+                          start: 57,
+                          end: 78,
                         ),
                         inner: Span(
-                          start: 24,
-                          end: 29,
+                          start: 58,
+                          end: 77,
                         ),
                       ),
                       enclosure: Span(
-                        start: 0,
-                        end: 30,
+                        start: 44,
+                        end: 78,
                       ),
-                      exp: "\"First\"",
-                      vars: [],
-                      annotations: [
-                        PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
-                          exp: "# @prompt",
-                        ),
-                      ],
-                    ),
-                    Prompt(
-                      file: "prompts.rb",
-                      span: SpanShape(
-                        outer: Span(
-                          start: 44,
-                          end: 52,
-                        ),
-                        inner: Span(
-                          start: 45,
-                          end: 51,
-                        ),
-                      ),
-                      enclosure: Span(
-                        start: 31,
-                        end: 52,
-                      ),
-                      exp: "\"Second\"",
+                      exp: "\"Reassigned ${value}\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
@@ -285,29 +311,22 @@ fn reassigned() {
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r##"
+                assert_json_snapshot!(prompt_source_cuts, @r#"
                 [
                   {
-                    "enclosure": "# @prompt\nreassigned = \"First\"",
-                    "outer": "\"First\"",
-                    "inner": "First",
-                    "vars": []
-                  },
-                  {
-                    "enclosure": "reassigned = \"Second\"",
-                    "outer": "\"Second\"",
-                    "inner": "Second",
+                    "enclosure": "reassigned = \"Reassigned ${value}\"",
+                    "outer": "\"Reassigned ${value}\"",
+                    "inner": "Reassigned ${value}",
                     "vars": []
                   }
                 ]
-                "##);
+                "#);
             }),
 
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
-                  "First",
-                  "Second"
+                  "Reassigned ${value}"
                 ]
                 "#);
             }),
@@ -315,9 +334,6 @@ fn reassigned() {
             annotations: Box::new(|annotations| {
                 assert_json_snapshot!(annotations, @r##"
                 [
-                  [
-                    "# @prompt"
-                  ],
                   [
                     "# @prompt"
                   ]
@@ -328,7 +344,351 @@ fn reassigned() {
     );
 }
 
-#[ignore]
+#[test]
+fn inexact() {
+    ParseTest::test(
+        &ParseTestLang::rb(indoc! {r#"
+            # @prompting
+            hello = "Hello, world!"
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [],
+                )
+                "#);
+            }),
+            cuts: Box::new(|cuts| {
+                assert_json_snapshot!(cuts, @"[]");
+            }),
+            interpolate: Box::new(|interp| {
+                assert_json_snapshot!(interp, @"[]");
+            }),
+            annotations: Box::new(|annot| {
+                assert_json_snapshot!(annot, @"[]");
+            }),
+        },
+    );
+}
+
+#[test]
+fn mixed() {
+    ParseTest::test(
+        &ParseTestLang::rb(indoc! {r#"
+            # @prompt
+            number = 42
+            hello = "Hello, world!"
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [],
+                )
+                "#);
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts, @"[]");
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations, @"[]");
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @"[]");
+            }),
+        },
+    );
+}
+
+#[test]
+fn mixed_nested() {
+    ParseTest::test(
+        &ParseTestLang::rb(indoc! {r#"
+            class Hello
+              def world
+                # @prompt
+                hello = 42
+
+                # @prompt
+                hi = 42
+
+                hi = "Hi!"
+              end
+            end
+
+            hello = "Hello, world!"
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r##"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.rb",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 90,
+                          end: 95,
+                        ),
+                        inner: Span(
+                          start: 91,
+                          end: 94,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 85,
+                        end: 95,
+                      ),
+                      exp: "\"Hi!\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 58,
+                            end: 67,
+                          ),
+                          exp: "# @prompt",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "##);
+            }),
+            cuts: Box::new(|cuts| {
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "hi = \"Hi!\"",
+                    "outer": "\"Hi!\"",
+                    "inner": "Hi!",
+                    "vars": []
+                  }
+                ]
+                "#);
+            }),
+            interpolate: Box::new(|interp| {
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Hi!"
+                ]
+                "#);
+            }),
+            annotations: Box::new(|annot| {
+                assert_json_snapshot!(annot, @r##"
+                [
+                  [
+                    "# @prompt"
+                  ]
+                ]
+                "##);
+            }),
+        },
+    );
+}
+
+#[test]
+fn mixed_none() {
+    ParseTest::test(
+        &ParseTestLang::rb(indoc! {r#"
+            regular_string = "This is not special"
+            normal_string = "This is not special"
+            regular = "Regular string"
+            message = "Just a message"
+            # @prompt
+            number = 1
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [],
+                )
+                "#);
+            }),
+            cuts: Box::new(|cuts| {
+                assert_json_snapshot!(cuts, @"[]");
+            }),
+            interpolate: Box::new(|interp| {
+                assert_json_snapshot!(interp, @"[]");
+            }),
+            annotations: Box::new(|annot| {
+                assert_json_snapshot!(annot, @"[]");
+            }),
+        },
+    );
+}
+
+#[test]
+fn mixed_assign() {
+    ParseTest::test(
+        &ParseTestLang::rb(indoc! {r#"
+            # @prompt def
+            hello = nil
+            # @prompt fresh
+            hello = "Hi"
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r##"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.rb",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 50,
+                          end: 54,
+                        ),
+                        inner: Span(
+                          start: 51,
+                          end: 53,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 26,
+                        end: 54,
+                      ),
+                      exp: "\"Hi\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 26,
+                            end: 41,
+                          ),
+                          exp: "# @prompt fresh",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "##);
+            }),
+            cuts: Box::new(|cuts| {
+                assert_json_snapshot!(cuts, @r##"
+                [
+                  {
+                    "enclosure": "# @prompt fresh\nhello = \"Hi\"",
+                    "outer": "\"Hi\"",
+                    "inner": "Hi",
+                    "vars": []
+                  }
+                ]
+                "##);
+            }),
+            interpolate: Box::new(|interp| {
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Hi"
+                ]
+                "#);
+            }),
+            annotations: Box::new(|annot| {
+                assert_json_snapshot!(annot, @r##"
+                [
+                  [
+                    "# @prompt fresh"
+                  ]
+                ]
+                "##);
+            }),
+        },
+    );
+}
+
+#[test]
+fn mixed_reassign() {
+    ParseTest::test(
+        &ParseTestLang::rb(indoc! {r#"
+            # @prompt def
+            hello = 123
+            hello = 456
+            # @prompting
+            hello = "Hi"
+        "#}),
+        ParseAssertions {
+            result: Box::new(|result| {
+                assert_ron_snapshot!(result, @r##"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.rb",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 59,
+                          end: 63,
+                        ),
+                        inner: Span(
+                          start: 60,
+                          end: 62,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 38,
+                        end: 63,
+                      ),
+                      exp: "\"Hi\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 13,
+                          ),
+                          exp: "# @prompt def",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "##);
+            }),
+
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts, @r##"
+                [
+                  {
+                    "enclosure": "# @prompting\nhello = \"Hi\"",
+                    "outer": "\"Hi\"",
+                    "inner": "Hi",
+                    "vars": []
+                  }
+                ]
+                "##);
+            }),
+
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations, @r#"
+                [
+                  "Hi"
+                ]
+                "#);
+            }),
+
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @r##"
+                [
+                  [
+                    "# @prompt def"
+                  ]
+                ]
+                "##);
+            }),
+        },
+    );
+}
+
 #[test]
 fn spaced() {
     ParseTest::test(
@@ -353,27 +713,27 @@ fn spaced() {
                       file: "prompts.rb",
                       span: SpanShape(
                         outer: Span(
-                          start: 65,
-                          end: 73,
+                          start: 20,
+                          end: 35,
                         ),
                         inner: Span(
-                          start: 66,
-                          end: 72,
+                          start: 21,
+                          end: 34,
                         ),
                       ),
                       enclosure: Span(
                         start: 0,
-                        end: 73,
+                        end: 35,
                       ),
-                      exp: "\"Spaced\"",
+                      exp: "\"Hello, world!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
                           span: Span(
                             start: 0,
-                            end: 55,
+                            end: 9,
                           ),
-                          exp: "# This is a comment\n# @prompt\n# This is another comment",
+                          exp: "# @prompt",
                         ),
                       ],
                     ),
@@ -386,9 +746,9 @@ fn spaced() {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
                 [
                   {
-                    "enclosure": "# This is a comment\n# @prompt\n# This is another comment\nspaced = \"Spaced\"",
-                    "outer": "\"Spaced\"",
-                    "inner": "Spaced",
+                    "enclosure": "# @prompt\n\n\nhello = \"Hello, world!\"",
+                    "outer": "\"Hello, world!\"",
+                    "inner": "Hello, world!",
                     "vars": []
                   }
                 ]
@@ -398,7 +758,7 @@ fn spaced() {
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
-                  "Spaced"
+                  "Hello, world!"
                 ]
                 "#);
             }),
@@ -407,7 +767,7 @@ fn spaced() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# This is a comment\n# @prompt\n# This is another comment"
+                    "# @prompt"
                   ]
                 ]
                 "##);
@@ -416,14 +776,12 @@ fn spaced() {
     );
 }
 
-#[ignore]
 #[test]
-fn mixed() {
+fn dirty() {
     ParseTest::test(
         &ParseTestLang::rb(indoc! {r#"
-            # @prompt
-            number = 42
-            hello = "Hello, world!"
+            # @prompt system
+            system = "You are a helpful assistant."
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -463,9 +821,8 @@ fn mixed() {
                 )
                 "##);
             }),
-
-            cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r##"
+            cuts: Box::new(|cuts| {
+                assert_json_snapshot!(cuts, @r##"
                 [
                   {
                     "enclosure": "# @prompt system\nsystem = \"You are a helpful assistant.\"",
@@ -476,17 +833,15 @@ fn mixed() {
                 ]
                 "##);
             }),
-
-            interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @r#"
+            interpolate: Box::new(|interp| {
+                assert_json_snapshot!(interp, @r#"
                 [
                   "You are a helpful assistant."
                 ]
                 "#);
             }),
-
-            annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r##"
+            annotations: Box::new(|annot| {
+                assert_json_snapshot!(annot, @r##"
                 [
                   [
                     "# @prompt system"
@@ -498,144 +853,119 @@ fn mixed() {
     );
 }
 
-#[ignore]
 #[test]
-fn dirty() {
+fn multi() {
     ParseTest::test(
         &ParseTestLang::rb(indoc! {r#"
-            # @prompt system
-            system = "You are a helpful assistant."
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
-
-#[ignore]
-#[test]
-fn inexact() {
-    ParseTest::test(
-        &ParseTestLang::rb(indoc! {r#"
-            # @prompting
-            hello = "Hello, world!"
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
-
-
-#[ignore]
-#[test]
-fn mixed_none() {
-    ParseTest::test(
-        &ParseTestLang::rb(indoc! {r#"
-            regular_string = "This is not special"
-            normal_string = "This is not special"
-            regular = "Regular string"
-            message = "Just a message"
             # @prompt
-            number = 1
+            hello, world = "Hello", "World"
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r##"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.rb",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 25,
+                          end: 32,
+                        ),
+                        inner: Span(
+                          start: 26,
+                          end: 31,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 41,
+                      ),
+                      exp: "\"Hello\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 9,
+                          ),
+                          exp: "# @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.rb",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 34,
+                          end: 41,
+                        ),
+                        inner: Span(
+                          start: 35,
+                          end: 40,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 41,
+                      ),
+                      exp: "\"World\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 9,
+                          ),
+                          exp: "# @prompt",
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "##);
             }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
 
-#[ignore]
-#[test]
-fn mixed_nested() {
-    ParseTest::test(
-        &ParseTestLang::rb(indoc! {r#"
-            class Hello
-              def world
-                # @prompt
-                hello = 42
+            cuts: Box::new(|prompt_source_cuts| {
+                assert_json_snapshot!(prompt_source_cuts, @r##"
+                [
+                  {
+                    "enclosure": "# @prompt\nhello, world = \"Hello\", \"World\"",
+                    "outer": "\"Hello\"",
+                    "inner": "Hello",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "# @prompt\nhello, world = \"Hello\", \"World\"",
+                    "outer": "\"World\"",
+                    "inner": "World",
+                    "vars": []
+                  }
+                ]
+                "##);
+            }),
 
-                # @prompt
-                hi = 42
+            interpolate: Box::new(|interpolations| {
+                assert_json_snapshot!(interpolations, @r#"
+                [
+                  "Hello",
+                  "World"
+                ]
+                "#);
+            }),
 
-                hi = "Hi!"
-              end
-            end
-
-            hello = "Hello, world!"
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
-            }),
-        },
-    );
-}
-
-#[ignore]
-#[test]
-fn mixed_assign() {
-    ParseTest::test(
-        &ParseTestLang::rb(indoc! {r#"
-            # @prompt def
-            hello = nil
-            # @prompt fresh
-            hello = "Hi"
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
-            }),
-            cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
-            }),
-            interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
-            }),
-            annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+            annotations: Box::new(|annotations| {
+                assert_json_snapshot!(annotations, @r##"
+                [
+                  [
+                    "# @prompt"
+                  ],
+                  [
+                    "# @prompt"
+                  ]
+                ]
+                "##);
             }),
         },
     );
@@ -837,48 +1167,12 @@ fn destructuring() {
     );
 }
 
-#[ignore]
 #[test]
 fn chained() {
     ParseTest::test(
         &ParseTestLang::rb(indoc! {r#"
             # @prompt
             hello = world = "Hi"
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r#"
-                ParseResultSuccess(
-                  state: "success",
-                  prompts: [],
-                )
-                "#);
-            }),
-
-            cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @"[]");
-            }),
-
-            interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @"[]");
-            }),
-
-            annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @"[]");
-            }),
-        },
-    );
-}
-
-#[test]
-fn mixed_reassign() {
-    ParseTest::test(
-        &ParseTestLang::rb(indoc! {r#"
-            # @prompt def
-            hello = 123
-            hello = 456
-            # @prompting
-            hello = "Hi"
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
@@ -890,17 +1184,17 @@ fn mixed_reassign() {
                       file: "prompts.rb",
                       span: SpanShape(
                         outer: Span(
-                          start: 59,
-                          end: 63,
+                          start: 26,
+                          end: 30,
                         ),
                         inner: Span(
-                          start: 60,
-                          end: 62,
+                          start: 27,
+                          end: 29,
                         ),
                       ),
                       enclosure: Span(
-                        start: 38,
-                        end: 63,
+                        start: 0,
+                        end: 30,
                       ),
                       exp: "\"Hi\"",
                       vars: [],
@@ -908,9 +1202,37 @@ fn mixed_reassign() {
                         PromptAnnotation(
                           span: Span(
                             start: 0,
-                            end: 13,
+                            end: 9,
                           ),
-                          exp: "# @prompt def",
+                          exp: "# @prompt",
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.rb",
+                      span: SpanShape(
+                        outer: Span(
+                          start: 26,
+                          end: 30,
+                        ),
+                        inner: Span(
+                          start: 27,
+                          end: 29,
+                        ),
+                      ),
+                      enclosure: Span(
+                        start: 0,
+                        end: 30,
+                      ),
+                      exp: "\"Hi\"",
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          span: Span(
+                            start: 0,
+                            end: 9,
+                          ),
+                          exp: "# @prompt",
                         ),
                       ],
                     ),
@@ -923,7 +1245,13 @@ fn mixed_reassign() {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
                 [
                   {
-                    "enclosure": "# @prompting\nhello = \"Hi\"",
+                    "enclosure": "# @prompt\nhello = world = \"Hi\"",
+                    "outer": "\"Hi\"",
+                    "inner": "Hi",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "# @prompt\nhello = world = \"Hi\"",
                     "outer": "\"Hi\"",
                     "inner": "Hi",
                     "vars": []
@@ -935,123 +1263,8 @@ fn mixed_reassign() {
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
+                  "Hi",
                   "Hi"
-                ]
-                "#);
-            }),
-
-            annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r##"
-                [
-                  [
-                    "# @prompt def"
-                  ]
-                ]
-                "##);
-            }),
-        },
-    );
-}
-
-#[ignore]
-#[test]
-fn multi() {
-    ParseTest::test(
-        &ParseTestLang::rb(indoc! {r#"
-            # @prompt
-            hello, world = "Hello", "World"
-        "#}),
-        ParseAssertions {
-            result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
-                ParseResultSuccess(
-                  state: "success",
-                  prompts: [
-                    Prompt(
-                      file: "prompts.rb",
-                      span: SpanShape(
-                        outer: Span(
-                          start: 25,
-                          end: 32,
-                        ),
-                        inner: Span(
-                          start: 26,
-                          end: 31,
-                        ),
-                      ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 41,
-                      ),
-                      exp: "\"Hello\"",
-                      vars: [],
-                      annotations: [
-                        PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
-                          exp: "# @prompt",
-                        ),
-                      ],
-                    ),
-                    Prompt(
-                      file: "prompts.rb",
-                      span: SpanShape(
-                        outer: Span(
-                          start: 34,
-                          end: 41,
-                        ),
-                        inner: Span(
-                          start: 35,
-                          end: 40,
-                        ),
-                      ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 41,
-                      ),
-                      exp: "\"World\"",
-                      vars: [],
-                      annotations: [
-                        PromptAnnotation(
-                          span: Span(
-                            start: 0,
-                            end: 9,
-                          ),
-                          exp: "# @prompt",
-                        ),
-                      ],
-                    ),
-                  ],
-                )
-                "##);
-            }),
-
-            cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r##"
-                [
-                  {
-                    "enclosure": "# @prompt\nhello, world = \"Hello\", \"World\"",
-                    "outer": "\"Hello\"",
-                    "inner": "Hello",
-                    "vars": []
-                  },
-                  {
-                    "enclosure": "# @prompt\nhello, world = \"Hello\", \"World\"",
-                    "outer": "\"World\"",
-                    "inner": "World",
-                    "vars": []
-                  }
-                ]
-                "##);
-            }),
-
-            interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @r#"
-                [
-                  "Hello",
-                  "World"
                 ]
                 "#);
             }),
