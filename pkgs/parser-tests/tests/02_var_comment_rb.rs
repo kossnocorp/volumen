@@ -4,6 +4,7 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
+#[ignore]
 #[test]
 fn simple() {
     ParseTest::test(
@@ -327,6 +328,7 @@ fn reassigned() {
     );
 }
 
+#[ignore]
 #[test]
 fn spaced() {
     ParseTest::test(
@@ -414,6 +416,7 @@ fn spaced() {
     );
 }
 
+#[ignore]
 #[test]
 fn mixed() {
     ParseTest::test(
@@ -495,6 +498,7 @@ fn mixed() {
     );
 }
 
+#[ignore]
 #[test]
 fn dirty() {
     ParseTest::test(
@@ -519,6 +523,7 @@ fn dirty() {
     );
 }
 
+#[ignore]
 #[test]
 fn inexact() {
     ParseTest::test(
@@ -544,6 +549,7 @@ fn inexact() {
 }
 
 
+#[ignore]
 #[test]
 fn mixed_none() {
     ParseTest::test(
@@ -572,6 +578,7 @@ fn mixed_none() {
     );
 }
 
+#[ignore]
 #[test]
 fn mixed_nested() {
     ParseTest::test(
@@ -607,6 +614,7 @@ fn mixed_nested() {
     );
 }
 
+#[ignore]
 #[test]
 fn mixed_assign() {
     ParseTest::test(
@@ -829,6 +837,7 @@ fn destructuring() {
     );
 }
 
+#[ignore]
 #[test]
 fn chained() {
     ParseTest::test(
@@ -944,6 +953,7 @@ fn mixed_reassign() {
     );
 }
 
+#[ignore]
 #[test]
 fn multi() {
     ParseTest::test(

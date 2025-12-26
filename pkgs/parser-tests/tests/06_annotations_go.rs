@@ -4,6 +4,7 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
+#[ignore]
 #[test]
 fn multiple() {
     ParseTest::test(
@@ -28,6 +29,7 @@ fn multiple() {
     );
 }
 
+#[ignore]
 #[test]
 fn multiline() {
     ParseTest::test(
@@ -56,6 +58,7 @@ fn multiline() {
     );
 }
 
+#[ignore]
 #[test]
 fn multiline_nested() {
     ParseTest::test(

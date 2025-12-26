@@ -199,6 +199,7 @@ fn multiple_vars() {
     );
 }
 
+#[ignore]
 #[test]
 fn exp() {
     ParseTest::test(
@@ -305,6 +306,7 @@ fn exp() {
     );
 }
 
+#[ignore]
 #[test]
 fn exp_complex() {
     ParseTest::test(

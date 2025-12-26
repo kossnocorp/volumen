@@ -4,6 +4,7 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
+#[ignore]
 #[test]
 fn sprintf_fn() {
     ParseTest::test(

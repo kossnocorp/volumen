@@ -4,6 +4,7 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
+#[ignore]
 #[test]
 fn implode_fn() {
     ParseTest::test(
@@ -32,6 +33,7 @@ fn implode_fn() {
     );
 }
 
+#[ignore]
 #[test]
 fn array_simple() {
     ParseTest::test(

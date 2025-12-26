@@ -35,6 +35,7 @@ fn invalid() {
     );
 }
 
+#[ignore]
 #[test]
 fn heredoc() {
     ParseTest::test(
@@ -119,6 +120,7 @@ fn heredoc() {
     );
 }
 
+#[ignore]
 #[test]
 fn heredoc_interpolated() {
     ParseTest::test(

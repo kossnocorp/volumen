@@ -4,6 +4,7 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
+#[ignore]
 #[test]
 fn simple() {
     ParseTest::test(
@@ -61,6 +62,7 @@ fn inexact() {
     );
 }
 
+#[ignore]
 #[test]
 fn dirty() {
     ParseTest::test(

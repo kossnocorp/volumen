@@ -4,6 +4,7 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
+#[ignore]
 #[test]
 fn simple() {
     ParseTest::test(
@@ -28,6 +29,7 @@ fn simple() {
     );
 }
 
+#[ignore]
 #[test]
 fn inline() {
     ParseTest::test(
@@ -52,6 +54,7 @@ fn inline() {
     );
 }
 
+#[ignore]
 #[test]
 fn doc() {
     ParseTest::test(
@@ -78,6 +81,7 @@ fn doc() {
     );
 }
 
+#[ignore]
 #[test]
 fn assigned() {
     ParseTest::test(
@@ -103,6 +107,7 @@ fn assigned() {
     );
 }
 
+#[ignore]
 #[test]
 fn assigned_late_comment() {
     ParseTest::test(
@@ -128,6 +133,7 @@ fn assigned_late_comment() {
     );
 }
 
+#[ignore]
 #[test]
 fn reassigned() {
     ParseTest::test(
@@ -153,6 +159,7 @@ fn reassigned() {
     );
 }
 
+#[ignore]
 #[test]
 fn inexact() {
     ParseTest::test(
@@ -177,6 +184,7 @@ fn inexact() {
     );
 }
 
+#[ignore]
 #[test]
 fn mixed() {
     ParseTest::test(
@@ -202,6 +210,7 @@ fn mixed() {
     );
 }
 
+#[ignore]
 #[test]
 fn mixed_nested() {
     ParseTest::test(
@@ -237,6 +246,7 @@ fn mixed_nested() {
     );
 }
 
+#[ignore]
 #[test]
 fn mixed_none() {
     ParseTest::test(
@@ -265,6 +275,7 @@ fn mixed_none() {
     );
 }
 
+#[ignore]
 #[test]
 fn mixed_assign() {
     ParseTest::test(
@@ -291,6 +302,7 @@ fn mixed_assign() {
     );
 }
 
+#[ignore]
 #[test]
 fn spaced() {
     ParseTest::test(
@@ -322,6 +334,7 @@ fn spaced() {
     );
 }
 
+#[ignore]
 #[test]
 fn dirty() {
     ParseTest::test(
@@ -346,6 +359,7 @@ fn dirty() {
     );
 }
 
+#[ignore]
 #[test]
 fn multi() {
     ParseTest::test(

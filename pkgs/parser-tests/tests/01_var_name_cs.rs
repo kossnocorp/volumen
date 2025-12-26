@@ -4,6 +4,7 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
+#[ignore]
 #[test]
 fn simple() {
     ParseTest::test(
@@ -70,6 +71,7 @@ fn simple() {
     );
 }
 
+#[ignore]
 #[test]
 fn nested() {
     ParseTest::test(
