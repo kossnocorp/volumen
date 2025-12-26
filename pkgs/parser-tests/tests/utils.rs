@@ -51,6 +51,12 @@ pub struct PromptSourceCutVar {
     pub inner: &'static str,
 }
 
+#[derive(Serialize)]
+pub struct PromptAnnotationCuts {
+    pub outer: &'static str,
+    pub inner: &'static str,
+}
+
 impl PromptSourceCuts {
     pub fn cut(source: &'static str, prompt: &Prompt) -> Self {
         let enclosure = &source[prompt.enclosure.0 as usize..prompt.enclosure.1 as usize];
@@ -133,7 +139,7 @@ impl ParseTest {
                                 (assertions.interpolate)(interpolations);
                             });
 
-                            let annotations : Vec<Vec<String>> = result_success
+                            let annotations : Vec<Vec<Vec<PromptAnnotationCuts>>> = result_success
                                 .prompts
                                 .iter()
                                 .map(|prompt| {
@@ -141,8 +147,12 @@ impl ParseTest {
                                         .annotations
                                         .iter()
                                         .map(|annotation| {
-                                            let annotation_str = &lang.source[annotation.span.0 as usize..annotation.span.1 as usize];
-                                            annotation_str.to_owned()
+                                            annotation.spans.iter().map(|span_shape| {
+                                                PromptAnnotationCuts {
+                                                    outer: &lang.source[span_shape.outer.0 as usize..span_shape.outer.1 as usize],
+                                                    inner: &lang.source[span_shape.inner.0 as usize..span_shape.inner.1 as usize],
+                                                }
+                                            }).collect()
                                         })
                                         .collect()
                                 })
@@ -305,4 +315,4 @@ type ParseCutsAssertion = Box<dyn Fn(Vec<PromptSourceCuts>) -> ()>;
 
 type ParseInterpolateAssertion = Box<dyn Fn(Vec<String>) -> ()>;
 
-type ParseAnnotationsAssertion = Box<dyn Fn(Vec<Vec<String>>) -> ()>;
+type ParseAnnotationsAssertion = Box<dyn Fn(Vec<Vec<Vec<PromptAnnotationCuts>>>) -> ()>;

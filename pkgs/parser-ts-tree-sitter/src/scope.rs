@@ -89,7 +89,7 @@ impl ScopeTracker {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use volumen_types::Span;
+    use volumen_types::SpanShape;
 
     #[test]
     fn test_scope_tracking() {
@@ -138,7 +138,10 @@ mod tests {
         let mut tracker = ScopeTracker::new();
 
         let annotations = vec![PromptAnnotation {
-            span: (0, 10),
+            spans: vec![SpanShape {
+                outer: (0, 10),
+                inner: (2, 10),
+            }],
             exp: "// @prompt".to_string(),
         }];
 

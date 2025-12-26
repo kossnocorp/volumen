@@ -70,7 +70,12 @@ fn jsx() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (15, 28),
+                          spans: [
+                            SpanShape(
+                              outer: (15, 28),
+                              inner: (17, 26),
+                            ),
+                          ],
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -110,7 +115,12 @@ fn jsx() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    "/* @prompt */"
+                    [
+                      {
+                        "outer": "/* @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
                   ]
                 ]
                 "#);
@@ -153,7 +163,12 @@ fn ts() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (23, 36),
+                          spans: [
+                            SpanShape(
+                              outer: (23, 36),
+                              inner: (25, 34),
+                            ),
+                          ],
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -193,7 +208,12 @@ fn ts() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    "/* @prompt */"
+                    [
+                      {
+                        "outer": "/* @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
                   ]
                 ]
                 "#);
@@ -237,7 +257,12 @@ fn tsx() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (23, 36),
+                          spans: [
+                            SpanShape(
+                              outer: (23, 36),
+                              inner: (25, 34),
+                            ),
+                          ],
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -277,7 +302,12 @@ fn tsx() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    "/* @prompt */"
+                    [
+                      {
+                        "outer": "/* @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
                   ]
                 ]
                 "#);
@@ -327,7 +357,12 @@ fn multiline() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 10),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 10),
+                              inner: (2, 10),
+                            ),
+                          ],
                           exp: "// @prompt",
                         ),
                       ],
@@ -371,7 +406,12 @@ fn multiline() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "#);

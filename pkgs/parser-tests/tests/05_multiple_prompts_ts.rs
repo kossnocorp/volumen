@@ -60,7 +60,12 @@ fn multiple() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (55, 68),
+                          spans: [
+                            SpanShape(
+                              outer: (55, 68),
+                              inner: (57, 66),
+                            ),
+                          ],
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -84,7 +89,12 @@ fn multiple() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (89, 99),
+                          spans: [
+                            SpanShape(
+                              outer: (89, 99),
+                              inner: (91, 99),
+                            ),
+                          ],
                           exp: "// @prompt",
                         ),
                       ],
@@ -100,7 +110,12 @@ fn multiple() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (142, 156),
+                          spans: [
+                            SpanShape(
+                              outer: (142, 156),
+                              inner: (145, 154),
+                            ),
+                          ],
                           exp: "/** @prompt */",
                         ),
                       ],
@@ -172,13 +187,28 @@ fn multiple() {
                 [
                   [],
                   [
-                    "/* @prompt */"
+                    [
+                      {
+                        "outer": "/* @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
                   ],
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ],
                   [
-                    "/** @prompt */"
+                    [
+                      {
+                        "outer": "/** @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
                   ]
                 ]
                 "#);

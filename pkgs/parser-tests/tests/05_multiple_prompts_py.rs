@@ -79,7 +79,12 @@ fn multiple() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (69, 78),
+                          spans: [
+                            SpanShape(
+                              outer: (69, 78),
+                              inner: (70, 78),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -95,7 +100,12 @@ fn multiple() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (114, 123),
+                          spans: [
+                            SpanShape(
+                              outer: (114, 123),
+                              inner: (115, 123),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -168,10 +178,20 @@ fn multiple() {
                   [],
                   [],
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ],
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);

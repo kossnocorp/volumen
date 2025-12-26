@@ -63,7 +63,12 @@ fn heredoc() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -98,7 +103,12 @@ fn heredoc() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -134,7 +144,12 @@ fn heredoc_interpolated() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -169,7 +184,12 @@ fn heredoc_interpolated() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -202,7 +222,12 @@ fn single_quote() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -234,7 +259,12 @@ fn single_quote() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -267,7 +297,12 @@ fn percent_q_paren() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -299,7 +334,12 @@ fn percent_q_paren() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -332,7 +372,12 @@ fn percent_q_brace() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -365,7 +410,12 @@ fn percent_q_brace() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -406,7 +456,12 @@ fn percent_q_upper() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -443,12 +498,17 @@ fn percent_q_upper() {
 
             annotations: Box::new(|annotations| {
                 assert_json_snapshot!(annotations, @r##"
-                 [
-                   [
-                     "# @prompt"
-                   ]
-                 ]
-                 "##);
+                [
+                  [
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ]
+                ]
+                "##);
             }),
         },
     );
@@ -486,7 +546,12 @@ fn percent_q_pipe() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -523,7 +588,12 @@ fn percent_q_pipe() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -564,7 +634,12 @@ fn percent_q_angle() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -601,7 +676,12 @@ fn percent_q_angle() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -636,7 +716,12 @@ fn heredoc_plain() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -668,7 +753,12 @@ fn heredoc_plain() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -703,7 +793,12 @@ fn heredoc_squiggly() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -735,7 +830,12 @@ fn heredoc_squiggly() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -770,7 +870,12 @@ fn heredoc_single() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -802,7 +907,12 @@ fn heredoc_single() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -837,7 +947,12 @@ fn heredoc_double() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -869,7 +984,12 @@ fn heredoc_double() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);

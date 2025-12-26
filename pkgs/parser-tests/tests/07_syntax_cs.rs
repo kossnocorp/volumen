@@ -57,7 +57,12 @@ fn verbatim_string() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 10),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 10),
+                              inner: (2, 10),
+                            ),
+                          ],
                           exp: "// @prompt",
                         ),
                       ],
@@ -89,7 +94,12 @@ fn verbatim_string() {
                 assert_json_snapshot!(annot, @r#"
                 [
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "#);
@@ -138,7 +148,12 @@ fn interpolated_verbatim() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 10),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 10),
+                              inner: (2, 10),
+                            ),
+                          ],
                           exp: "// @prompt",
                         ),
                       ],
@@ -179,7 +194,12 @@ fn interpolated_verbatim() {
                 assert_json_snapshot!(annot, @r#"
                 [
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "#);
@@ -227,7 +247,12 @@ fn multiline() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 10),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 10),
+                              inner: (2, 10),
+                            ),
+                          ],
                           exp: "// @prompt",
                         ),
                       ],
@@ -268,7 +293,12 @@ fn multiline() {
                 assert_json_snapshot!(annot, @r#"
                 [
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "#);

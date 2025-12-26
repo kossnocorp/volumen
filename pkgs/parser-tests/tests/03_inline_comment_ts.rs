@@ -35,7 +35,12 @@ fn simple() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (17, 30),
+                          spans: [
+                            SpanShape(
+                              outer: (17, 30),
+                              inner: (19, 28),
+                            ),
+                          ],
                           exp: "/* @prompt */",
                         ),
                       ],
@@ -75,7 +80,12 @@ fn simple() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    "/* @prompt */"
+                    [
+                      {
+                        "outer": "/* @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
                   ]
                 ]
                 "#);
@@ -107,7 +117,12 @@ fn doc() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (14, 28),
+                          spans: [
+                            SpanShape(
+                              outer: (14, 28),
+                              inner: (17, 26),
+                            ),
+                          ],
                           exp: "/** @prompt */",
                         ),
                       ],
@@ -142,7 +157,12 @@ fn doc() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    "/** @prompt */"
+                    [
+                      {
+                        "outer": "/** @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
                   ]
                 ]
                 "#);
@@ -214,7 +234,12 @@ fn dirty() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (17, 39),
+                          spans: [
+                            SpanShape(
+                              outer: (17, 39),
+                              inner: (19, 37),
+                            ),
+                          ],
                           exp: "/* @prompt greeting */",
                         ),
                       ],
@@ -254,7 +279,12 @@ fn dirty() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    "/* @prompt greeting */"
+                    [
+                      {
+                        "outer": "/* @prompt greeting */",
+                        "inner": " @prompt greeting "
+                      }
+                    ]
                   ]
                 ]
                 "#);

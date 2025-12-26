@@ -65,7 +65,12 @@ fn heredoc() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (6, 16),
+                          spans: [
+                            SpanShape(
+                              outer: (6, 16),
+                              inner: (8, 16),
+                            ),
+                          ],
                           exp: "// @prompt",
                         ),
                       ],
@@ -100,7 +105,12 @@ fn heredoc() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "#);
@@ -152,7 +162,12 @@ fn heredoc_interpolated() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (6, 16),
+                          spans: [
+                            SpanShape(
+                              outer: (6, 16),
+                              inner: (8, 16),
+                            ),
+                          ],
                           exp: "// @prompt",
                         ),
                       ],
@@ -196,7 +211,12 @@ fn heredoc_interpolated() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "#);

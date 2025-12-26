@@ -58,7 +58,12 @@ fn text_block() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 10),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 10),
+                              inner: (2, 10),
+                            ),
+                          ],
                           exp: "// @prompt",
                         ),
                       ],
@@ -90,7 +95,12 @@ fn text_block() {
                 assert_json_snapshot!(annot, @r#"
                 [
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "#);

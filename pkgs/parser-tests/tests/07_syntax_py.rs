@@ -61,7 +61,12 @@ fn multiline_str() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -96,7 +101,12 @@ fn multiline_str() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -146,7 +156,12 @@ fn multiline_fstr() {
                       ],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 9),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 9),
+                              inner: (1, 9),
+                            ),
+                          ],
                           exp: "# @prompt",
                         ),
                       ],
@@ -190,7 +205,12 @@ fn multiline_fstr() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# @prompt"
+                    [
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "##);

@@ -30,7 +30,20 @@ fn multiline() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (0, 25),
+                          spans: [
+                            SpanShape(
+                              outer: (0, 7),
+                              inner: (1, 7),
+                            ),
+                            SpanShape(
+                              outer: (8, 17),
+                              inner: (9, 17),
+                            ),
+                            SpanShape(
+                              outer: (18, 25),
+                              inner: (19, 25),
+                            ),
+                          ],
                           exp: "# Hello\n# @prompt\n# world",
                         ),
                       ],
@@ -65,7 +78,20 @@ fn multiline() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# Hello\n# @prompt\n# world"
+                    [
+                      {
+                        "outer": "# Hello",
+                        "inner": " Hello"
+                      },
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      },
+                      {
+                        "outer": "# world",
+                        "inner": " world"
+                      }
+                    ]
                   ]
                 ]
                 "##);
@@ -101,7 +127,20 @@ fn multiline_nested() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (14, 47),
+                          spans: [
+                            SpanShape(
+                              outer: (14, 21),
+                              inner: (15, 21),
+                            ),
+                            SpanShape(
+                              outer: (26, 35),
+                              inner: (27, 35),
+                            ),
+                            SpanShape(
+                              outer: (40, 47),
+                              inner: (41, 47),
+                            ),
+                          ],
                           exp: "# Hello\n    # @prompt\n    # world",
                         ),
                       ],
@@ -136,7 +175,20 @@ fn multiline_nested() {
                 assert_json_snapshot!(annotations, @r##"
                 [
                   [
-                    "# Hello\n    # @prompt\n    # world"
+                    [
+                      {
+                        "outer": "# Hello",
+                        "inner": " Hello"
+                      },
+                      {
+                        "outer": "# @prompt",
+                        "inner": " @prompt"
+                      },
+                      {
+                        "outer": "# world",
+                        "inner": " world"
+                      }
+                    ]
                   ]
                 ]
                 "##);

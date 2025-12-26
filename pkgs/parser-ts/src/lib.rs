@@ -549,8 +549,20 @@ impl<'a> PromptVisitor<'a> {
         let end = last.span.end;
         let block_text = &self.code[start as usize..end as usize];
 
+        let spans: Vec<SpanShape> = block
+            .iter()
+            .map(|c| {
+                let text = c.span.source_text(self.code);
+                let (inner_start_offset, inner_end_offset) = compute_comment_inner_offsets(text);
+                SpanShape {
+                    outer: (c.span.start, c.span.end),
+                    inner: (c.span.start + inner_start_offset, c.span.start + inner_end_offset),
+                }
+            })
+            .collect();
+
         vec![PromptAnnotation {
-            span: (start, end),
+            spans,
             exp: block_text.to_string(),
         }]
     }
@@ -567,8 +579,12 @@ impl<'a> PromptVisitor<'a> {
             if c.span.start >= stmt_span.start && c.span.start < end_limit {
                 let full = c.span.source_text(self.code);
                 if parse_annotation(full).unwrap_or(false) {
+                    let (inner_start_offset, inner_end_offset) = compute_comment_inner_offsets(full);
                     out.push(PromptAnnotation {
-                        span: (c.span.start, c.span.end),
+                        spans: vec![SpanShape {
+                            outer: (c.span.start, c.span.end),
+                            inner: (c.span.start + inner_start_offset, c.span.start + inner_end_offset),
+                        }],
                         exp: full.to_string(),
                     });
                 }
@@ -634,7 +650,7 @@ impl<'a> Visit<'a> for PromptVisitor<'a> {
                 let leading = self.collect_adjacent_leading_comments(&expr.span);
                 let inline = self.collect_inline_prompt_comments(&expr.span, None);
                 let mut annotations: Vec<PromptAnnotation> = Vec::new();
-                let leading_start = leading.first().map(|first| first.span.0);
+                let leading_start = leading.first().and_then(|first| first.spans.first()).map(|s| s.outer.0);
                 for a in leading.into_iter().chain(inline.into_iter()) {
                     annotations.push(a);
                 }
@@ -652,7 +668,7 @@ impl<'a> Visit<'a> for PromptVisitor<'a> {
                 let leading = self.collect_adjacent_leading_comments(&decl.span);
                 let inline = self.collect_inline_prompt_comments(&decl.span, None);
                 let mut annotations: Vec<PromptAnnotation> = Vec::new();
-                let leading_start = leading.first().map(|first| first.span.0);
+                let leading_start = leading.first().and_then(|first| first.spans.first()).map(|s| s.outer.0);
                 for a in leading.into_iter().chain(inline.into_iter()) {
                     annotations.push(a);
                 }

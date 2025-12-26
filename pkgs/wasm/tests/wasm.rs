@@ -25,7 +25,10 @@ fn parse_js_value() {
                 exp: "\"Hello, world!\"".into(),
                 vars: vec![],
                 annotations: vec![PromptAnnotation {
-                    span: (12, 26),
+                    spans: vec![SpanShape {
+                        outer: (12, 26),
+                        inner: (14, 24),
+                    }],
                     exp: "/** @prompt */".into(),
                 }]
             }]
@@ -61,7 +64,10 @@ fn parse_py_value() {
                     }
                 }],
                 annotations: vec![PromptAnnotation {
-                    span: (0, 9),
+                    spans: vec![SpanShape {
+                        outer: (0, 9),
+                        inner: (1, 9),
+                    }],
                     exp: "# @prompt".into(),
                 }]
             }]

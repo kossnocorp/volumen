@@ -684,12 +684,13 @@ fn create_prompt_from_string(
     let enclosure_start = if annotations_from_current_stmt && !annotations.is_empty() {
         if annotations.len() >= 2 {
             // Multiple annotations: first one is leading comment
-            annotations.first().unwrap().span.0
+            annotations.first().and_then(|a| a.spans.first()).map(|s| s.outer.0).unwrap_or(stmt_start)
         } else {
             let ann = annotations.first().unwrap();
             // Check if annotation is before statement (leading)
-            if ann.span.0 < stmt_start {
-                ann.span.0
+            let ann_start = ann.spans.first().map(|s| s.outer.0).unwrap_or(stmt_start);
+            if ann_start < stmt_start {
+                ann_start
             } else {
                 // Inline annotation
                 stmt_start

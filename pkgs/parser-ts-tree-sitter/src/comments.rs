@@ -1,6 +1,6 @@
 use tree_sitter::{Node, Tree};
-use volumen_parser_core::parse_annotation;
-use volumen_types::{PromptAnnotation, Span};
+use volumen_parser_core::{compute_comment_inner_offsets, parse_annotation};
+use volumen_types::{PromptAnnotation, SpanShape};
 
 #[derive(Debug, Clone)]
 pub struct CommentNode {
@@ -84,15 +84,26 @@ impl CommentTracker {
             return Vec::new();
         }
 
-        // Merge the entire block into a single annotation
+        // Merge the entire block into a single annotation with multiple span shapes
         let first = block_ranges.first().unwrap();
         let last = block_ranges.last().unwrap();
         let start = first.start;
         let end = last.end;
         let block_text = &self.source[start as usize..end as usize];
 
+        let spans: Vec<SpanShape> = block_ranges
+            .iter()
+            .map(|c| {
+                let (inner_start_offset, inner_end_offset) = compute_comment_inner_offsets(&c.text);
+                SpanShape {
+                    outer: (c.start, c.end),
+                    inner: (c.start + inner_start_offset, c.start + inner_end_offset),
+                }
+            })
+            .collect();
+
         vec![PromptAnnotation {
-            span: (start, end),
+            spans,
             exp: block_text.to_string(),
         }]
     }
@@ -155,8 +166,19 @@ impl CommentTracker {
         let end = last.end;
         let block_text = &self.source[start as usize..end as usize];
 
+        let spans: Vec<SpanShape> = block_ranges
+            .iter()
+            .map(|c| {
+                let (inner_start_offset, inner_end_offset) = compute_comment_inner_offsets(&c.text);
+                SpanShape {
+                    outer: (c.start, c.end),
+                    inner: (c.start + inner_start_offset, c.start + inner_end_offset),
+                }
+            })
+            .collect();
+
         vec![PromptAnnotation {
-            span: (start, end),
+            spans,
             exp: block_text.to_string(),
         }]
     }
@@ -167,9 +189,15 @@ impl CommentTracker {
             .iter()
             .filter(|c| c.start >= stmt_start && c.start < stmt_end)
             .filter(|c| parse_annotation(&c.text).unwrap_or(false))
-            .map(|c| PromptAnnotation {
-                span: (c.start, c.end),
-                exp: c.text.clone(),
+            .map(|c| {
+                let (inner_start_offset, inner_end_offset) = compute_comment_inner_offsets(&c.text);
+                PromptAnnotation {
+                    spans: vec![SpanShape {
+                        outer: (c.start, c.end),
+                        inner: (c.start + inner_start_offset, c.start + inner_end_offset),
+                    }],
+                    exp: c.text.clone(),
+                }
             })
             .collect()
     }
@@ -177,7 +205,7 @@ impl CommentTracker {
     /// Get the start position of the first leading comment, if any.
     pub fn get_leading_start(&self, stmt_start: u32) -> Option<u32> {
         let annotations = self.collect_adjacent_leading(stmt_start);
-        annotations.first().map(|a| a.span.0)
+        annotations.first().and_then(|a| a.spans.first()).map(|s| s.outer.0)
     }
 
     /// Get the start position of any adjacent leading comment, regardless of whether it's valid.

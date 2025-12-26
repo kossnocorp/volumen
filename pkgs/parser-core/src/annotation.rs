@@ -1,5 +1,28 @@
 const PROMPT_LENGTH: usize = "@prompt".len();
 
+/// Computes the inner span offsets for a comment text.
+/// Returns (inner_start_offset, inner_end_offset) relative to the comment start.
+pub fn compute_comment_inner_offsets(text: &str) -> (u32, u32) {
+    let len = text.len() as u32;
+    if text.starts_with("///") {
+        (3, len)
+    } else if text.starts_with("//") {
+        (2, len)
+    } else if text.starts_with("/**") && text.ends_with("*/") {
+        (3, len.saturating_sub(2))
+    } else if text.starts_with("/*") && text.ends_with("*/") {
+        (2, len.saturating_sub(2))
+    } else if text.starts_with("#") {
+        (1, len)
+    } else if (text.starts_with("'''") && text.ends_with("'''"))
+        || (text.starts_with("\"\"\"") && text.ends_with("\"\"\""))
+    {
+        (3, len.saturating_sub(3))
+    } else {
+        (0, len)
+    }
+}
+
 /// Parses annotation text to determine if it contains a valid @prompt marker.
 pub fn parse_annotation(annotation: &str) -> Option<bool> {
     let comment = annotation.to_lowercase();

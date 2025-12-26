@@ -352,8 +352,23 @@ impl<'a> PyPromptVisitor<'a> {
         let start = first.start().to_u32();
         let end = last.end().to_u32();
         let block_text = &self.code[TextRange::new(first.start(), last.end())];
+
+        let spans: Vec<SpanShape> = block_ranges
+            .iter()
+            .map(|cr| {
+                let text = &self.code[*cr];
+                let (inner_start_offset, inner_end_offset) = compute_comment_inner_offsets(text);
+                let s = cr.start().to_u32();
+                let e = cr.end().to_u32();
+                SpanShape {
+                    outer: (s, e),
+                    inner: (s + inner_start_offset, s + inner_end_offset),
+                }
+            })
+            .collect();
+
         vec![PromptAnnotation {
-            span: (start, end),
+            spans,
             exp: block_text.to_string(),
         }]
     }
@@ -365,8 +380,14 @@ impl<'a> PyPromptVisitor<'a> {
             if cr.start() >= r.start() && cr.start() < r.end() {
                 let text = self.code[cr].to_string();
                 if parse_annotation(&text).unwrap_or(false) {
+                    let s = cr.start().to_u32();
+                    let e = cr.end().to_u32();
+                    let (inner_start_offset, inner_end_offset) = compute_comment_inner_offsets(&text);
                     out.push(PromptAnnotation {
-                        span: (cr.start().to_u32(), cr.end().to_u32()),
+                        spans: vec![SpanShape {
+                            outer: (s, e),
+                            inner: (s + inner_start_offset, s + inner_end_offset),
+                        }],
                         exp: text,
                     });
                 }
@@ -387,7 +408,7 @@ impl<'a> Visitor<'a> for PyPromptVisitor<'a> {
         let leading = self.collect_adjacent_leading_comments(stmt);
         let inline = self.collect_inline_prompt_comments(stmt);
         let mut annotations: Vec<PromptAnnotation> = Vec::new();
-        let leading_start = leading.first().map(|a| a.span.0);
+        let leading_start = leading.first().and_then(|a| a.spans.first()).map(|s| s.outer.0);
         for a in leading.into_iter().chain(inline.into_iter()) {
             annotations.push(a);
         }

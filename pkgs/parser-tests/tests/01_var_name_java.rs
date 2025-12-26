@@ -102,7 +102,12 @@ fn nested() {
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: (88, 98),
+                          spans: [
+                            SpanShape(
+                              outer: (88, 98),
+                              inner: (90, 98),
+                            ),
+                          ],
                           exp: "// @prompt",
                         ),
                       ],
@@ -142,7 +147,12 @@ fn nested() {
                 [
                   [],
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "#);
