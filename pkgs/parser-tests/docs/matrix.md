@@ -68,13 +68,17 @@ Additional legend:
 | `mixed_nested`          | +++  | +++  | ++   | ++    | ++   | ++   | ++     |
 | `mixed_none`            | +++  | +++  | ++   | ++    | ++   | ++   | ++     |
 | `mixed_assign`          | +++  | +++  | ++   | ++    | ++   | ++   | ++     |
-| `mixed_reassign`        | +++  | +++  | +++  | +++   | -    | -    | -      |
-| `mixed_reassign_inline` | +++  | -    | -    | -     | -    | -    | -      |
+| `mixed_reassign`        | +++! | +++! | +++  | +++   | -    | -    | -      |
+| `mixed_reassign_inline` | +++! | -    | -    | -     | -    | -    | -      |
 | `spaced`                | +++  | +++  | +++! | ++    | ++   | ++   | ++     |
 | `dirty`                 | +++  | +++  | ++   | ++    | ++   | ++   | ++     |
 | `multi`                 | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
 | `destructuring`         | +++  | +++  | +++  | +++   | -    | -    | -      |
 | `chained`               | +++  | +++  | +++! | +++!  | -    | -    | -      |
+
+**Known Issues**:
+- `ts` `mixed_reassign` and `mixed_reassign_inline`: After removing the `exp` field from `PromptAnnotation`, the parsers need to be updated to collect ALL adjacent comments (not just `@prompt` ones) for reassignments and inline prompt cases. Currently ignored.
+- `py` `mixed_reassign`: Same issue as TypeScript - needs parser refactoring to properly collect line comments for reassignments.
 
 ### `03_inline_comment_{{lang}}.rs`
 
@@ -108,14 +112,17 @@ Additional legend:
 
 | Test Lang:         | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
 | ------------------ | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `multiple`         | +++  | -    | -    | ++!   | ++!  | ++!  | ++!    |
-| `multiline`        | +++  | +++  | +++  | ++!   | ++!  | ++!  | ++!    |
+| `multiple`         | +++! | -    | -    | ++!   | ++!  | ++!  | ++!    |
+| `multiline`        | +++! | +++  | +++  | ++!   | ++!  | ++!  | ++!    |
 | `multiline_nested` | +++  | +++  | +++  | +++   | ++!  | +++  | +++    |
 
 - `py` and `rb` omit the `multiple` test case.
 - `php` and `java` capture only `/* @prompt */` for `multiple` and `multiline`, missing preceding comment or block annotations seen in `ts`.
 - `go` snapshots are empty for all tests; no prompt data captured.
 - `cs` snapshots are empty for `multiple` and `multiline`.
+
+**Known Issues**:
+- `ts` `multiple` and `multiline`: After removing the `exp` field from `PromptAnnotation`, when there's an inline `/* @prompt */` comment, the parser should also collect ALL adjacent leading comments (even those without `@prompt` like `// Hello, world` or block comments). This is needed for future extensibility (e.g., `@eval` directives). Currently ignored pending parser refactoring.
 
 ### `07_syntax_{{lang}}.rs`
 
