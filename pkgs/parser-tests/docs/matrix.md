@@ -10,7 +10,7 @@
 | `04_prompt_vars_{{lang}}.rs`      | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
 | `05_multiple_prompts_{{lang}}.rs` | +++  | +++  | +++  | ++    | ++   | ++   | +++    |
 | `06_annotations_{{lang}}.rs`      | +++  | ++   | +++  | ++!   | ++!  | ++!  | ++!    |
-| `07_syntax_{{lang}}.rs`           | +++  | +++  | +++  | +++   | ++!  | +++  | ++     |
+| `07_syntax_{{lang}}.rs`           | +++  | +++  | +++!🔸 | +++!🔸 | ++!  | +++  | ++!🔸  |
 | `08_concat_{{lang}}.rs`           | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
 | `09_fn_{{lang}}.rs`               | +++  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
 | `10_array_{{lang}}.rs`            | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
@@ -45,6 +45,7 @@
 Additional legend:
 
 - `!` (added to one of the symbols above, e.g., `+++!`): There's a bug in the test, either in the test source code or the snapshot
+- `🔸` (added to status with `!`, e.g., `+++!🔸`): Whitespace stripping bug in heredoc/multiline strings - token spans include whitespace that should be stripped
 
 ### `01_var_name_{{lang}}.rs`
 
@@ -126,22 +127,26 @@ Additional legend:
 
 ### `07_syntax_{{lang}}.rs`
 
-| Test Lang:               | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
-| ------------------------ | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `invalid`                | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
-| `jsx`                    | +++  | ~    | ~    | ~     | ~    | ~    | ~      |
-| `typed_template`         | +++  | ~    | ~    | ~     | ~    | ~    | ~      |
-| `tsx_template`           | +++  | ~    | ~    | ~     | ~    | ~    | ~      |
-| `multiline_plain`        | -    | +++  | ++!  | +++   | ++!  | +++  | +++    |
-| `multiline_interpolated` | +++  | +++  | ++!  | +++   | -    | +++  | -      |
+| Test Lang:               | `ts` | `py` | `rb`  | `php`  | `go` | `cs` | `java` |
+| ------------------------ | ---- | ---- | ----- | ------ | ---- | ---- | ------ |
+| `invalid`                | +++  | +++  | +++   | +++    | +++  | +++  | +++    |
+| `jsx`                    | +++  | ~    | ~     | ~      | ~    | ~    | ~      |
+| `typed_template`         | +++  | ~    | ~     | ~      | ~    | ~    | ~      |
+| `tsx_template`           | +++  | ~    | ~     | ~      | ~    | ~    | ~      |
+| `multiline_plain`        | -    | +++  | ++!🔸 | +++!🔸 | ++!  | +++  | +++!🔸 |
+| `multiline_interpolated` | +++  | +++  | ++!🔸 | +++!🔸 | -    | +++  | -      |
 
-- `rb` heredoc tests only capture the `<<~TEXT` marker, dropping the body and any interpolated vars.
-- `rb` also covers single quotes, `%q/%Q` delimiters, and multiple heredoc forms (snapshots remain empty).
-- `php` matches the TS/PY baselines, including annotations and interpolated vars.
+**Whitespace Handling Legend**:
+- 🔸 = Has whitespace stripping bug (heredoc/text block indentation not handled correctly)
+
+**Known Issues**:
+- `rb` **🔸 Whitespace Bug**: Squiggly heredoc (`<<~TEXT`) should strip minimum common leading whitespace from all lines, but token spans currently include the stripped spaces. All heredoc variants (`<<~TEXT`, `<<TEXT`, `<<'TEXT'`, `<<"TEXT"`) are affected in token span calculations.
+- `php` **🔸 Whitespace Bug**: Heredoc span calculation is incorrect (outer/inner identical, includes markers). Flexible heredoc/nowdoc (PHP 7.3+) whitespace stripping based on closing delimiter indentation is not implemented.
+- `java` **🔸 Whitespace Bug**: Text blocks (Java 15+) should strip "incidental whitespace" based on closing `"""` position, but this may not be handled correctly in token spans.
 - `go` snapshots are empty (`@""`) and only cover a plain raw string; there is no interpolated variant.
-- `cs` matches TS/PY for verbatim and interpolated strings with annotations.
-- `java` covers only the plain text block; there is no interpolated variant.
-- `ts` lacks a plain multiline-without-vars case; JSX/typed rows are TS-only (~ for other languages).
+- `cs` matches TS/PY for verbatim and interpolated strings with annotations - no whitespace stripping issues (verbatim strings preserve all whitespace by design).
+- `ts` template literals preserve all whitespace (correct behavior) - no issues.
+- `py` triple-quoted strings preserve all whitespace (correct behavior) - no issues.
 
 ### `08_concat_{{lang}}.rs`
 
