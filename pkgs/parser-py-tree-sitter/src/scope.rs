@@ -134,7 +134,6 @@ mod tests {
                 outer: (0, 10),
                 inner: (1, 10),
             }],
-            exp: "# @prompt".to_string(),
         };
 
         tracker.store_def_annotation("test_var", vec![annotation.clone()]);

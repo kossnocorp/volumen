@@ -1,7 +1,5 @@
 PromptVar = {
   span: ./span/SpanShape
-  /// @deprecated, use `span` to get the variable expression or content.
-  exp: string
 }
 
 Prompt = {
@@ -35,8 +33,6 @@ Prompt = {
   /// comment chunk. The order corresponds to the order of appearance in
   /// the source code.
   annotations: [PromptAnnotation]
-  /// @deprecated, use `content` tokens to render the prompt content.
-  exp: string
 }
 
 PromptContentToken = PromptContentTokenStr | PromptContentTokenVar | PromptContentTokenJoint
@@ -61,6 +57,4 @@ PromptAnnotation = {
   /// e.g., `// @prompt hello`, and the inner span covers just the content,
   /// e.g., ` @prompt hello`.
   spans: [./span/SpanShape]
-  /// @deprecated, use `span` tokens to render the prompt content.
-  exp: string
 }

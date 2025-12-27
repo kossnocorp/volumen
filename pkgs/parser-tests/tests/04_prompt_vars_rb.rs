@@ -12,7 +12,7 @@ fn single_var() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -47,15 +47,13 @@ fn single_var() {
                             outer: (24, 31),
                             inner: (26, 30),
                           ),
-                          exp: "#{user}",
                         ),
                       ],
                       annotations: [],
-                      exp: "\"Welcome, #{user}!\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -103,7 +101,7 @@ fn multiple_vars() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -146,22 +144,19 @@ fn multiple_vars() {
                             outer: (22, 29),
                             inner: (24, 28),
                           ),
-                          exp: "#{name}",
                         ),
                         PromptVar(
                           span: SpanShape(
                             outer: (59, 66),
                             inner: (61, 65),
                           ),
-                          exp: "#{city}",
                         ),
                       ],
                       annotations: [],
-                      exp: "\"Hello, #{name}! How is the weather today in #{city}?\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -213,7 +208,7 @@ fn exp() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -256,22 +251,19 @@ fn exp() {
                             outer: (22, 34),
                             inner: (24, 33),
                           ),
-                          exp: "#{user.name}",
                         ),
                         PromptVar(
                           span: SpanShape(
                             outer: (64, 85),
                             inner: (66, 84),
                           ),
-                          exp: "#{user.location.city}",
                         ),
                       ],
                       annotations: [],
-                      exp: "\"Hello, #{user.name}! How is the weather today in #{user.location.city}?\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -323,7 +315,7 @@ fn exp_complex() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -358,15 +350,13 @@ fn exp_complex() {
                             outer: (28, 66),
                             inner: (30, 65),
                           ),
-                          exp: "#{price > 100 ? \'expensive\' : \'cheap\'}",
                         ),
                       ],
                       annotations: [],
-                      exp: "\"This item is #{price > 100 ? \'expensive\' : \'cheap\'}...\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {

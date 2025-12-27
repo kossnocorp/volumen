@@ -35,7 +35,6 @@ fn simple() {
                       ),
                       vars: [],
                       annotations: [],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -92,7 +91,7 @@ fn nested() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -127,11 +126,9 @@ fn nested() {
                             outer: (64, 71),
                             inner: (66, 70),
                           ),
-                          exp: "#{name}",
                         ),
                       ],
                       annotations: [],
-                      exp: "\"Hello, #{name}!\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
@@ -159,14 +156,12 @@ fn nested() {
                               inner: (82, 90),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hi!\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {

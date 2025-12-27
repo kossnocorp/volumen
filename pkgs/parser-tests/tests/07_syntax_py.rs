@@ -46,7 +46,7 @@ fn multiline_str() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -76,14 +76,12 @@ fn multiline_str() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"\"\"You are a helpful assistant.\nYou will answer the user\'s questions to the best of your ability.\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\"\"\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -136,7 +134,7 @@ fn multiline_fstr() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -179,14 +177,12 @@ fn multiline_fstr() {
                             outer: (28, 34),
                             inner: (29, 33),
                           ),
-                          exp: "{name}",
                         ),
                         PromptVar(
                           span: SpanShape(
                             outer: (64, 70),
                             inner: (65, 69),
                           ),
-                          exp: "{city}",
                         ),
                       ],
                       annotations: [
@@ -197,14 +193,12 @@ fn multiline_fstr() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "f\"\"\"Hello, {name}!\nHow is the weather today in {city}?\n\"\"\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {

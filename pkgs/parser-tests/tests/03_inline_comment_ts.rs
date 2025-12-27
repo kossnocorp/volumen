@@ -47,7 +47,6 @@ fn simple() {
                             outer: (41, 48),
                             inner: (43, 47),
                           ),
-                          exp: "${user}",
                         ),
                       ],
                       annotations: [
@@ -58,10 +57,8 @@ fn simple() {
                               inner: (19, 28),
                             ),
                           ],
-                          exp: "/* @prompt */",
                         ),
                       ],
-                      exp: "`Welcome, ${user}!`",
                     ),
                   ],
                 )
@@ -150,10 +147,8 @@ fn doc() {
                               inner: (17, 26),
                             ),
                           ],
-                          exp: "/** @prompt */",
                         ),
                       ],
-                      exp: "\"Hello, world!\"",
                     ),
                   ],
                 )
@@ -274,7 +269,6 @@ fn dirty() {
                             outer: (50, 57),
                             inner: (52, 56),
                           ),
-                          exp: "${user}",
                         ),
                       ],
                       annotations: [
@@ -285,10 +279,8 @@ fn dirty() {
                               inner: (19, 37),
                             ),
                           ],
-                          exp: "/* @prompt greeting */",
                         ),
                       ],
-                      exp: "`Welcome, ${user}!`",
                     ),
                   ],
                 )

@@ -89,6 +89,7 @@ impl ScopeTracker {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use insta::assert_ron_snapshot;
     use volumen_types::SpanShape;
 
     #[test]
@@ -142,14 +143,22 @@ mod tests {
                 outer: (0, 10),
                 inner: (2, 10),
             }],
-            exp: "// @prompt".to_string(),
         }];
 
         tracker.store_def_annotation("hello", annotations.clone());
-        assert_eq!(
-            tracker.get_def_annotation("hello").unwrap()[0].exp,
-            "// @prompt"
-        );
+
+        assert_ron_snapshot!(tracker.get_def_annotation("hello").unwrap(), @"
+        [
+          PromptAnnotation(
+            spans: [
+              SpanShape(
+                outer: (0, 10),
+                inner: (2, 10),
+              ),
+            ],
+          ),
+        ]
+        ");
         assert!(tracker.get_def_annotation("nonexistent").is_none());
     }
 

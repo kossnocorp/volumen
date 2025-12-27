@@ -334,13 +334,9 @@ fn process_identifier_assignment(
 
         // Check if it's a string or f-string
         if is_string_like(&right) {
-            // Check if current annotations contain at least one valid @prompt
-            let has_valid_current_annotation = annotations
-                .iter()
-                .any(|a| volumen_parser_core::parse_annotation(&a.exp).unwrap_or(false));
-
+            // Annotations from comment tracker are already validated to contain @prompt
             // Get annotations (from current statement or from definition)
-            let final_annotations = if has_valid_current_annotation {
+            let final_annotations = if !annotations.is_empty() {
                 annotations.to_vec()
             } else {
                 scopes.get_def_annotation(ident_name).unwrap_or_default()
@@ -535,9 +531,9 @@ fn create_prompt_from_range(
     // Build content tokens
     let content = build_content_tokens(&span, &vars);
 
-    // Calculate enclosure - use get_any_leading_start to include ANY leading comment (valid or not)
+    // Calculate enclosure - only include valid @prompt leading comments
     let enclosure_start = comments
-        .get_any_leading_start(stmt_start)
+        .get_leading_start(stmt_start)
         .unwrap_or(stmt_start);
     let enclosure = (enclosure_start, stmt_end);
 
@@ -545,7 +541,6 @@ fn create_prompt_from_range(
         file: filename.to_string(),
         span,
         enclosure,
-        exp,
         vars,
         annotations: annotations.to_vec(),
         content,
@@ -661,9 +656,9 @@ fn create_prompt_from_string(
     // Build content tokens
     let content = build_content_tokens(&span, &vars);
 
-    // Calculate enclosure - use get_any_leading_start to include ANY leading comment (valid or not)
+    // Calculate enclosure - only include valid @prompt leading comments
     let enclosure_start = comments
-        .get_any_leading_start(stmt_start)
+        .get_leading_start(stmt_start)
         .unwrap_or(stmt_start);
     let enclosure = (enclosure_start, stmt_end);
 
@@ -671,7 +666,6 @@ fn create_prompt_from_string(
         file: filename.to_string(),
         span,
         enclosure,
-        exp,
         vars,
         annotations: annotations.to_vec(),
         content,

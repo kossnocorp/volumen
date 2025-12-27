@@ -47,11 +47,9 @@ fn single_var() {
                             outer: (29, 36),
                             inner: (31, 35),
                           ),
-                          exp: "${user}",
                         ),
                       ],
                       annotations: [],
-                      exp: "`Welcome, ${user}!`",
                     ),
                   ],
                 )
@@ -146,18 +144,15 @@ fn multiple_vars() {
                             outer: (27, 34),
                             inner: (29, 33),
                           ),
-                          exp: "${name}",
                         ),
                         PromptVar(
                           span: SpanShape(
                             outer: (64, 71),
                             inner: (66, 70),
                           ),
-                          exp: "${city}",
                         ),
                       ],
                       annotations: [],
-                      exp: "`Hello, ${name}! How is the weather today in ${city}?`",
                     ),
                   ],
                 )
@@ -256,18 +251,15 @@ fn exp() {
                             outer: (27, 39),
                             inner: (29, 38),
                           ),
-                          exp: "${user.name}",
                         ),
                         PromptVar(
                           span: SpanShape(
                             outer: (69, 90),
                             inner: (71, 89),
                           ),
-                          exp: "${user.location.city}",
                         ),
                       ],
                       annotations: [],
-                      exp: "`Hello, ${user.name}! How is the weather today in ${user.location.city}?`",
                     ),
                   ],
                 )
@@ -358,11 +350,9 @@ fn exp_complex() {
                             outer: (33, 71),
                             inner: (35, 70),
                           ),
-                          exp: "${price > 100 ? \"expensive\" : \"cheap\"}",
                         ),
                       ],
                       annotations: [],
-                      exp: "`This item is ${price > 100 ? \"expensive\" : \"cheap\"}...`",
                     ),
                   ],
                 )

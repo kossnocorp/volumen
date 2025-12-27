@@ -131,7 +131,6 @@ impl<'a> CommentTracker<'a> {
 
         vec![PromptAnnotation {
             spans,
-            exp: block_text.to_string(),
         }]
     }
 
@@ -148,7 +147,6 @@ impl<'a> CommentTracker<'a> {
                         outer: (c.start, c.end),
                         inner: (c.start + inner_start_offset, c.start + inner_end_offset),
                     }],
-                    exp: c.text.clone(),
                 }
             })
             .collect()
@@ -275,8 +273,7 @@ x = "hello""#;
         let annotations = tracker.collect_adjacent_leading(stmt_start);
 
         assert_eq!(annotations.len(), 1);
-        assert!(annotations[0].exp.contains("@prompt"));
-        assert!(annotations[0].exp.contains("This is a prompt"));
+        assert_eq!(annotations[0].spans.len(), 2);
     }
 
     #[test]
@@ -299,7 +296,7 @@ x = "hello""#;
         let annotations = tracker.collect_inline_prompt(stmt_start, stmt_end);
 
         assert_eq!(annotations.len(), 1);
-        assert_eq!(annotations[0].exp, "# @prompt");
+        assert_eq!(annotations[0].spans.len(), 1);
     }
 
     #[test]

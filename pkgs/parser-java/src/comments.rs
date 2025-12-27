@@ -135,7 +135,6 @@ impl CommentTracker {
 
         vec![PromptAnnotation {
             spans,
-            exp: block_text.to_string(),
         }]
     }
 
@@ -152,7 +151,6 @@ impl CommentTracker {
                         outer: (c.start, c.end),
                         inner: (c.start + inner_start_offset, c.start + inner_end_offset),
                     }],
-                    exp: c.text.clone(),
                 }
             })
             .collect()

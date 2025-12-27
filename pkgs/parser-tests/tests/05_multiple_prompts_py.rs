@@ -18,7 +18,7 @@ fn multiple() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -53,11 +53,9 @@ fn multiple() {
                             outer: (23, 29),
                             inner: (24, 28),
                           ),
-                          exp: "{name}",
                         ),
                       ],
                       annotations: [],
-                      exp: "f\"Hello, {name}!\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -90,11 +88,9 @@ fn multiple() {
                             outer: (60, 66),
                             inner: (61, 65),
                           ),
-                          exp: "{user}",
                         ),
                       ],
                       annotations: [],
-                      exp: "f\"Welcome {user}!\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -127,7 +123,6 @@ fn multiple() {
                             outer: (100, 111),
                             inner: (101, 110),
                           ),
-                          exp: "{user.name}",
                         ),
                       ],
                       annotations: [
@@ -138,10 +133,8 @@ fn multiple() {
                               inner: (70, 78),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "f\"Goodbye {user.name}!\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -169,14 +162,12 @@ fn multiple() {
                               inner: (115, 123),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"You are an AI assistant\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {

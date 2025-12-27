@@ -73,10 +73,8 @@ fn text_block() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"\"\"\n    You are a helpful assistant.\n    \"\"\"",
                     ),
                   ],
                 )

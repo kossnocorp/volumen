@@ -15,7 +15,7 @@ fn multiple() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -50,11 +50,9 @@ fn multiple() {
                             outer: (22, 29),
                             inner: (24, 28),
                           ),
-                          exp: "#{name}",
                         ),
                       ],
                       annotations: [],
-                      exp: "\"Hello, #{name}!\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
@@ -87,7 +85,6 @@ fn multiple() {
                             outer: (62, 74),
                             inner: (64, 73),
                           ),
-                          exp: "#{user.name}",
                         ),
                       ],
                       annotations: [
@@ -98,14 +95,12 @@ fn multiple() {
                               inner: (33, 41),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Goodbye #{user.name}!\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|cuts| {
                 assert_json_snapshot!(cuts, @r##"

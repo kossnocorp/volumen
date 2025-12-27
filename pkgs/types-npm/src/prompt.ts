@@ -1,7 +1,5 @@
 export interface PromptVar {
   span: import("./span.js").SpanShape;
-  /** @deprecated, use `span` to get the variable expression or content. */
-  exp: string;
 }
 
 export interface Prompt {
@@ -35,8 +33,6 @@ export interface Prompt {
    * comment chunk. The order corresponds to the order of appearance in
    * the source code. */
   annotations: Array<PromptAnnotation>;
-  /** @deprecated, use `content` tokens to render the prompt content. */
-  exp: string;
 }
 
 export type PromptContentToken = PromptContentTokenStr | PromptContentTokenVar | PromptContentTokenJoint;
@@ -61,6 +57,4 @@ export interface PromptAnnotation {
    * e.g., `// @prompt hello`, and the inner span covers just the content,
    * e.g., ` @prompt hello`. */
   spans: Array<import("./span.js").SpanShape>;
-  /** @deprecated, use `span` tokens to render the prompt content. */
-  exp: string;
 }

@@ -43,10 +43,8 @@ fn simple() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -131,10 +129,8 @@ fn inline() {
                               inner: (2, 11),
                             ),
                           ],
-                          exp: "/* @prompt */",
                         ),
                       ],
-                      exp: "`Hello, world!`",
                     ),
                   ],
                 )
@@ -221,10 +217,8 @@ fn doc() {
                               inner: (3, 16),
                             ),
                           ],
-                          exp: "/**\n * @prompt\n */",
                         ),
                       ],
-                      exp: "`Hello, world!`",
                     ),
                   ],
                 )
@@ -311,7 +305,6 @@ fn assigned() {
                             outer: (46, 54),
                             inner: (48, 53),
                           ),
-                          exp: "${value}",
                         ),
                       ],
                       annotations: [
@@ -322,10 +315,8 @@ fn assigned() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "`Assigned ${value}`",
                     ),
                   ],
                 )
@@ -417,7 +408,6 @@ fn assigned_late_comment() {
                             outer: (46, 54),
                             inner: (48, 53),
                           ),
-                          exp: "${value}",
                         ),
                       ],
                       annotations: [
@@ -428,10 +418,8 @@ fn assigned_late_comment() {
                               inner: (16, 24),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "`Assigned ${value}`",
                     ),
                   ],
                 )
@@ -524,7 +512,6 @@ fn reassigned() {
                             outer: (76, 84),
                             inner: (78, 83),
                           ),
-                          exp: "${value}",
                         ),
                       ],
                       annotations: [
@@ -535,10 +522,8 @@ fn reassigned() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "`Reassigned ${value}`",
                     ),
                   ],
                 )
@@ -704,10 +689,8 @@ fn mixed_nested() {
                               inner: (86, 94),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hi!\"",
                     ),
                   ],
                 )
@@ -830,10 +813,8 @@ fn mixed_assign() {
                               inner: (28, 42),
                             ),
                           ],
-                          exp: "// @prompt fresh",
                         ),
                       ],
-                      exp: "`Hi`",
                     ),
                   ],
                 )
@@ -897,7 +878,7 @@ fn mixed_reassign() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
-                      enclosure: (45, 72),
+                      enclosure: (59, 72),
                       span: SpanShape(
                         outer: (67, 71),
                         inner: (68, 70),
@@ -921,10 +902,8 @@ fn mixed_reassign() {
                               inner: (2, 14),
                             ),
                           ],
-                          exp: "// @prompt def",
                         ),
                       ],
-                      exp: "`Hi`",
                     ),
                   ],
                 )
@@ -935,7 +914,7 @@ fn mixed_reassign() {
                 assert_json_snapshot!(prompt_source_cuts, @r#"
                 [
                   {
-                    "enclosure": "// @prompting\nhello = `Hi`;",
+                    "enclosure": "hello = `Hi`;",
                     "outer": "`Hi`",
                     "inner": "Hi",
                     "vars": []
@@ -987,7 +966,7 @@ fn mixed_reassign_inline() {
                   prompts: [
                     Prompt(
                       file: "prompts.js",
-                      enclosure: (32, 74),
+                      enclosure: (41, 74),
                       span: SpanShape(
                         outer: (69, 73),
                         inner: (70, 72),
@@ -1007,23 +986,12 @@ fn mixed_reassign_inline() {
                         PromptAnnotation(
                           spans: [
                             SpanShape(
-                              outer: (32, 40),
-                              inner: (34, 40),
-                            ),
-                          ],
-                          exp: "// hello",
-                        ),
-                        PromptAnnotation(
-                          spans: [
-                            SpanShape(
                               outer: (49, 68),
                               inner: (51, 66),
                             ),
                           ],
-                          exp: "/* @prompt fresh */",
                         ),
                       ],
-                      exp: "`Hi`",
                     ),
                   ],
                 )
@@ -1034,7 +1002,7 @@ fn mixed_reassign_inline() {
                 assert_json_snapshot!(prompt_source_cuts, @r#"
                 [
                   {
-                    "enclosure": "// hello\nhello = /* @prompt fresh */ `Hi`;",
+                    "enclosure": "hello = /* @prompt fresh */ `Hi`;",
                     "outer": "`Hi`",
                     "inner": "Hi",
                     "vars": []
@@ -1055,12 +1023,6 @@ fn mixed_reassign_inline() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    [
-                      {
-                        "outer": "// hello",
-                        "inner": " hello"
-                      }
-                    ],
                     [
                       {
                         "outer": "/* @prompt fresh */",
@@ -1121,10 +1083,8 @@ fn spaced() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "`Hello, world!`",
                     ),
                   ],
                 )
@@ -1209,10 +1169,8 @@ fn dirty() {
                               inner: (2, 17),
                             ),
                           ],
-                          exp: "// @prompt system",
                         ),
                       ],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -1297,10 +1255,8 @@ fn multi() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -1328,10 +1284,8 @@ fn multi() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                   ],
                 )
@@ -1438,10 +1392,8 @@ fn destructuring() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -1469,10 +1421,8 @@ fn destructuring() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -1500,10 +1450,8 @@ fn destructuring() {
                               inner: (58, 66),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -1531,10 +1479,8 @@ fn destructuring() {
                               inner: (58, 66),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -1562,10 +1508,8 @@ fn destructuring() {
                               inner: (134, 142),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -1593,10 +1537,8 @@ fn destructuring() {
                               inner: (134, 142),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -1624,10 +1566,8 @@ fn destructuring() {
                               inner: (214, 222),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -1655,10 +1595,8 @@ fn destructuring() {
                               inner: (214, 222),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                   ],
                 )
@@ -1849,10 +1787,8 @@ fn chained() {
                               inner: (14, 22),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hi\"",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -1880,10 +1816,8 @@ fn chained() {
                               inner: (14, 22),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hi\"",
                     ),
                   ],
                 )

@@ -35,7 +35,6 @@ fn simple() {
                       ),
                       vars: [],
                       annotations: [],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -89,7 +88,7 @@ fn nested() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -124,11 +123,9 @@ fn nested() {
                             outer: (88, 94),
                             inner: (89, 93),
                           ),
-                          exp: "{name}",
                         ),
                       ],
                       annotations: [],
-                      exp: "f\"Hello, {name}!\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -156,14 +153,12 @@ fn nested() {
                               inner: (111, 119),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hi!\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {

@@ -42,10 +42,8 @@ fn simple() {
                               inner: (20, 29),
                             ),
                           ],
-                          exp: "/* @prompt */",
                         ),
                       ],
-                      exp: "\"Welcome!\"",
                     ),
                   ],
                 )
@@ -126,10 +124,8 @@ fn javadoc() {
                               inner: (18, 27),
                             ),
                           ],
-                          exp: "/** @prompt */",
                         ),
                       ],
-                      exp: "\"Hello, world!\"",
                     ),
                   ],
                 )
@@ -239,10 +235,8 @@ fn dirty() {
                               inner: (20, 38),
                             ),
                           ],
-                          exp: "/* @prompt greeting */",
                         ),
                       ],
-                      exp: "\"Welcome!\"",
                     ),
                   ],
                 )

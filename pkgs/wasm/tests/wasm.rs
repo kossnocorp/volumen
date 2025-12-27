@@ -22,14 +22,12 @@ fn parse_js_value() {
                     inner: (28, 41),
                 },
                 enclosure: (0, 43),
-                exp: "\"Hello, world!\"".into(),
                 vars: vec![],
                 annotations: vec![PromptAnnotation {
                     spans: vec![SpanShape {
                         outer: (12, 26),
                         inner: (14, 24),
                     }],
-                    exp: "/** @prompt */".into(),
                 }],
                 content: vec![PromptContentToken::PromptContentTokenStr(
                     PromptContentTokenStr {
@@ -65,9 +63,7 @@ fn parse_py_value() {
                     inner: (18, 31)
                 },
                 enclosure: (0, 32),
-                exp: "f\"Hello {name}!\"".into(),
                 vars: vec![PromptVar {
-                    exp: "{name}".into(),
                     span: SpanShape {
                         outer: (24, 30),
                         inner: (25, 29),
@@ -78,27 +74,20 @@ fn parse_py_value() {
                         outer: (0, 9),
                         inner: (1, 9),
                     }],
-                    exp: "# @prompt".into(),
                 }],
                 content: vec![
-                    PromptContentToken::PromptContentTokenStr(
-                        PromptContentTokenStr {
-                            r#type: PromptContentTokenStrTypeStr,
-                            span: (18, 24),
-                        }
-                    ),
-                    PromptContentToken::PromptContentTokenVar(
-                        PromptContentTokenVar {
-                            r#type: PromptContentTokenVarTypeVar,
-                            span: (24, 30),
-                        }
-                    ),
-                    PromptContentToken::PromptContentTokenStr(
-                        PromptContentTokenStr {
-                            r#type: PromptContentTokenStrTypeStr,
-                            span: (30, 31),
-                        }
-                    ),
+                    PromptContentToken::PromptContentTokenStr(PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (18, 24),
+                    }),
+                    PromptContentToken::PromptContentTokenVar(PromptContentTokenVar {
+                        r#type: PromptContentTokenVarTypeVar,
+                        span: (24, 30),
+                    }),
+                    PromptContentToken::PromptContentTokenStr(PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (30, 31),
+                    }),
                 ],
                 joint: SpanShape {
                     outer: (0, 0),

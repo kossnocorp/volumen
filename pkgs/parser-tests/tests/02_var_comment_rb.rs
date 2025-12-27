@@ -13,7 +13,7 @@ fn simple() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -43,14 +43,12 @@ fn simple() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|cuts| {
                 assert_json_snapshot!(cuts, @r##"
@@ -99,7 +97,7 @@ fn assigned() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -130,7 +128,6 @@ fn assigned() {
                             outer: (41, 49),
                             inner: (43, 48),
                           ),
-                          exp: "#{value}",
                         ),
                       ],
                       annotations: [
@@ -141,14 +138,12 @@ fn assigned() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Assigned #{value}\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -205,7 +200,7 @@ fn assigned_late_comment() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -235,14 +230,12 @@ fn assigned_late_comment() {
                               inner: (11, 19),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Assigned ${value}\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -295,7 +288,7 @@ fn reassigned() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -325,14 +318,12 @@ fn reassigned() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Reassigned ${value}\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -456,7 +447,7 @@ fn mixed_nested() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -486,14 +477,12 @@ fn mixed_nested() {
                               inner: (59, 67),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hi!\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|cuts| {
                 assert_json_snapshot!(cuts, @r#"
@@ -576,7 +565,7 @@ fn mixed_assign() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -606,14 +595,12 @@ fn mixed_assign() {
                               inner: (27, 41),
                             ),
                           ],
-                          exp: "# @prompt fresh",
                         ),
                       ],
-                      exp: "\"Hi\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|cuts| {
                 assert_json_snapshot!(cuts, @r##"
@@ -664,7 +651,7 @@ fn mixed_reassign() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -694,14 +681,12 @@ fn mixed_reassign() {
                               inner: (1, 13),
                             ),
                           ],
-                          exp: "# @prompt def",
                         ),
                       ],
-                      exp: "\"Hi\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -759,7 +744,7 @@ fn spaced() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -789,14 +774,12 @@ fn spaced() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello, world!\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -847,7 +830,7 @@ fn dirty() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -877,14 +860,12 @@ fn dirty() {
                               inner: (1, 16),
                             ),
                           ],
-                          exp: "# @prompt system",
                         ),
                       ],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|cuts| {
                 assert_json_snapshot!(cuts, @r##"
@@ -932,7 +913,7 @@ fn multi() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -962,10 +943,8 @@ fn multi() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
@@ -993,14 +972,12 @@ fn multi() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -1068,7 +1045,7 @@ fn destructuring() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -1098,10 +1075,8 @@ fn destructuring() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
@@ -1129,10 +1104,8 @@ fn destructuring() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
@@ -1160,10 +1133,8 @@ fn destructuring() {
                               inner: (47, 55),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
@@ -1191,14 +1162,12 @@ fn destructuring() {
                               inner: (47, 55),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -1294,7 +1263,7 @@ fn chained() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -1324,10 +1293,8 @@ fn chained() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hi\"",
                     ),
                     Prompt(
                       file: "prompts.rb",
@@ -1355,14 +1322,12 @@ fn chained() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hi\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {

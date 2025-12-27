@@ -173,15 +173,9 @@ fn process_variable_declaration(
 
     // Collect annotations
     let inline_annotations = comments.collect_inline_prompt(stmt_start, stmt_end);
-    let has_inline_prompt = !inline_annotations.is_empty();
 
-    // If there's an inline @prompt, collect ALL adjacent leading comments
-    // Otherwise only collect leading comments that contain @prompt
-    let leading_annotations = if has_inline_prompt {
-        comments.collect_all_adjacent_leading(stmt_start)
-    } else {
-        comments.collect_adjacent_leading(stmt_start)
-    };
+    // Only collect leading comments that contain @prompt
+    let leading_annotations = comments.collect_adjacent_leading(stmt_start);
 
     let mut all_annotations = leading_annotations.clone();
     all_annotations.extend(inline_annotations);
@@ -600,15 +594,9 @@ fn process_assignment_expression(
 
     // Collect annotations
     let inline_annotations = comments.collect_inline_prompt(stmt_start, stmt_end);
-    let has_inline_prompt = !inline_annotations.is_empty();
 
-    // If there's an inline @prompt, collect ALL adjacent leading comments
-    // Otherwise only collect leading comments that contain @prompt
-    let leading_annotations = if has_inline_prompt {
-        comments.collect_all_adjacent_leading(stmt_start)
-    } else {
-        comments.collect_adjacent_leading(stmt_start)
-    };
+    // Only collect leading comments that contain @prompt
+    let leading_annotations = comments.collect_adjacent_leading(stmt_start);
 
     let mut all_annotations = leading_annotations.clone();
     all_annotations.extend(inline_annotations);
@@ -622,13 +610,9 @@ fn process_assignment_expression(
         scopes.mark_prompt_ident(ident_name);
 
         if is_string_like(&right) {
-            // Check if current annotations contain at least one valid @prompt
-            let has_valid_current_annotation = all_annotations
-                .iter()
-                .any(|a| parse_annotation(&a.exp).unwrap_or(false));
-
+            // Annotations from comment tracker are already validated to contain @prompt
             // Get annotations (from current statement or from definition)
-            let (final_annotations, from_current) = if has_valid_current_annotation {
+            let (final_annotations, from_current) = if !all_annotations.is_empty() {
                 (all_annotations, true)
             } else {
                 (
@@ -734,8 +718,8 @@ fn create_prompt_from_string(
     let content = build_content_tokens(&span, &vars);
 
     // Calculate enclosure
-    // Always check for leading comments, even if they're invalid annotations
-    let leading_start = comments.get_any_leading_start(stmt_start);
+    // Only include valid @prompt leading comments in enclosure
+    let leading_start = comments.get_leading_start(stmt_start);
     let enclosure_start = if annotations_from_current_stmt && !annotations.is_empty() {
         if annotations.len() >= 2 {
             // Multiple annotations: first one is leading comment
@@ -752,7 +736,7 @@ fn create_prompt_from_string(
             }
         }
     } else {
-        // Even with stored definition annotations, include leading comments in enclosure
+        // With stored definition annotations, only include valid leading comments in enclosure
         leading_start.unwrap_or(stmt_start)
     };
 
@@ -762,7 +746,6 @@ fn create_prompt_from_string(
         file: filename.to_string(),
         span,
         enclosure,
-        exp,
         vars,
         annotations: annotations.to_vec(),
         content,

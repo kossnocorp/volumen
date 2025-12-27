@@ -72,10 +72,8 @@ fn verbatim_string() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "@\"You are a helpful assistant.\nYou can help with various tasks.\"",
                     ),
                   ],
                 )
@@ -171,14 +169,12 @@ fn interpolated_verbatim() {
                             outer: (39, 45),
                             inner: (40, 44),
                           ),
-                          exp: "{name}",
                         ),
                         PromptVar(
                           span: SpanShape(
                             outer: (58, 64),
                             inner: (59, 63),
                           ),
-                          exp: "{city}",
                         ),
                       ],
                       annotations: [
@@ -189,10 +185,8 @@ fn interpolated_verbatim() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "$@\"Hello, {name}!\nWelcome to {city}.\"",
                     ),
                   ],
                 )
@@ -296,14 +290,12 @@ fn multiline() {
                             outer: (34, 40),
                             inner: (35, 39),
                           ),
-                          exp: "{name}",
                         ),
                         PromptVar(
                           span: SpanShape(
                             outer: (71, 77),
                             inner: (72, 76),
                           ),
-                          exp: "{city}",
                         ),
                       ],
                       annotations: [
@@ -314,10 +306,8 @@ fn multiline() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "$\"Hello, {name}!\\nHow is the weather today in {city}?\\n\"",
                     ),
                   ],
                 )

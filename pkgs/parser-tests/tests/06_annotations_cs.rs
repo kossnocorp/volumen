@@ -109,10 +109,8 @@ fn multiline_nested() {
                               inner: (46, 52),
                             ),
                           ],
-                          exp: "// Hello\n    // @prompt\n    // world",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                   ],
                 )

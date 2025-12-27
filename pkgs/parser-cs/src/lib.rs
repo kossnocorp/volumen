@@ -370,13 +370,9 @@ fn process_variable_declarator(
 
         // Check if it's a string
         if is_string_like(&value_node) {
-            // Check if current annotations contain at least one valid @prompt
-            let has_valid_current_annotation = annotations
-                .iter()
-                .any(|a| volumen_parser_core::parse_annotation(&a.exp).unwrap_or(false));
-
+            // Annotations from comment tracker are already validated to contain @prompt
             // Get annotations (from current statement or from definition)
-            let final_annotations = if has_valid_current_annotation {
+            let final_annotations = if !annotations.is_empty() {
                 annotations.to_vec()
             } else {
                 scopes.get_def_annotation(ident_name).unwrap_or_default()
@@ -426,9 +422,6 @@ fn create_prompt_from_string(
     // Calculate spans
     let span = span_shape_string_like(string_node, source);
 
-    // Extract expression text
-    let exp = source[span.outer.0 as usize..span.outer.1 as usize].to_string();
-
     // Extract variables if interpolated string (C# has string interpolation)
     let vars = spans::extract_interpolation_vars(string_node, source);
 
@@ -445,7 +438,6 @@ fn create_prompt_from_string(
         file: filename.to_string(),
         span,
         enclosure,
-        exp,
         vars,
         annotations: annotations.to_vec(),
         content,

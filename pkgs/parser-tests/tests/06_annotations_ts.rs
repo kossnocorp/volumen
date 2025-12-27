@@ -52,10 +52,8 @@ fn multiple() {
                               inner: (32, 41),
                             ),
                           ],
-                          exp: "/* @prompt */",
                         ),
                       ],
-                      exp: "\"asd\"",
                     ),
                   ],
                 )
@@ -159,10 +157,8 @@ fn multiline() {
                               inner: (42, 51),
                             ),
                           ],
-                          exp: "/* @prompt */",
                         ),
                       ],
-                      exp: "`x`",
                     ),
                   ],
                 )
@@ -265,10 +261,8 @@ fn multiline_nested() {
                               inner: (50, 56),
                             ),
                           ],
-                          exp: "// Hello\n    // @prompt\n    // world",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                   ],
                 )

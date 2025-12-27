@@ -53,11 +53,9 @@ fn multiple() {
                             outer: (27, 34),
                             inner: (29, 33),
                           ),
-                          exp: "${name}",
                         ),
                       ],
                       annotations: [],
-                      exp: "`Hello, ${name}!`",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -90,7 +88,6 @@ fn multiple() {
                             outer: (78, 85),
                             inner: (80, 84),
                           ),
-                          exp: "${user}",
                         ),
                       ],
                       annotations: [
@@ -101,10 +98,8 @@ fn multiple() {
                               inner: (57, 66),
                             ),
                           ],
-                          exp: "/* @prompt */",
                         ),
                       ],
-                      exp: "`Welcome ${user}!`",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -137,7 +132,6 @@ fn multiple() {
                             outer: (126, 138),
                             inner: (128, 137),
                           ),
-                          exp: "${user.name}",
                         ),
                       ],
                       annotations: [
@@ -148,10 +142,8 @@ fn multiple() {
                               inner: (91, 99),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "`Goodbye ${user.name}!`",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -179,10 +171,8 @@ fn multiple() {
                               inner: (145, 154),
                             ),
                           ],
-                          exp: "/** @prompt */",
                         ),
                       ],
-                      exp: "\"You are an AI assistant\"",
                     ),
                   ],
                 )

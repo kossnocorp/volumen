@@ -48,7 +48,6 @@ fn simple() {
                             outer: (42, 49),
                             inner: (43, 48),
                           ),
-                          exp: "{$user}",
                         ),
                       ],
                       annotations: [
@@ -59,10 +58,8 @@ fn simple() {
                               inner: (20, 29),
                             ),
                           ],
-                          exp: "/* @prompt */",
                         ),
                       ],
-                      exp: "\"Welcome, {$user}!\"",
                     ),
                   ],
                 )
@@ -152,10 +149,8 @@ fn phpdoc() {
                               inner: (18, 27),
                             ),
                           ],
-                          exp: "/** @prompt */",
                         ),
                       ],
-                      exp: "\"Hello, world!\"",
                     ),
                   ],
                 )
@@ -278,7 +273,6 @@ fn dirty() {
                             outer: (51, 58),
                             inner: (52, 57),
                           ),
-                          exp: "{$user}",
                         ),
                       ],
                       annotations: [
@@ -289,10 +283,8 @@ fn dirty() {
                               inner: (20, 38),
                             ),
                           ],
-                          exp: "/* @prompt greeting */",
                         ),
                       ],
-                      exp: "\"Welcome, {$user}!\"",
                     ),
                   ],
                 )

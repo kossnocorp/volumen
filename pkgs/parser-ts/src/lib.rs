@@ -191,7 +191,6 @@ impl<'a> PromptVisitor<'a> {
 
                             if has_prompt {
                                 let span = self.span_shape_literal(value_span);
-                                let exp = value_span.source_text(self.code).to_string();
 
                                 let vars = if *is_template {
                                     // For template literals, we need to extract the original template
@@ -208,7 +207,6 @@ impl<'a> PromptVisitor<'a> {
                 file: self.file.clone(),
                 span,
                 enclosure,
-                exp,
                 vars,
                 annotations,
                 content,
@@ -383,7 +381,6 @@ impl<'a> PromptVisitor<'a> {
             let outer = (start, end);
             let inner = (expr_span.start, expr_span.end);
             vars.push(PromptVar {
-                exp: exp.to_string(),
                 span: SpanShape { outer, inner },
             });
         }
@@ -406,7 +403,6 @@ impl<'a> PromptVisitor<'a> {
                 file: self.file.clone(),
                 span,
                 enclosure,
-                exp: self.get_template_text(template),
                 vars,
                 annotations,
                 content,
@@ -430,7 +426,6 @@ impl<'a> PromptVisitor<'a> {
                 file: self.file.clone(),
                 span,
                 enclosure,
-                exp: string.span().source_text(self.code).to_string(),
                 vars,
                 annotations,
                 content,
@@ -615,6 +610,14 @@ impl<'a> PromptVisitor<'a> {
             return Vec::new();
         }
 
+        // Check if any comment in the block contains a valid @prompt
+        let has_prompt = block
+            .iter()
+            .any(|c| parse_annotation(c.span.source_text(self.code)).unwrap_or(false));
+        if !has_prompt {
+            return Vec::new();
+        }
+
         let first = block.first().unwrap();
         let last = block.last().unwrap();
         let start = first.span.start;
@@ -635,7 +638,6 @@ impl<'a> PromptVisitor<'a> {
 
         vec![PromptAnnotation {
             spans,
-            exp: block_text.to_string(),
         }]
     }
 
@@ -657,7 +659,6 @@ impl<'a> PromptVisitor<'a> {
                             outer: (c.span.start, c.span.end),
                             inner: (c.span.start + inner_start_offset, c.span.start + inner_end_offset),
                         }],
-                        exp: full.to_string(),
                     });
                 }
             }
@@ -681,13 +682,9 @@ impl<'a> PromptVisitor<'a> {
             .cloned()
             .unwrap_or_default();
 
-        // Check if current annotations contain at least one valid @prompt
-        let has_valid_current_annotation = annotations
-            .iter()
-            .any(|a| parse_annotation(&a.exp).unwrap_or(false));
-
-        // If no valid annotations in current statement, use stored definition annotations
-        if !has_valid_current_annotation {
+        // Annotations from comment tracker are already validated to contain @prompt
+        // If no annotations in current statement, use stored definition annotations
+        if annotations.is_empty() {
             for scope in self.def_prompt_annotations_stack.iter().rev() {
                 if let Some(def) = scope.get(ident_name) {
                     annotations = def.clone();
@@ -696,9 +693,8 @@ impl<'a> PromptVisitor<'a> {
             }
         }
 
-        let has_stmt_prompt = annotations
-            .iter()
-            .any(|a| parse_annotation(&a.exp).unwrap_or(false));
+        // Annotations are already validated to contain @prompt
+        let has_stmt_prompt = !annotations.is_empty();
         let is_prompt = self.is_prompt(ident_name, has_stmt_prompt);
 
         let stmt_span = self.current_stmt_span().unwrap_or(*node_span);
@@ -744,9 +740,8 @@ impl<'a> Visit<'a> for PromptVisitor<'a> {
                 for a in leading.into_iter().chain(inline.into_iter()) {
                     annotations.push(a);
                 }
-                let has_stmt_prompt = annotations
-                    .iter()
-                    .any(|a| parse_annotation(&a.exp).unwrap_or(false));
+                // Annotations are already validated to contain @prompt
+                let has_stmt_prompt = !annotations.is_empty();
                 self.stmt_annotations_stack.push(annotations);
                 self.stmt_leading_start_stack.push(leading_start);
                 for declarator in &decl.declarations {

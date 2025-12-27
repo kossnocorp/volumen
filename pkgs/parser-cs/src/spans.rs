@@ -82,10 +82,7 @@ pub fn extract_interpolation_vars(node: &Node, source: &str) -> Vec<PromptVar> {
                 let inner_start = outer_start + 1; // Skip {
                 let inner_end = outer_end - 1; // Skip }
 
-                let exp = source[outer_start as usize..outer_end as usize].to_string();
-
                 vars.push(PromptVar {
-                    exp,
                     span: SpanShape {
                         outer: (outer_start, outer_end),
                         inner: (inner_start, inner_end),

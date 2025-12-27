@@ -90,7 +90,6 @@ pub fn extract_fstring_vars(node: &Node, source: &str) -> Vec<PromptVar> {
             let exp = &source[outer_start..outer_end];
 
             vars.push(PromptVar {
-                exp: exp.to_string(),
                 span: SpanShape { outer, inner },
             });
         }
@@ -106,6 +105,7 @@ pub fn extract_fstring_vars(node: &Node, source: &str) -> Vec<PromptVar> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use insta::assert_ron_snapshot;
     use tree_sitter::{Node, Parser};
 
     fn find_node_by_kind<'a>(node: &Node<'a>, kind: &str) -> Option<Node<'a>> {
@@ -145,10 +145,12 @@ mod tests {
 
         let span = span_shape_string_like(&string_node, source);
 
-        assert_eq!(span.outer.0, 0);
-        assert_eq!(span.outer.1, 7);
-        assert_eq!(span.inner.0, 1);
-        assert_eq!(span.inner.1, 6);
+        assert_ron_snapshot!(span, @"
+        SpanShape(
+          outer: (0, 7),
+          inner: (1, 6),
+        )
+        ");
     }
 
     #[test]
@@ -167,10 +169,12 @@ mod tests {
 
         let span = span_shape_string_like(&string_node, source);
 
-        assert_eq!(span.outer.0, 0);
-        assert_eq!(span.outer.1, 15);
-        assert_eq!(span.inner.0, 2); // After f"
-        assert_eq!(span.inner.1, 14); // Before "
+        assert_ron_snapshot!(span, @"
+        SpanShape(
+          outer: (0, 15),
+          inner: (2, 14),
+        )
+        ");
     }
 
     #[test]
@@ -189,10 +193,16 @@ mod tests {
 
         let vars = extract_fstring_vars(&string_node, source);
 
-        assert_eq!(vars.len(), 1);
-        assert_eq!(vars[0].exp, "{name}");
-        assert_eq!(vars[0].span.outer.0, 8);
-        assert_eq!(vars[0].span.outer.1, 14);
+        assert_ron_snapshot!(vars, @"
+        [
+          PromptVar(
+            span: SpanShape(
+              outer: (8, 14),
+              inner: (9, 13),
+            ),
+          ),
+        ]
+        ");
     }
 
     #[test]
@@ -211,8 +221,21 @@ mod tests {
 
         let vars = extract_fstring_vars(&string_node, source);
 
-        assert_eq!(vars.len(), 2);
-        assert_eq!(vars[0].exp, "{first}");
-        assert_eq!(vars[1].exp, "{last}");
+        assert_ron_snapshot!(vars, @"
+        [
+          PromptVar(
+            span: SpanShape(
+              outer: (8, 15),
+              inner: (9, 14),
+            ),
+          ),
+          PromptVar(
+            span: SpanShape(
+              outer: (16, 22),
+              inner: (17, 21),
+            ),
+          ),
+        ]
+        ");
     }
 }

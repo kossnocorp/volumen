@@ -35,7 +35,6 @@ fn simple() {
                       ),
                       vars: [],
                       annotations: [],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -109,7 +108,6 @@ fn nested() {
                       ),
                       vars: [],
                       annotations: [],
-                      exp: "\"Hello, world!\"",
                     ),
                     Prompt(
                       file: "Prompts.java",
@@ -137,10 +135,8 @@ fn nested() {
                               inner: (90, 98),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hi!\"",
                     ),
                   ],
                 )

@@ -91,7 +91,6 @@ pub fn extract_interpolation_vars(node: &Node, source: &str) -> Vec<PromptVar> {
             };
 
             vars.push(PromptVar {
-                exp: full_exp,
                 span: SpanShape {
                     outer: (actual_outer_start, actual_outer_end),
                     inner: (inner_start, inner_end),

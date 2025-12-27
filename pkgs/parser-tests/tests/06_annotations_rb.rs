@@ -15,7 +15,7 @@ fn multiline() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -53,14 +53,12 @@ fn multiline() {
                               inner: (19, 25),
                             ),
                           ],
-                          exp: "# Hello\n# @prompt\n# world",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -123,7 +121,7 @@ fn multiline_nested() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -161,14 +159,12 @@ fn multiline_nested() {
                               inner: (38, 44),
                             ),
                           ],
-                          exp: "# Hello\n    # @prompt\n    # world",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {

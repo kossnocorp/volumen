@@ -37,7 +37,6 @@ fn simple() {
                       ),
                       vars: [],
                       annotations: [],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -106,7 +105,6 @@ fn simple() {
                       ),
                       vars: [],
                       annotations: [],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -175,7 +173,6 @@ fn simple() {
                       ),
                       vars: [],
                       annotations: [],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -268,11 +265,9 @@ fn nested() {
                             outer: (99, 106),
                             inner: (101, 105),
                           ),
-                          exp: "${name}",
                         ),
                       ],
                       annotations: [],
-                      exp: "`Hello, ${name}!`",
                     ),
                     Prompt(
                       file: "prompts.js",
@@ -300,10 +295,8 @@ fn nested() {
                               inner: (125, 133),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hi!\"",
                     ),
                   ],
                 )

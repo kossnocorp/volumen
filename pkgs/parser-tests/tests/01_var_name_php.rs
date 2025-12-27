@@ -36,7 +36,6 @@ fn simple() {
                       ),
                       vars: [],
                       annotations: [],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
@@ -126,11 +125,9 @@ fn nested() {
                             outer: (69, 76),
                             inner: (70, 75),
                           ),
-                          exp: "{$name}",
                         ),
                       ],
                       annotations: [],
-                      exp: "\"Hello, {$name}!\"",
                     ),
                     Prompt(
                       file: "prompts.php",
@@ -158,10 +155,8 @@ fn nested() {
                               inner: (87, 95),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "\"Hi!\"",
                     ),
                   ],
                 )

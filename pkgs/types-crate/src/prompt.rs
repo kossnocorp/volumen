@@ -1,11 +1,9 @@
-use litty::literal;
 use serde::{Deserialize, Serialize};
+use litty::literal;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PromptVar {
     pub span: super::span::SpanShape,
-    /// @deprecated, use `span` to get the variable expression or content.
-    pub exp: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -40,8 +38,6 @@ pub struct Prompt {
     /// comment chunk. The order corresponds to the order of appearance in
     /// the source code.
     pub annotations: Vec<PromptAnnotation>,
-    /// @deprecated, use `content` tokens to render the prompt content.
-    pub exp: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -85,6 +81,4 @@ pub struct PromptAnnotation {
     /// e.g., `// @prompt hello`, and the inner span covers just the content,
     /// e.g., ` @prompt hello`.
     pub spans: Vec<super::span::SpanShape>,
-    /// @deprecated, use `span` tokens to render the prompt content.
-    pub exp: String,
 }

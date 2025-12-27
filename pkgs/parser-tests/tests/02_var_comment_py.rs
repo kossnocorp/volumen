@@ -13,7 +13,7 @@ fn simple() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -43,14 +43,12 @@ fn simple() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -102,7 +100,7 @@ fn assigned() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -133,7 +131,6 @@ fn assigned() {
                             outer: (47, 54),
                             inner: (48, 53),
                           ),
-                          exp: "{value}",
                         ),
                       ],
                       annotations: [
@@ -144,14 +141,12 @@ fn assigned() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "f\"Assigned {value}\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -208,7 +203,7 @@ fn assigned_late_comment() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -239,7 +234,6 @@ fn assigned_late_comment() {
                             outer: (47, 54),
                             inner: (48, 53),
                           ),
-                          exp: "{value}",
                         ),
                       ],
                       annotations: [
@@ -250,14 +244,12 @@ fn assigned_late_comment() {
                               inner: (16, 24),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "f\"Assigned {value}\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -315,7 +307,7 @@ fn reassigned() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -346,7 +338,6 @@ fn reassigned() {
                             outer: (88, 95),
                             inner: (89, 94),
                           ),
-                          exp: "{value}",
                         ),
                       ],
                       annotations: [
@@ -357,14 +348,12 @@ fn reassigned() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "f\"Reassigned {value}\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -515,7 +504,6 @@ fn mixed_nested() {
                       ),
                       vars: [],
                       annotations: [],
-                      exp: "\"Hi!\"",
                     ),
                   ],
                 )
@@ -601,7 +589,7 @@ fn mixed_assign() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -631,14 +619,12 @@ fn mixed_assign() {
                               inner: (26, 40),
                             ),
                           ],
-                          exp: "# @prompt fresh",
                         ),
                       ],
-                      exp: "\"Hi\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -692,7 +678,7 @@ fn mixed_reassign() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -718,18 +704,16 @@ fn mixed_reassign() {
                         PromptAnnotation(
                           spans: [
                             SpanShape(
-                              outer: (0, 13),
-                              inner: (1, 13),
+                              outer: (56, 68),
+                              inner: (57, 68),
                             ),
                           ],
-                          exp: "# @prompt def",
                         ),
                       ],
-                      exp: "\"Hi\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -787,7 +771,7 @@ fn spaced() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -817,14 +801,12 @@ fn spaced() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello, world!\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -875,7 +857,7 @@ fn dirty() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -905,14 +887,12 @@ fn dirty() {
                               inner: (1, 16),
                             ),
                           ],
-                          exp: "# @prompt system",
                         ),
                       ],
-                      exp: "\"You are a helpful assistant.\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -963,7 +943,7 @@ fn multi() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -993,10 +973,8 @@ fn multi() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1024,14 +1002,12 @@ fn multi() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -1107,7 +1083,7 @@ fn destructuring() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -1137,10 +1113,8 @@ fn destructuring() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1168,10 +1142,8 @@ fn destructuring() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1199,10 +1171,8 @@ fn destructuring() {
                               inner: (47, 55),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1230,10 +1200,8 @@ fn destructuring() {
                               inner: (47, 55),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1261,10 +1229,8 @@ fn destructuring() {
                               inner: (95, 103),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1292,10 +1258,8 @@ fn destructuring() {
                               inner: (95, 103),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1323,10 +1287,8 @@ fn destructuring() {
                               inner: (143, 151),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1354,10 +1316,8 @@ fn destructuring() {
                               inner: (143, 151),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1385,10 +1345,8 @@ fn destructuring() {
                               inner: (189, 197),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1416,10 +1374,8 @@ fn destructuring() {
                               inner: (189, 197),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1447,10 +1403,8 @@ fn destructuring() {
                               inner: (237, 245),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hello\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1478,14 +1432,12 @@ fn destructuring() {
                               inner: (237, 245),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"World\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -1701,7 +1653,7 @@ fn chained() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -1731,10 +1683,8 @@ fn chained() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hi\"",
                     ),
                     Prompt(
                       file: "prompts.py",
@@ -1762,14 +1712,12 @@ fn chained() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\"Hi\"",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {

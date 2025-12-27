@@ -48,11 +48,9 @@ fn single_var() {
                             outer: (31, 38),
                             inner: (32, 37),
                           ),
-                          exp: "{$user}",
                         ),
                       ],
                       annotations: [],
-                      exp: "\"Welcome, {$user}!\"",
                     ),
                   ],
                 )
@@ -148,18 +146,15 @@ fn multiple_vars() {
                             outer: (29, 36),
                             inner: (30, 35),
                           ),
-                          exp: "{$name}",
                         ),
                         PromptVar(
                           span: SpanShape(
                             outer: (66, 73),
                             inner: (67, 72),
                           ),
-                          exp: "{$city}",
                         ),
                       ],
                       annotations: [],
-                      exp: "\"Hello, {$name}! How is the weather today in {$city}?\"",
                     ),
                   ],
                 )

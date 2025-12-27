@@ -48,7 +48,7 @@ fn heredoc() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -78,14 +78,12 @@ fn heredoc() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "<<~TEXT\n  You are a helpful assistant.\n  You will answer the user\'s questions to the best of your ability.\n  If you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\n",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -139,7 +137,7 @@ fn heredoc_interpolated() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -169,14 +167,12 @@ fn heredoc_interpolated() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "<<~TEXT\n  Hello, #{name}!\n  How is the weather today in #{city}?\n",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -227,7 +223,7 @@ fn single_quote() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -257,14 +253,12 @@ fn single_quote() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "\'hello world\'",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|prompt_source_cuts| {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
@@ -312,7 +306,7 @@ fn percent_q_paren() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -342,14 +336,12 @@ fn percent_q_paren() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "%q(hello world)",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|prompt_source_cuts| {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
@@ -397,7 +389,7 @@ fn percent_q_brace() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -427,14 +419,12 @@ fn percent_q_brace() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "%q{no interpolation #{x}}",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|prompt_source_cuts| {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
@@ -483,7 +473,7 @@ fn percent_q_upper() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -514,7 +504,6 @@ fn percent_q_upper() {
                             outer: (37, 44),
                             inner: (39, 43),
                           ),
-                          exp: "#{name}",
                         ),
                       ],
                       annotations: [
@@ -525,14 +514,12 @@ fn percent_q_upper() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "%Q(Hello #{name})",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
@@ -587,7 +574,7 @@ fn percent_q_pipe() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -618,7 +605,6 @@ fn percent_q_pipe() {
                             outer: (36, 43),
                             inner: (38, 42),
                           ),
-                          exp: "#{name}",
                         ),
                       ],
                       annotations: [
@@ -629,14 +615,12 @@ fn percent_q_pipe() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "%Q|Pipes #{name}|",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|prompt_source_cuts| {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
@@ -689,7 +673,7 @@ fn percent_q_angle() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -720,7 +704,6 @@ fn percent_q_angle() {
                             outer: (38, 45),
                             inner: (40, 44),
                           ),
-                          exp: "#{name}",
                         ),
                       ],
                       annotations: [
@@ -731,14 +714,12 @@ fn percent_q_angle() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "%Q<Angles #{name}>",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|prompt_source_cuts| {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
@@ -793,7 +774,7 @@ fn heredoc_plain() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -823,14 +804,12 @@ fn heredoc_plain() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "<<EOF\nHello #{name}\n",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|prompt_source_cuts| {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
@@ -880,7 +859,7 @@ fn heredoc_squiggly() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -910,14 +889,12 @@ fn heredoc_squiggly() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "<<~EOF\nHello #{name}\n",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|prompt_source_cuts| {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
@@ -967,7 +944,7 @@ fn heredoc_single() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -997,14 +974,12 @@ fn heredoc_single() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "<<\'EOF\'\nHello #{name}\n",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|prompt_source_cuts| {
                 assert_json_snapshot!(prompt_source_cuts, @r##"
@@ -1054,7 +1029,7 @@ fn heredoc_double() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @r##"
+                assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
                   prompts: [
@@ -1084,14 +1059,12 @@ fn heredoc_double() {
                               inner: (1, 9),
                             ),
                           ],
-                          exp: "# @prompt",
                         ),
                       ],
-                      exp: "<<\"EOF\"\nHello #{name}\n",
                     ),
                   ],
                 )
-                "##);
+                "#);
             }),
             cuts: Box::new(|prompt_source_cuts| {
                 assert_json_snapshot!(prompt_source_cuts, @r##"

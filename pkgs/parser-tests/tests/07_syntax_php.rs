@@ -80,10 +80,8 @@ fn heredoc() {
                               inner: (8, 16),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "<<<TEXT\nYou are a helpful assistant.\nYou will answer the user\'s questions to the best of your ability.\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make it up.\nTEXT",
                     ),
                   ],
                 )
@@ -185,14 +183,12 @@ fn heredoc_interpolated() {
                             outer: (40, 47),
                             inner: (41, 46),
                           ),
-                          exp: "{$name}",
                         ),
                         PromptVar(
                           span: SpanShape(
                             outer: (77, 84),
                             inner: (78, 83),
                           ),
-                          exp: "{$city}",
                         ),
                       ],
                       annotations: [
@@ -203,10 +199,8 @@ fn heredoc_interpolated() {
                               inner: (8, 16),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "<<<TEXT\nHello, {$name}!\nHow is the weather today in {$city}?\nTEXT",
                     ),
                   ],
                 )

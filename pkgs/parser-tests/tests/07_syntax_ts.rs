@@ -82,7 +82,6 @@ fn jsx() {
                             outer: (37, 45),
                             inner: (39, 44),
                           ),
-                          exp: "${world}",
                         ),
                       ],
                       annotations: [
@@ -93,10 +92,8 @@ fn jsx() {
                               inner: (17, 26),
                             ),
                           ],
-                          exp: "/* @prompt */",
                         ),
                       ],
-                      exp: "`Hello, ${world}!`",
                     ),
                   ],
                 )
@@ -193,7 +190,6 @@ fn ts() {
                             outer: (44, 52),
                             inner: (46, 51),
                           ),
-                          exp: "${world}",
                         ),
                       ],
                       annotations: [
@@ -204,10 +200,8 @@ fn ts() {
                               inner: (25, 34),
                             ),
                           ],
-                          exp: "/* @prompt */",
                         ),
                       ],
-                      exp: "`Hello ${world}!`",
                     ),
                   ],
                 )
@@ -305,7 +299,6 @@ fn tsx() {
                             outer: (44, 52),
                             inner: (46, 51),
                           ),
-                          exp: "${world}",
                         ),
                       ],
                       annotations: [
@@ -316,10 +309,8 @@ fn tsx() {
                               inner: (25, 34),
                             ),
                           ],
-                          exp: "/* @prompt */",
                         ),
                       ],
-                      exp: "`Hello ${world}!`",
                     ),
                   ],
                 )
@@ -424,14 +415,12 @@ fn multiline() {
                             outer: (32, 39),
                             inner: (34, 38),
                           ),
-                          exp: "${name}",
                         ),
                         PromptVar(
                           span: SpanShape(
                             outer: (69, 76),
                             inner: (71, 75),
                           ),
-                          exp: "${city}",
                         ),
                       ],
                       annotations: [
@@ -442,10 +431,8 @@ fn multiline() {
                               inner: (2, 10),
                             ),
                           ],
-                          exp: "// @prompt",
                         ),
                       ],
-                      exp: "`Hello, ${name}!\nHow is the weather today in ${city}?\n`",
                     ),
                   ],
                 )
