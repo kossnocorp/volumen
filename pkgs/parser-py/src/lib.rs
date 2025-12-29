@@ -292,6 +292,12 @@ impl<'a> PyPromptVisitor<'a> {
                         self.prompts.push(prompt);
                     }
                 }
+                ast::Expr::Call(call_expr) => {
+                    // Handle format method: "Hello {}".format(name)
+                    if let Some(prompt) = self.process_format_call(ident, call_expr) {
+                        self.prompts.push(prompt);
+                    }
+                }
                 _ => {}
             }
         }
@@ -769,5 +775,164 @@ impl<'a> PyPromptVisitor<'a> {
         }
 
         var_span.outer = (new_start, new_end);
+    }
+
+    /// Process format method call: "Hello {}".format(name)
+    fn process_format_call(&mut self, ident: &str, call: &ast::ExprCall) -> Option<Prompt> {
+        // Check if this is a .format() method call on a string
+        let attr = call.func.as_attribute_expr()?;
+        if attr.attr.as_str() != "format" {
+            return None;
+        }
+
+        // The value should be a string literal
+        let format_str = attr.value.as_string_literal_expr()?;
+        
+        // Check if this should be treated as a prompt
+        let in_prompt_ident = self
+            .prompt_idents_stack
+            .iter()
+            .rev()
+            .any(|s| s.contains(ident));
+        let annotations: Vec<PromptAnnotation> = self
+            .stmt_annotations_stack
+            .last()
+            .cloned()
+            .unwrap_or_default();
+        
+        if !in_prompt_ident && annotations.is_empty() && !ident.to_lowercase().contains("prompt") {
+            return None;
+        }
+
+        // Extract the format string content
+        let format_str_value = format_str.value.to_str();
+        let format_str_range = format_str.range;
+        
+        // Parse placeholders in the format string
+        let placeholders = self.parse_format_placeholders(&format_str_value);
+        
+        // Build vars from the format() arguments
+        let mut vars = Vec::new();
+        for (arg_idx, arg) in call.arguments.args.iter().enumerate() {
+            // Skip if we have more args than placeholders (shouldn't happen in valid code)
+            if arg_idx >= placeholders.len() {
+                break;
+            }
+            
+            let arg_range = arg.range();
+            vars.push(PromptVar {
+                span: SpanShape {
+                    outer: self.span(arg_range),
+                    inner: self.span(arg_range),
+                },
+            });
+        }
+        
+        // Build content tokens with placeholders as var positions
+        let mut content = Vec::new();
+        let format_inner_start = self.span(format_str_range).0 + 1;
+        let format_inner_end = self.span(format_str_range).1 - 1;
+        let mut pos = 0usize;
+        
+        for (placeholder_idx, (start, end)) in placeholders.iter().enumerate() {
+            // Add string token before placeholder
+            if pos < *start {
+                content.push(PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (format_inner_start + pos as u32, format_inner_start + *start as u32),
+                    },
+                ));
+            }
+            
+            // Add var token for placeholder (if we have a corresponding arg)
+            if placeholder_idx < vars.len() {
+                content.push(PromptContentToken::PromptContentTokenVar(
+                    PromptContentTokenVar {
+                        r#type: PromptContentTokenVarTypeVar,
+                        span: (format_inner_start + *start as u32, format_inner_start + *end as u32),
+                        index: placeholder_idx as u32,
+                    },
+                ));
+            }
+            
+            pos = *end;
+        }
+        
+        // Add trailing string token
+        if pos < format_str_value.len() {
+            content.push(PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: (format_inner_start + pos as u32, format_inner_end),
+                },
+            ));
+        }
+        
+        let call_range = call.range();
+        let stmt_range = self.stmt_range_stack.last().copied().unwrap_or(call_range);
+        let leading_start = self
+            .stmt_leading_start_stack
+            .last()
+            .copied()
+            .flatten()
+            .unwrap_or(self.span(stmt_range).0);
+        
+        Some(Prompt {
+            file: self.file.clone(),
+            span: SpanShape {
+                outer: self.span(call_range),
+                inner: (format_inner_start, format_inner_end),
+            },
+            enclosure: (leading_start, self.span(stmt_range).1),
+            vars,
+            annotations,
+            content,
+            joint: SpanShape {
+                outer: (0, 0),
+                inner: (0, 0),
+            },
+        })
+    }
+    
+    /// Parse format string placeholders: {}, {0}, {1}, {name}, etc.
+    /// Returns vec of (start, end) positions in the string
+    fn parse_format_placeholders(&self, format_str: &str) -> Vec<(usize, usize)> {
+        let mut placeholders = Vec::new();
+        let mut i = 0;
+        let chars: Vec<char> = format_str.chars().collect();
+        
+        while i < chars.len() {
+            if chars[i] == '{' {
+                // Check for escaped {{ 
+                if i + 1 < chars.len() && chars[i + 1] == '{' {
+                    i += 2; // Skip escaped {{
+                    continue;
+                }
+                
+                let start = i;
+                i += 1;
+                
+                // Find closing }
+                while i < chars.len() && chars[i] != '}' {
+                    i += 1;
+                }
+                
+                if i < chars.len() && chars[i] == '}' {
+                    // Check for escaped }}
+                    if i + 1 < chars.len() && chars[i + 1] == '}' {
+                        i += 2;
+                        continue;
+                    }
+                    
+                    i += 1; // Include the }
+                    placeholders.push((start, i));
+                    continue;
+                }
+            }
+            i += 1;
+        }
+        
+        placeholders
     }
 }

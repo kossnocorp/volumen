@@ -391,23 +391,43 @@ fn process_identifier_assignment(
                 prompts,
             );
         } else if right.kind() == "binary" {
-            // Handle concatenation: "Hello, " + name + "!"
             let final_annotations = if !annotations.is_empty() {
                 annotations.to_vec()
             } else {
                 scopes.get_def_annotation(ident_name).unwrap_or_default()
             };
             
-            if let Some(prompt) = process_concatenation(
-                right,
-                source,
-                filename,
-                stmt_start,
-                stmt_end,
-                comments,
-                &final_annotations,
-            ) {
-                prompts.push(prompt);
+            // Check operator type
+            if let Some(operator) = right.child_by_field_name("operator") {
+                if let Ok(op_text) = operator.utf8_text(source.as_bytes()) {
+                    if op_text == "+" {
+                        // Handle concatenation: "Hello, " + name + "!"
+                        if let Some(prompt) = process_concatenation(
+                            right,
+                            source,
+                            filename,
+                            stmt_start,
+                            stmt_end,
+                            comments,
+                            &final_annotations,
+                        ) {
+                            prompts.push(prompt);
+                        }
+                    } else if op_text == "%" {
+                        // Handle format operator: "Hello %s" % name
+                        if let Some(prompt) = process_format_operator(
+                            right,
+                            source,
+                            filename,
+                            stmt_start,
+                            stmt_end,
+                            comments,
+                            &final_annotations,
+                        ) {
+                            prompts.push(prompt);
+                        }
+                    }
+                }
             }
         }
     }
@@ -1076,4 +1096,167 @@ fn expand_to_operators(var_span: &mut SpanShape, source: &str, prompt_outer: (u3
     }
 
     var_span.outer = (new_start, new_end);
+}
+
+// Format operator support
+
+/// Process a binary expression for format operator: "Hello %s" % name
+#[allow(clippy::too_many_arguments)]
+fn process_format_operator(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // Get left (format string) and right (arguments)
+    let left = node.child_by_field_name("left")?;
+    let right = node.child_by_field_name("right")?;
+    
+    // Left must be a string
+    if !is_string_like(&left) {
+        return None;
+    }
+    
+    // Parse format string to find placeholders
+    let format_str_span = span_shape_string_like(&left, source);
+    let format_str_content = &source[format_str_span.inner.0 as usize..format_str_span.inner.1 as usize];
+    let placeholders = parse_printf_placeholders(format_str_content);
+    
+    if placeholders.is_empty() {
+        return None;
+    }
+    
+    // Extract arguments (could be a single var, array, or tuple)
+    let mut arg_nodes = Vec::new();
+    if right.kind() == "array" {
+        // Array: [name, age]
+        let mut cursor = right.walk();
+        for child in right.children(&mut cursor) {
+            if !child.is_named() {
+                continue;
+            }
+            if child.kind() != "," {
+                arg_nodes.push(child);
+            }
+        }
+    } else {
+        // Single argument
+        arg_nodes.push(right);
+    }
+    
+    // Build vars from arguments
+    let mut vars = Vec::new();
+    for (arg_idx, arg_node) in arg_nodes.iter().enumerate() {
+        if arg_idx >= placeholders.len() {
+            break; // More args than placeholders
+        }
+        
+        let arg_start = arg_node.start_byte() as u32;
+        let arg_end = arg_node.end_byte() as u32;
+        vars.push(PromptVar {
+            span: SpanShape {
+                outer: (arg_start, arg_end),
+                inner: (arg_start, arg_end),
+            },
+        });
+    }
+    
+    // Build content tokens
+    let mut content = Vec::new();
+    let mut pos = 0usize;
+    let format_inner_start = format_str_span.inner.0;
+    
+    for (placeholder_idx, (start, end)) in placeholders.iter().enumerate() {
+        // Add string token before placeholder
+        if pos < *start {
+            content.push(PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: (format_inner_start + pos as u32, format_inner_start + *start as u32),
+                },
+            ));
+        }
+        
+        // Add var token for placeholder (if we have a corresponding arg)
+        if placeholder_idx < vars.len() {
+            content.push(PromptContentToken::PromptContentTokenVar(
+                PromptContentTokenVar {
+                    r#type: PromptContentTokenVarTypeVar,
+                    span: (format_inner_start + *start as u32, format_inner_start + *end as u32),
+                    index: placeholder_idx as u32,
+                },
+            ));
+        }
+        
+        pos = *end;
+    }
+    
+    // Add trailing string token
+    if pos < format_str_content.len() {
+        content.push(PromptContentToken::PromptContentTokenStr(
+            PromptContentTokenStr {
+                r#type: PromptContentTokenStrTypeStr,
+                span: (format_inner_start + pos as u32, format_str_span.inner.1),
+            },
+        ));
+    }
+    
+    let enclosure_start = comments
+        .get_any_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+    
+    Some(Prompt {
+        file: filename.to_string(),
+        span: SpanShape {
+            outer: (node.start_byte() as u32, node.end_byte() as u32),
+            inner: format_str_span.inner,
+        },
+        enclosure: (enclosure_start, stmt_end),
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint: SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        },
+    })
+}
+
+/// Parse printf-style placeholders: %s, %d, %f, etc.
+/// Returns vec of (start, end) positions in the string
+fn parse_printf_placeholders(format_str: &str) -> Vec<(usize, usize)> {
+    let mut placeholders = Vec::new();
+    let chars: Vec<char> = format_str.chars().collect();
+    let mut i = 0;
+    
+    while i < chars.len() {
+        if chars[i] == '%' {
+            // Check for escaped %%
+            if i + 1 < chars.len() && chars[i + 1] == '%' {
+                i += 2; // Skip escaped %%
+                continue;
+            }
+            
+            let start = i;
+            i += 1;
+            
+            // Skip flags, width, precision
+            while i < chars.len() && (chars[i].is_ascii_digit() || chars[i] == '-' || chars[i] == '+' || chars[i] == ' ' || chars[i] == '#' || chars[i] == '.' || chars[i] == '*') {
+                i += 1;
+            }
+            
+            // Get format specifier
+            if i < chars.len() && (chars[i].is_alphabetic() || chars[i] == '%') {
+                i += 1;
+                placeholders.push((start, i));
+                continue;
+            }
+        }
+        i += 1;
+    }
+    
+    placeholders
 }

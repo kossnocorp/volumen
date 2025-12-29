@@ -351,6 +351,26 @@ fn process_variable_declarator(
             ) {
                 prompts.push(prompt);
             }
+        } else if value_node.kind() == "method_invocation" {
+            // Get annotations
+            let final_annotations = if !annotations.is_empty() {
+                annotations.to_vec()
+            } else {
+                scopes.get_def_annotation(ident_name).unwrap_or_default()
+            };
+
+            // Try to process as String.format
+            if let Some(prompt) = process_string_format(
+                &value_node,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            }
         }
     }
 }
@@ -734,4 +754,176 @@ fn build_concat_content_tokens(segments: &[ConcatSegment]) -> Vec<PromptContentT
             }
         })
         .collect()
+}
+
+// Format function support
+
+/// Process String.format call: String.format("Hello %s", name)
+#[allow(clippy::too_many_arguments)]
+fn process_string_format(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // Get method name
+    let name_node = node.child_by_field_name("name")?;
+    let method_name = name_node.utf8_text(source.as_bytes()).ok()?;
+    
+    // Check if it's format
+    if method_name != "format" {
+        return None;
+    }
+    
+    // Check if object is String
+    if let Some(object_node) = node.child_by_field_name("object") {
+        let object_text = object_node.utf8_text(source.as_bytes()).ok()?;
+        if object_text != "String" {
+            return None;
+        }
+    } else {
+        return None;
+    }
+    
+    // Get arguments
+    let args_node = node.child_by_field_name("arguments")?;
+    let mut arg_nodes = Vec::new();
+    let mut cursor = args_node.walk();
+    for child in args_node.children(&mut cursor) {
+        if child.is_named() && child.kind() != "," {
+            arg_nodes.push(child);
+        }
+    }
+    
+    if arg_nodes.is_empty() {
+        return None;
+    }
+    
+    // First argument should be the format string
+    let format_str_node = arg_nodes[0];
+    if !is_string_like(&format_str_node) {
+        return None;
+    }
+    
+    // Parse format string
+    let format_str_span = span_shape_string_like(&format_str_node, source);
+    let format_str_content = &source[format_str_span.inner.0 as usize..format_str_span.inner.1 as usize];
+    let placeholders = parse_printf_placeholders(format_str_content);
+    
+    if placeholders.is_empty() {
+        return None;
+    }
+    
+    // Build vars from remaining arguments
+    let mut vars = Vec::new();
+    for (arg_idx, arg_node) in arg_nodes.iter().skip(1).enumerate() {
+        if arg_idx >= placeholders.len() {
+            break;
+        }
+        
+        let arg_start = arg_node.start_byte() as u32;
+        let arg_end = arg_node.end_byte() as u32;
+        vars.push(PromptVar {
+            span: SpanShape {
+                outer: (arg_start, arg_end),
+                inner: (arg_start, arg_end),
+            },
+        });
+    }
+    
+    // Build content tokens
+    let mut content = Vec::new();
+    let mut pos = 0usize;
+    let format_inner_start = format_str_span.inner.0;
+    
+    for (placeholder_idx, (start, end)) in placeholders.iter().enumerate() {
+        // Add string token before placeholder
+        if pos < *start {
+            content.push(PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: (format_inner_start + pos as u32, format_inner_start + *start as u32),
+                },
+            ));
+        }
+        
+        // Add var token for placeholder (if we have a corresponding arg)
+        if placeholder_idx < vars.len() {
+            content.push(PromptContentToken::PromptContentTokenVar(
+                PromptContentTokenVar {
+                    r#type: PromptContentTokenVarTypeVar,
+                    span: (format_inner_start + *start as u32, format_inner_start + *end as u32),
+                    index: placeholder_idx as u32,
+                },
+            ));
+        }
+        
+        pos = *end;
+    }
+    
+    // Add trailing string token
+    if pos < format_str_content.len() {
+        content.push(PromptContentToken::PromptContentTokenStr(
+            PromptContentTokenStr {
+                r#type: PromptContentTokenStrTypeStr,
+                span: (format_inner_start + pos as u32, format_str_span.inner.1),
+            },
+        ));
+    }
+    
+    let enclosure_start = comments.get_any_leading_start(stmt_start).unwrap_or(stmt_start);
+    
+    Some(Prompt {
+        file: filename.to_string(),
+        span: SpanShape {
+            outer: (node.start_byte() as u32, node.end_byte() as u32),
+            inner: format_str_span.inner,
+        },
+        enclosure: (enclosure_start, stmt_end),
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint: SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        },
+    })
+}
+
+/// Parse printf-style placeholders: %s, %d, %f, etc.
+fn parse_printf_placeholders(format_str: &str) -> Vec<(usize, usize)> {
+    let mut placeholders = Vec::new();
+    let chars: Vec<char> = format_str.chars().collect();
+    let mut i = 0;
+    
+    while i < chars.len() {
+        if chars[i] == '%' {
+            // Check for escaped %%
+            if i + 1 < chars.len() && chars[i + 1] == '%' {
+                i += 2;
+                continue;
+            }
+            
+            let start = i;
+            i += 1;
+            
+            // Skip flags, width, precision
+            while i < chars.len() && (chars[i].is_ascii_digit() || chars[i] == '-' || chars[i] == '+' || chars[i] == ' ' || chars[i] == '#' || chars[i] == '.' || chars[i] == '*') {
+                i += 1;
+            }
+            
+            // Get format specifier
+            if i < chars.len() && (chars[i].is_alphabetic() || chars[i] == '%') {
+                i += 1;
+                placeholders.push((start, i));
+                continue;
+            }
+        }
+        i += 1;
+    }
+    
+    placeholders
 }

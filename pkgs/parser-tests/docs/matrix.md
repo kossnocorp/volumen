@@ -12,7 +12,7 @@
 | `06_annotations_{{lang}}.rs`      | +++  | ++   | +++  | ++!   | ++!  | ++!  | ++!    |
 | `07_syntax_{{lang}}.rs`           | +++  | +++  | +++  | +++   | ++!  | +++  | +++    |
 | `08_concat_{{lang}}.rs`           | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
-| `09_fn_{{lang}}.rs`               | +++  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
+| `09_fn_{{lang}}.rs`               | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 | `10_array_{{lang}}.rs`            | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
 
 **Legend**:
@@ -161,10 +161,19 @@ Additional legend:
 
 | Test Lang:  | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
 | ----------- | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `format_fn` | ~    | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
+| `format_fn` | ~    | +++  | +++  | +++   | +++  | +++  | +++    |
 
-- `ts`: no common `format` helper is available; test is skipped.
-- `py`/`rb`/`php`/`go`/`cs`/`java`: test sources exist but all snapshots are empty (`@""`); prompts, interpolations, and annotations are not captured.
+**Implementation Details**:
+
+- `ts`: No common `format` helper is available; test is skipped (~)
+- `py`: Detects `.format()` method calls with Python-style placeholders (`{}`, `{0}`, `{name}`)
+- `rb`: Detects `%` operator with printf-style placeholders (`%s`, `%d`, `%v`)
+- `php`: Detects `sprintf()`/`printf()` functions with printf-style placeholders
+- `go`: Detects `fmt.Sprintf()`/`fmt.Printf()` with Go-style placeholders (`%s`, `%d`, `%v`)
+- `cs`: Detects `String.Format()` with C#-style numbered placeholders (`{0}`, `{1}`)
+- `java`: Detects `String.format()` with printf-style placeholders
+
+All implementations correctly parse format strings, extract placeholders, map arguments to variables with proper `index` field values, and generate appropriate `PromptContentToken` arrays. Snapshots have been generated and accepted for all languages.
 
 ### `10_array_{{lang}}.rs`
 
