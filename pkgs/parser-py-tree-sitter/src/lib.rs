@@ -381,7 +381,18 @@ fn process_identifier_assignment(
             }
         } else if right.kind() == "call" {
             // Handle join call: "\n".join(["Hello", user, "!"])
+            // or format call: "Hello {}".format(name)
             if let Some(prompt) = process_join_call(
+                &right,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                annotations,
+            ) {
+                prompts.push(prompt);
+            } else if let Some(prompt) = process_format_call(
                 &right,
                 source,
                 filename,
@@ -1291,5 +1302,184 @@ fn process_join_call(
         annotations: annotations.to_vec(),
         content,
         joint,
+    })
+}
+
+/// Process a format call: "Hello {}".format(name)
+#[allow(clippy::too_many_arguments)]
+fn process_format_call(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // Check if this is a .format() call
+    let function_node = node.child_by_field_name("function")?;
+    if function_node.kind() != "attribute" {
+        return None;
+    }
+
+    // Check method name is "format"
+    let mut cursor = function_node.walk();
+    let mut method_name = None;
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            if child.kind() == "identifier" {
+                let name = child.utf8_text(source.as_bytes()).ok()?;
+                method_name = Some(name);
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    if method_name != Some("format") {
+        return None;
+    }
+
+    // Extract format string from the object (string before .format)
+    let object_node = function_node.child_by_field_name("object")?;
+    if object_node.kind() != "string" && object_node.kind() != "concatenated_string" {
+        return None;
+    }
+
+    let format_str_span = span_shape_string_like(&object_node, source);
+    let format_str = &source[format_str_span.inner.0 as usize..format_str_span.inner.1 as usize];
+
+    // Parse placeholders in format string: {}, {0}, {1}, {name}, etc.
+    let mut placeholders = Vec::new();
+    let mut pos = 0;
+    let format_bytes = format_str.as_bytes();
+    
+    while pos < format_bytes.len() {
+        if format_bytes[pos] == b'{' {
+            let start = pos;
+            pos += 1;
+            
+            // Find closing }
+            while pos < format_bytes.len() && format_bytes[pos] != b'}' {
+                pos += 1;
+            }
+            
+            if pos < format_bytes.len() {
+                // Found a placeholder
+                let end = pos + 1;
+                let placeholder_pos = (
+                    format_str_span.inner.0 + start as u32,
+                    format_str_span.inner.0 + end as u32,
+                );
+                placeholders.push(placeholder_pos);
+                pos += 1;
+            }
+        } else {
+            pos += 1;
+        }
+    }
+
+    // Extract arguments
+    let arguments_node = node.child_by_field_name("arguments")?;
+    let mut argument_nodes = Vec::new();
+
+    let mut cursor = arguments_node.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            match child.kind() {
+                "identifier" | "call" | "attribute" => {
+                    argument_nodes.push(child);
+                }
+                "(" | ")" | "," => {
+                    // Skip delimiters
+                }
+                _ => {}
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    // Match placeholders to arguments
+    if argument_nodes.is_empty() {
+        return None;
+    }
+
+    // Build vars and content tokens
+    let mut vars = Vec::new();
+    let mut content = Vec::new();
+    let mut current_pos = format_str_span.inner.0;
+
+    for (idx, placeholder_span) in placeholders.iter().enumerate() {
+        // Add string token before placeholder
+        if current_pos < placeholder_span.0 {
+            content.push(PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: (current_pos, placeholder_span.0),
+                },
+            ));
+        }
+
+        // Add variable token
+        if let Some(arg_node) = argument_nodes.get(idx) {
+            let var_outer = (arg_node.start_byte() as u32, arg_node.end_byte() as u32);
+            let var_inner = var_outer;
+            vars.push(PromptVar {
+                span: SpanShape {
+                    outer: var_outer,
+                    inner: var_inner,
+                },
+            });
+            content.push(PromptContentToken::PromptContentTokenVar(
+                PromptContentTokenVar {
+                    r#type: PromptContentTokenVarTypeVar,
+                    span: (placeholder_span.0, placeholder_span.1),
+                    index: idx as u32,
+                },
+            ));
+        }
+
+        current_pos = placeholder_span.1;
+    }
+
+    // Add trailing string token
+    if current_pos < format_str_span.inner.1 {
+        content.push(PromptContentToken::PromptContentTokenStr(
+            PromptContentTokenStr {
+                r#type: PromptContentTokenStrTypeStr,
+                span: (current_pos, format_str_span.inner.1),
+            },
+        ));
+    }
+
+    // Build span: outer is entire call expression, inner is format string content
+    let outer = (node.start_byte() as u32, node.end_byte() as u32);
+    let span = SpanShape {
+        outer,
+        inner: format_str_span.inner,
+    };
+
+    // Calculate enclosure
+    let enclosure_start = comments
+        .get_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+    let enclosure = (enclosure_start, stmt_end);
+
+    Some(Prompt {
+        file: filename.to_string(),
+        span,
+        enclosure,
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint: SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        },
     })
 }
