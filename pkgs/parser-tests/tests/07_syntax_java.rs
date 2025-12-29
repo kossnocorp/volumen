@@ -39,6 +39,7 @@ fn text_block() {
             // @prompt
             String system = """
                 You are a helpful assistant.
+                You will answer questions to the best of your ability.
                 """;
         "#}),
         ParseAssertions {
@@ -49,15 +50,19 @@ fn text_block() {
                   prompts: [
                     Prompt(
                       file: "Prompts.java",
-                      enclosure: (0, 72),
+                      enclosure: (0, 131),
                       span: SpanShape(
-                        outer: (27, 71),
-                        inner: (28, 70),
+                        outer: (27, 130),
+                        inner: (30, 127),
                       ),
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (28, 70),
+                          span: (35, 64),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (68, 123),
                         ),
                       ],
                       joint: SpanShape(
@@ -84,9 +89,9 @@ fn text_block() {
                 assert_json_snapshot!(cuts, @r#"
                 [
                   {
-                    "enclosure": "// @prompt\nString system = \"\"\"\n    You are a helpful assistant.\n    \"\"\";",
-                    "outer": "\"\"\"\n    You are a helpful assistant.\n    \"\"\"",
-                    "inner": "\"\"\n    You are a helpful assistant.\n    \"\"",
+                    "enclosure": "// @prompt\nString system = \"\"\"\n    You are a helpful assistant.\n    You will answer questions to the best of your ability.\n    \"\"\";",
+                    "outer": "\"\"\"\n    You are a helpful assistant.\n    You will answer questions to the best of your ability.\n    \"\"\"",
+                    "inner": "\n    You are a helpful assistant.\n    You will answer questions to the best of your ability.\n    ",
                     "vars": []
                   }
                 ]
@@ -95,7 +100,7 @@ fn text_block() {
             interpolate: Box::new(|interp| {
                 assert_json_snapshot!(interp, @r#"
                 [
-                  "\"\"\n    You are a helpful assistant.\n    \"\""
+                  "You are a helpful assistant.\nYou will answer questions to the best of your ability.\n"
                 ]
                 "#);
             }),

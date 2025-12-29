@@ -360,10 +360,33 @@ fn create_prompt_from_string(
 ) {
     // Calculate spans
     let span = span_shape_string_like(string_node, source);
-    let content_span = span.inner;
 
     // Java doesn't have native string interpolation, so vars is always empty
     let vars: Vec<PromptVar> = Vec::new();
+
+    // Check if this is a text block with whitespace stripping
+    let text_block_info = spans::get_text_block_info(string_node, source);
+    
+    // Build content tokens
+    let content = if let Some(info) = text_block_info {
+        if info.strips_whitespace {
+            build_text_block_tokens(source, &info)
+        } else {
+            vec![PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: span.inner,
+                }
+            )]
+        }
+    } else {
+        vec![PromptContentToken::PromptContentTokenStr(
+            PromptContentTokenStr {
+                r#type: PromptContentTokenStrTypeStr,
+                span: span.inner,
+            }
+        )]
+    };
 
     // Calculate enclosure - use get_any_leading_start to include ANY leading comment (valid or not)
     let enclosure_start = comments
@@ -377,15 +400,93 @@ fn create_prompt_from_string(
         enclosure,
         vars,
         annotations: annotations.to_vec(),
-        content: vec![PromptContentToken::PromptContentTokenStr(
-            PromptContentTokenStr {
-                r#type: PromptContentTokenStrTypeStr,
-                span: content_span,
-            }
-        )],
+        content,
         joint: SpanShape {
             outer: (0, 0),
             inner: (0, 0),
         },
     });
+}
+
+/// Build content tokens for text blocks with incidental whitespace stripping.
+/// Creates separate tokens for each line, starting after the stripped whitespace.
+fn build_text_block_tokens(
+    source: &str,
+    info: &spans::TextBlockInfo,
+) -> Vec<PromptContentToken> {
+    let body_start = info.body_start as usize;
+    let body_end = info.body_end as usize;
+    let body_text = &source[body_start..body_end];
+    
+    // Calculate incidental whitespace based on closing delimiter position
+    let incidental_whitespace = calculate_text_block_indent(source, info.body_start, info.body_end);
+    
+    let mut tokens = Vec::new();
+    let mut current_pos = body_start;
+    
+    // Process each line
+    for line in body_text.split_inclusive('\n') {
+        let line_start = current_pos;
+        let line_end = current_pos + line.len();
+        
+        // Calculate how much whitespace to skip on this line
+        let line_without_newline = line.trim_end_matches('\n');
+        let actual_indent = line_without_newline.len() - line_without_newline.trim_start().len();
+        let strip_amount = actual_indent.min(incidental_whitespace);
+        
+        // Token starts after stripped whitespace
+        let token_start = line_start + strip_amount;
+        let token_end = line_end;
+        
+        if token_start < token_end {
+            tokens.push(PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: (token_start as u32, token_end as u32),
+                },
+            ));
+        }
+        
+        current_pos = line_end;
+    }
+    
+    tokens
+}
+
+/// Calculate the incidental whitespace for Java text blocks
+fn calculate_text_block_indent(source: &str, body_start: u32, body_end: u32) -> usize {
+    let body_text = &source[body_start as usize..body_end as usize];
+    
+    // Find minimum indentation across all non-empty lines
+    let mut min_indent = usize::MAX;
+    
+    for line in body_text.lines() {
+        if line.trim().is_empty() {
+            continue;
+        }
+        
+        let indent = line.len() - line.trim_start().len();
+        if indent < min_indent {
+            min_indent = indent;
+        }
+    }
+    
+    // According to JEP 378, the closing """ line's indentation determines the incidental whitespace
+    // The body_end now points to after the last newline, so after_body starts with the closing line
+    let after_body = &source[body_end as usize..];
+    
+    // Find the closing """ and get its line's indentation
+    if let Some(closing_pos) = after_body.find("\"\"\"") {
+        let closing_line_text = &after_body[..closing_pos];
+        let closing_indent = closing_line_text.len() - closing_line_text.trim_start().len();
+        if closing_indent < min_indent {
+            min_indent = closing_indent;
+        }
+    }
+    
+    if min_indent == usize::MAX {
+        0
+    } else {
+        min_indent
+    }
 }

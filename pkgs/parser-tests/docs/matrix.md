@@ -10,7 +10,7 @@
 | `04_prompt_vars_{{lang}}.rs`      | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
 | `05_multiple_prompts_{{lang}}.rs` | +++  | +++  | +++  | ++    | ++   | ++   | +++    |
 | `06_annotations_{{lang}}.rs`      | +++  | ++   | +++  | ++!   | ++!  | ++!  | ++!    |
-| `07_syntax_{{lang}}.rs`           | +++  | +++  | +++!🔸 | +++!🔸 | ++!  | +++  | ++!🔸  |
+| `07_syntax_{{lang}}.rs`           | +++  | +++  | +++  | +++  | ++!  | +++  | +++  |
 | `08_concat_{{lang}}.rs`           | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
 | `09_fn_{{lang}}.rs`               | +++  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
 | `10_array_{{lang}}.rs`            | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
@@ -127,26 +127,23 @@ Additional legend:
 
 ### `07_syntax_{{lang}}.rs`
 
-| Test Lang:               | `ts` | `py` | `rb`  | `php`  | `go` | `cs` | `java` |
-| ------------------------ | ---- | ---- | ----- | ------ | ---- | ---- | ------ |
-| `invalid`                | +++  | +++  | +++   | +++    | +++  | +++  | +++    |
-| `jsx`                    | +++  | ~    | ~     | ~      | ~    | ~    | ~      |
-| `typed_template`         | +++  | ~    | ~     | ~      | ~    | ~    | ~      |
-| `tsx_template`           | +++  | ~    | ~     | ~      | ~    | ~    | ~      |
-| `multiline_plain`        | -    | +++  | ++!🔸 | +++!🔸 | ++!  | +++  | +++!🔸 |
-| `multiline_interpolated` | +++  | +++  | ++!🔸 | +++!🔸 | -    | +++  | -      |
-
-**Whitespace Handling Legend**:
-- 🔸 = Has whitespace stripping bug (heredoc/text block indentation not handled correctly)
+| Test Lang:               | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
+| ------------------------ | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
+| `invalid`                | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `jsx`                    | +++  | ~    | ~    | ~     | ~    | ~    | ~      |
+| `typed_template`         | +++  | ~    | ~    | ~     | ~    | ~    | ~      |
+| `tsx_template`           | +++  | ~    | ~    | ~     | ~    | ~    | ~      |
+| `multiline_plain`        | -    | +++  | +++  | +++   | ++!  | +++  | +++    |
+| `multiline_interpolated` | +++  | +++  | +++  | +++   | -    | +++  | -      |
 
 **Known Issues**:
-- `rb` **🔸 Whitespace Bug**: Squiggly heredoc (`<<~TEXT`) should strip minimum common leading whitespace from all lines, but token spans currently include the stripped spaces. All heredoc variants (`<<~TEXT`, `<<TEXT`, `<<'TEXT'`, `<<"TEXT"`) are affected in token span calculations.
-- `php` **🔸 Whitespace Bug**: Heredoc span calculation is incorrect (outer/inner identical, includes markers). Flexible heredoc/nowdoc (PHP 7.3+) whitespace stripping based on closing delimiter indentation is not implemented.
-- `java` **🔸 Whitespace Bug**: Text blocks (Java 15+) should strip "incidental whitespace" based on closing `"""` position, but this may not be handled correctly in token spans.
-- `go` snapshots are empty (`@""`) and only cover a plain raw string; there is no interpolated variant.
-- `cs` matches TS/PY for verbatim and interpolated strings with annotations - no whitespace stripping issues (verbatim strings preserve all whitespace by design).
-- `ts` template literals preserve all whitespace (correct behavior) - no issues.
-- `py` triple-quoted strings preserve all whitespace (correct behavior) - no issues.
+- `rb`: All heredoc tests now correctly handle whitespace stripping for squiggly heredocs (`<<~TEXT`) ✅
+- `php`: Heredoc span calculation fixed - `outer`/`inner` now correctly separated, markers excluded from inner ✅
+- `java`: Text blocks now correctly strip incidental whitespace based on minimum indentation ✅
+- `go`: Snapshots are empty (`@""`) and only cover a plain raw string; there is no interpolated variant.
+- `cs`: Matches TS/PY for verbatim and interpolated strings with annotations - no whitespace stripping issues (verbatim strings preserve all whitespace by design).
+- `ts`: Template literals preserve all whitespace (correct behavior) - no issues.
+- `py`: Triple-quoted strings preserve all whitespace (correct behavior) - no issues.
 
 ### `08_concat_{{lang}}.rs`
 

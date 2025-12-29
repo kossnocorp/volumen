@@ -521,7 +521,21 @@ fn extract_value_ranges(node: &Node, values: &mut Vec<(u32, u32, &'static str)>)
 /// Build content tokens from span and variables.
 /// For prompts without variables, returns a single str token.
 /// For prompts with variables, returns interleaved str and var tokens.
-fn build_content_tokens(span: &SpanShape, vars: &[PromptVar]) -> Vec<PromptContentToken> {
+/// For squiggly heredocs, creates tokens starting after stripped whitespace on each line.
+fn build_content_tokens(
+    span: &SpanShape,
+    vars: &[PromptVar],
+    source: &str,
+    heredoc_info: Option<&spans::HeredocInfo>,
+) -> Vec<PromptContentToken> {
+    // Handle squiggly heredoc with whitespace stripping
+    if let Some(info) = heredoc_info {
+        if info.strips_whitespace {
+            return build_heredoc_tokens(span, vars, source, info);
+        }
+    }
+
+    // Standard token building (non-squiggly heredocs and regular strings)
     if vars.is_empty() {
         // Simple case: single str token
         return vec![PromptContentToken::PromptContentTokenStr(
@@ -570,6 +584,121 @@ fn build_content_tokens(span: &SpanShape, vars: &[PromptVar]) -> Vec<PromptConte
     tokens
 }
 
+/// Build content tokens for squiggly heredocs with whitespace stripping.
+/// Creates separate tokens for each line, starting after the stripped whitespace.
+fn build_heredoc_tokens(
+    _span: &SpanShape,
+    vars: &[PromptVar],
+    source: &str,
+    info: &spans::HeredocInfo,
+) -> Vec<PromptContentToken> {
+    let body_start = info.body_start as usize;
+    let body_end = info.body_end as usize;
+    let body_text = &source[body_start..body_end];
+    
+    // Calculate minimum indentation to strip
+    let min_indent = calculate_min_heredoc_indent(body_text);
+    
+    let mut tokens = Vec::new();
+    let mut current_pos = body_start;
+    
+    // Process each line
+    for line in body_text.split_inclusive('\n') {
+        let line_start = current_pos;
+        let line_end = current_pos + line.len();
+        
+        // Calculate how much whitespace to skip on this line
+        let line_without_newline = line.trim_end_matches('\n');
+        let actual_indent = line_without_newline.len() - line_without_newline.trim_start().len();
+        let strip_amount = actual_indent.min(min_indent);
+        
+        // Token starts after stripped whitespace
+        let token_start = line_start + strip_amount;
+        let token_end = line_end;
+        
+        // Check if there are any variables in this line
+        let line_vars: Vec<_> = vars
+            .iter()
+            .filter(|v| {
+                v.span.outer.0 >= token_start as u32 && v.span.outer.1 <= token_end as u32
+            })
+            .collect();
+        
+        if line_vars.is_empty() {
+            // No variables in this line - single str token
+            if token_start < token_end {
+                tokens.push(PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (token_start as u32, token_end as u32),
+                    },
+                ));
+            }
+        } else {
+            // Has variables - create interleaved tokens
+            let mut pos = token_start as u32;
+            for var in line_vars {
+                // Add str token before variable (if any content)
+                if pos < var.span.outer.0 {
+                    tokens.push(PromptContentToken::PromptContentTokenStr(
+                        PromptContentTokenStr {
+                            r#type: PromptContentTokenStrTypeStr,
+                            span: (pos, var.span.outer.0),
+                        },
+                    ));
+                }
+                
+                // Add var token
+                tokens.push(PromptContentToken::PromptContentTokenVar(
+                    PromptContentTokenVar {
+                        r#type: PromptContentTokenVarTypeVar,
+                        span: var.span.outer,
+                    },
+                ));
+                
+                pos = var.span.outer.1;
+            }
+            
+            // Add trailing str token in this line (if any content)
+            if pos < token_end as u32 {
+                tokens.push(PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (pos, token_end as u32),
+                    },
+                ));
+            }
+        }
+        
+        current_pos = line_end;
+    }
+    
+    tokens
+}
+
+/// Calculate the minimum common leading whitespace in heredoc body
+fn calculate_min_heredoc_indent(body_text: &str) -> usize {
+    let mut min_indent = usize::MAX;
+    
+    for line in body_text.lines() {
+        // Skip empty lines when calculating minimum indent
+        if line.trim().is_empty() {
+            continue;
+        }
+        
+        let indent = line.len() - line.trim_start().len();
+        if indent < min_indent {
+            min_indent = indent;
+        }
+    }
+    
+    if min_indent == usize::MAX {
+        0
+    } else {
+        min_indent
+    }
+}
+
 /// Create a prompt from a string node.
 fn create_prompt_from_string(
     string_node: &Node,
@@ -600,8 +729,11 @@ fn create_prompt_from_string(
     // Extract variables if interpolated string
     let vars = spans::extract_interpolation_vars(&normalized_node, source);
 
+    // Check if this is a squiggly heredoc
+    let heredoc_info = spans::get_heredoc_info(&normalized_node, source);
+
     // Build content tokens
-    let content = build_content_tokens(&span, &vars);
+    let content = build_content_tokens(&span, &vars, source, heredoc_info.as_ref());
 
     // Calculate enclosure - use get_any_leading_start to include ANY leading comment (valid or not)
     let enclosure_start = comments
@@ -636,9 +768,6 @@ fn create_prompt_from_range(
     annotations: &[PromptAnnotation],
     prompts: &mut Vec<Prompt>,
 ) {
-    // Create a temporary node-like structure for span calculation
-    let exp = &source[start as usize..end as usize];
-
     // For simple strings, outer and inner are close
     let span = SpanShape {
         outer: (start, end),
@@ -651,8 +780,8 @@ fn create_prompt_from_range(
     // No variables in range-based prompts (used for multi-assignment)
     let vars = Vec::new();
 
-    // Build content tokens
-    let content = build_content_tokens(&span, &vars);
+    // Build content tokens (no heredoc info for range-based prompts)
+    let content = build_content_tokens(&span, &vars, source, None);
 
     // Calculate enclosure
     let enclosure_start = comments

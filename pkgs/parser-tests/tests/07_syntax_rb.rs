@@ -62,7 +62,15 @@ fn heredoc() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (27, 213),
+                          span: (29, 58),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (60, 126),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (128, 213),
                         ),
                       ],
                       joint: SpanShape(
@@ -102,7 +110,7 @@ fn heredoc() {
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
-                  "  You are a helpful assistant.\n  You will answer the user's questions to the best of your ability.\n  If you don't know the answer, just say that you don't know, don't try to make it up.\n"
+                  "You are a helpful assistant.\nYou will answer the user's questions to the best of your ability.\nIf you don't know the answer, just say that you don't know, don't try to make it up.\n"
                 ]
                 "#);
             }),
@@ -151,7 +159,11 @@ fn heredoc_interpolated() {
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (25, 82),
+                          span: (27, 43),
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (45, 82),
                         ),
                       ],
                       joint: SpanShape(
@@ -191,7 +203,7 @@ fn heredoc_interpolated() {
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
-                  "  Hello, #{name}!\n  How is the weather today in #{city}?\n"
+                  "Hello, #{name}!\nHow is the weather today in #{city}?\n"
                 ]
                 "#);
             }),

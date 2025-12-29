@@ -59,12 +59,12 @@ fn heredoc() {
                       enclosure: (6, 219),
                       span: SpanShape(
                         outer: (27, 219),
-                        inner: (27, 219),
+                        inner: (35, 215),
                       ),
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (27, 219),
+                          span: (35, 215),
                         ),
                       ],
                       joint: SpanShape(
@@ -94,7 +94,7 @@ fn heredoc() {
                   {
                     "enclosure": "// @prompt\n$system = <<<TEXT\nYou are a helpful assistant.\nYou will answer the user's questions to the best of your ability.\nIf you don't know the answer, just say that you don't know, don't try to make it up.\nTEXT",
                     "outer": "<<<TEXT\nYou are a helpful assistant.\nYou will answer the user's questions to the best of your ability.\nIf you don't know the answer, just say that you don't know, don't try to make it up.\nTEXT",
-                    "inner": "<<<TEXT\nYou are a helpful assistant.\nYou will answer the user's questions to the best of your ability.\nIf you don't know the answer, just say that you don't know, don't try to make it up.\nTEXT",
+                    "inner": "You are a helpful assistant.\nYou will answer the user's questions to the best of your ability.\nIf you don't know the answer, just say that you don't know, don't try to make it up.\n",
                     "vars": []
                   }
                 ]
@@ -104,7 +104,7 @@ fn heredoc() {
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
-                  "<<<TEXT\nYou are a helpful assistant.\nYou will answer the user's questions to the best of your ability.\nIf you don't know the answer, just say that you don't know, don't try to make it up.\nTEXT"
+                  "You are a helpful assistant.\nYou will answer the user's questions to the best of your ability.\nIf you don't know the answer, just say that you don't know, don't try to make it up.\n"
                 ]
                 "#);
             }),
@@ -149,12 +149,12 @@ fn heredoc_interpolated() {
                       enclosure: (6, 90),
                       span: SpanShape(
                         outer: (25, 90),
-                        inner: (25, 90),
+                        inner: (33, 86),
                       ),
                       content: [
                         PromptContentTokenStr(
                           type: "str",
-                          span: (25, 40),
+                          span: (33, 40),
                         ),
                         PromptContentTokenVar(
                           type: "var",
@@ -170,7 +170,7 @@ fn heredoc_interpolated() {
                         ),
                         PromptContentTokenStr(
                           type: "str",
-                          span: (84, 90),
+                          span: (84, 86),
                         ),
                       ],
                       joint: SpanShape(
@@ -213,7 +213,7 @@ fn heredoc_interpolated() {
                   {
                     "enclosure": "// @prompt\n$user = <<<TEXT\nHello, {$name}!\nHow is the weather today in {$city}?\nTEXT",
                     "outer": "<<<TEXT\nHello, {$name}!\nHow is the weather today in {$city}?\nTEXT",
-                    "inner": "<<<TEXT\nHello, {$name}!\nHow is the weather today in {$city}?\nTEXT",
+                    "inner": "Hello, {$name}!\nHow is the weather today in {$city}?\n",
                     "vars": [
                       {
                         "outer": "{$name}",
@@ -232,7 +232,7 @@ fn heredoc_interpolated() {
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
-                  "<<<TEXT\nHello, {0}!\nHow is the weather today in {1}?\nTEXT"
+                  "Hello, {0}!\nHow is the weather today in {1}?\n"
                 ]
                 "#);
             }),
