@@ -10,8 +10,8 @@
 | `04_prompt_vars_{{lang}}.rs`      | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
 | `05_multiple_prompts_{{lang}}.rs` | +++  | +++  | +++  | ++    | ++   | ++   | +++    |
 | `06_annotations_{{lang}}.rs`      | +++  | ++   | +++  | ++!   | ++!  | ++!  | ++!    |
-| `07_syntax_{{lang}}.rs`           | +++  | +++  | +++  | +++  | ++!  | +++  | +++  |
-| `08_concat_{{lang}}.rs`           | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
+| `07_syntax_{{lang}}.rs`           | +++  | +++  | +++  | +++   | ++!  | +++  | +++    |
+| `08_concat_{{lang}}.rs`           | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 | `09_fn_{{lang}}.rs`               | +++  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
 | `10_array_{{lang}}.rs`            | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
 
@@ -78,6 +78,7 @@ Additional legend:
 | `chained`               | +++  | +++  | +++! | +++!  | -    | -    | -      |
 
 **Known Issues**:
+
 - `ts` `mixed_reassign` and `mixed_reassign_inline`: After removing the `exp` field from `PromptAnnotation`, the parsers need to be updated to collect ALL adjacent comments (not just `@prompt` ones) for reassignments and inline prompt cases. Currently ignored.
 - `py` `mixed_reassign`: Same issue as TypeScript - needs parser refactoring to properly collect line comments for reassignments.
 
@@ -123,6 +124,7 @@ Additional legend:
 - `cs` snapshots are empty for `multiple` and `multiline`.
 
 **Known Issues**:
+
 - `ts` `multiple` and `multiline`: After removing the `exp` field from `PromptAnnotation`, when there's an inline `/* @prompt */` comment, the parser should also collect ALL adjacent leading comments (even those without `@prompt` like `// Hello, world` or block comments). This is needed for future extensibility (e.g., `@eval` directives). Currently ignored pending parser refactoring.
 
 ### `07_syntax_{{lang}}.rs`
@@ -137,6 +139,7 @@ Additional legend:
 | `multiline_interpolated` | +++  | +++  | +++  | +++   | -    | +++  | -      |
 
 **Known Issues**:
+
 - `rb`: All heredoc tests now correctly handle whitespace stripping for squiggly heredocs (`<<~TEXT`) ✅
 - `php`: Heredoc span calculation fixed - `outer`/`inner` now correctly separated, markers excluded from inner ✅
 - `java`: Text blocks now correctly strip incidental whitespace based on minimum indentation ✅
@@ -147,13 +150,12 @@ Additional legend:
 
 ### `08_concat_{{lang}}.rs`
 
-| Test Lang: | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
-| ---------- | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `concat`   | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
-
-- All languages: snapshots are empty (`@""`); prompts, interpolations, and annotations are not captured.
-- `py`: asserts parse success but still records no prompt data.
-- `php`: uses `g$greeting` and captures no prompts; other languages similarly miss prompt data.
+| Test Lang:                   | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
+| ---------------------------- | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
+| `concat`                     | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `concat_with_primitives`     | +++  | -    | -    | +++   | -    | +++  | +++    |
+| `concat_with_function_calls` | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `concat_with_objects`        | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 
 ### `09_fn_{{lang}}.rs`
 

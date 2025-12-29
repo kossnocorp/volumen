@@ -390,6 +390,25 @@ fn process_identifier_assignment(
                 &final_annotations,
                 prompts,
             );
+        } else if right.kind() == "binary" {
+            // Handle concatenation: "Hello, " + name + "!"
+            let final_annotations = if !annotations.is_empty() {
+                annotations.to_vec()
+            } else {
+                scopes.get_def_annotation(ident_name).unwrap_or_default()
+            };
+            
+            if let Some(prompt) = process_concatenation(
+                right,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            }
         }
     }
 }
@@ -801,4 +820,254 @@ fn create_prompt_from_range(
             inner: (0, 0),
         },
     });
+}
+
+// Concatenation support
+
+#[derive(Debug)]
+enum ConcatSegment {
+    String(SpanShape),
+    Variable(SpanShape),
+    Primitive(SpanShape),
+    Other,
+}
+
+/// Process a binary expression for string concatenation
+#[allow(clippy::too_many_arguments)]
+fn process_concatenation(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // Check if it's a + operator
+    let operator = node.child_by_field_name("operator")?;
+    let op_text = operator.utf8_text(source.as_bytes()).ok()?;
+    if op_text != "+" {
+        return None;
+    }
+
+    // Extract segments recursively
+    let segments = extract_concat_segments(node, source);
+
+    // Reject if no strings or contains complex objects
+    let has_string = segments.iter().any(|s| matches!(s, ConcatSegment::String(_)));
+    let has_other = segments.iter().any(|s| matches!(s, ConcatSegment::Other));
+
+    if !has_string || has_other {
+        return None;
+    }
+
+    // Build prompt outer span (entire concatenation expression)
+    let prompt_outer = (node.start_byte() as u32, node.end_byte() as u32);
+
+    // Find first and last string segments to determine inner span
+    let first_string_pos = segments.iter().find_map(|s| match s {
+        ConcatSegment::String(span) => Some(span.inner.0),
+        _ => None,
+    })?;
+
+    let last_string_end = segments.iter().rev().find_map(|s| match s {
+        ConcatSegment::String(span) => Some(span.inner.1),
+        _ => None,
+    })?;
+
+    let prompt_inner = (first_string_pos, last_string_end);
+    let span = SpanShape {
+        outer: prompt_outer,
+        inner: prompt_inner,
+    };
+
+    // Build vars and content tokens
+    let mut vars = Vec::new();
+    let mut content = Vec::new();
+
+    for segment in &segments {
+        match segment {
+            ConcatSegment::String(s_span) => {
+                // Add string token
+                content.push(PromptContentToken::PromptContentTokenStr(
+                    PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (s_span.inner.0, s_span.inner.1),
+                    },
+                ));
+            }
+            ConcatSegment::Variable(v_span) | ConcatSegment::Primitive(v_span) => {
+                // Expand to include operators
+                let mut var_outer = v_span.clone();
+                expand_to_operators(&mut var_outer, source, prompt_outer);
+
+                let var = PromptVar {
+                    span: SpanShape {
+                        outer: var_outer.outer,
+                        inner: v_span.inner,
+                    },
+                };
+
+                // Add variable token (before pushing var)
+                content.push(PromptContentToken::PromptContentTokenVar(
+                    PromptContentTokenVar {
+                        r#type: PromptContentTokenVarTypeVar,
+                        span: var.span.inner,
+                    },
+                ));
+
+                vars.push(var);
+            }
+            ConcatSegment::Other => {}
+        }
+    }
+
+    // Calculate enclosure
+    let enclosure_start = comments
+        .get_any_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+    let enclosure = (enclosure_start, stmt_end);
+
+    Some(Prompt {
+        file: filename.to_string(),
+        span,
+        enclosure,
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint: SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        },
+    })
+}
+
+/// Extract segments from a concatenation expression
+fn extract_concat_segments(node: &Node, source: &str) -> Vec<ConcatSegment> {
+    if node.kind() != "binary" {
+        return classify_single_node(node, source);
+    }
+
+    // Check if it's a + operator
+    let operator = match node.child_by_field_name("operator") {
+        Some(n) => n,
+        None => return classify_single_node(node, source),
+    };
+    let op_text = operator.utf8_text(source.as_bytes()).unwrap_or("");
+    if op_text != "+" {
+        return classify_single_node(node, source);
+    }
+
+    // Recursively process left and right
+    let mut segments = Vec::new();
+
+    if let Some(left) = node.child_by_field_name("left") {
+        segments.extend(extract_concat_segments(&left, source));
+    }
+
+    if let Some(right) = node.child_by_field_name("right") {
+        segments.extend(extract_concat_segments(&right, source));
+    }
+
+    segments
+}
+
+/// Classify a single node as a segment
+fn classify_single_node(node: &Node, source: &str) -> Vec<ConcatSegment> {
+    let kind = node.kind();
+
+    match kind {
+        "string" | "string_content" | "heredoc_body" => {
+            // String literal
+            let span = span_shape_string_like(node, source);
+            vec![ConcatSegment::String(span)]
+        }
+        "identifier" | "constant" | "instance_variable" | "class_variable" | "global_variable" => {
+            // Variable
+            let outer = (node.start_byte() as u32, node.end_byte() as u32);
+            let inner = outer;
+            vec![ConcatSegment::Variable(SpanShape { outer, inner })]
+        }
+        "call" | "method_call" => {
+            // Function/method call - treat as variable
+            let outer = (node.start_byte() as u32, node.end_byte() as u32);
+            let inner = outer;
+            vec![ConcatSegment::Variable(SpanShape { outer, inner })]
+        }
+        "integer" | "float" | "true" | "false" => {
+            // Primitives - Ruby requires .to_s conversion, so this would be a type error
+            // But we can still parse it as a primitive for completeness
+            let outer = (node.start_byte() as u32, node.end_byte() as u32);
+            let inner = outer;
+            vec![ConcatSegment::Primitive(SpanShape { outer, inner })]
+        }
+        "array" | "hash" => {
+            // Complex objects - reject
+            vec![ConcatSegment::Other]
+        }
+        "parenthesized_statements" => {
+            // Unwrap parentheses
+            let mut cursor = node.walk();
+            if cursor.goto_first_child() {
+                loop {
+                    let child = cursor.node();
+                    if child.kind() != "(" && child.kind() != ")" {
+                        return classify_single_node(&child, source);
+                    }
+                    if !cursor.goto_next_sibling() {
+                        break;
+                    }
+                }
+            }
+            vec![ConcatSegment::Other]
+        }
+        _ => {
+            // Unknown - reject
+            vec![ConcatSegment::Other]
+        }
+    }
+}
+
+/// Expand variable span to include surrounding operators
+fn expand_to_operators(var_span: &mut SpanShape, source: &str, prompt_outer: (u32, u32)) {
+    let bytes = source.as_bytes();
+    let mut new_start = var_span.outer.0;
+    let mut new_end = var_span.outer.1;
+
+    // Expand left to include " + "
+    let mut i = new_start as usize;
+    while i > prompt_outer.0 as usize {
+        i -= 1;
+        let c = bytes[i];
+        if c == b'+' {
+            // Include the + and any spaces before it
+            while i > prompt_outer.0 as usize && (bytes[i - 1] == b' ' || bytes[i - 1] == b'\t') {
+                i -= 1;
+            }
+            new_start = i as u32;
+            break;
+        } else if c != b' ' && c != b'\t' {
+            break;
+        }
+    }
+
+    // Expand right to include " + "
+    let mut i = new_end as usize;
+    while i < prompt_outer.1 as usize {
+        let c = bytes[i];
+        if c == b'+' {
+            // Include the + and any spaces after it
+            i += 1;
+            while i < prompt_outer.1 as usize && (bytes[i] == b' ' || bytes[i] == b'\t') {
+                i += 1;
+            }
+            new_end = i as u32;
+            break;
+        } else if c != b' ' && c != b'\t' {
+            break;
+        }
+        i += 1;
+    }
+
+    var_span.outer = (new_start, new_end);
 }

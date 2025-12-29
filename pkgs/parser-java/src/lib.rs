@@ -310,7 +310,7 @@ fn process_variable_declarator(
             scopes.store_def_annotation(ident_name, annotations.to_vec());
         }
 
-        // Check if it's a string
+        // Check if it's a string or binary expression
         if is_string_like(&value_node) {
             // Annotations from comment tracker are already validated to contain @prompt
             // Get annotations (from current statement or from definition)
@@ -331,6 +331,26 @@ fn process_variable_declarator(
                 &final_annotations,
                 prompts,
             );
+        } else if value_node.kind() == "binary_expression" {
+            // Get annotations
+            let final_annotations = if !annotations.is_empty() {
+                annotations.to_vec()
+            } else {
+                scopes.get_def_annotation(ident_name).unwrap_or_default()
+            };
+
+            // Try to process as concatenation
+            if let Some(prompt) = process_concatenation(
+                &value_node,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            }
         }
     }
 }
@@ -489,4 +509,225 @@ fn calculate_text_block_indent(source: &str, body_start: u32, body_end: u32) -> 
     } else {
         min_indent
     }
+}
+
+/// Represents a segment in a string concatenation expression
+#[derive(Debug, Clone)]
+enum ConcatSegment {
+    /// String literal segment with its span
+    String(SpanShape),
+    /// Variable identifier segment with its span
+    Variable(SpanShape),
+    /// Primitive value (number, boolean) that should be stringified
+    Primitive(SpanShape),
+    /// Other expression types (objects, arrays, etc.) that we don't handle
+    Other,
+}
+
+/// Process a binary expression as concatenation
+fn process_concatenation(
+    binary_node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // Check if this is an addition binary expression (+ operator)
+    let operator_node = binary_node.child_by_field_name("operator")?;
+    let operator_text = operator_node.utf8_text(source.as_bytes()).ok()?;
+    if operator_text != "+" {
+        return None;
+    }
+
+    // Extract segments from the binary expression tree
+    let segments = extract_concat_segments(binary_node, source);
+
+    // Check if we have any non-string/non-identifier segments (objects, arrays, etc.)
+    if segments.iter().any(|s| matches!(s, ConcatSegment::Other)) {
+        return None;
+    }
+
+    if segments.is_empty() {
+        return None;
+    }
+
+    // Build synthetic span for the concatenated result
+    let outer = (binary_node.start_byte() as u32, binary_node.end_byte() as u32);
+    let inner_start = match segments.first() {
+        Some(ConcatSegment::String(span)) => span.inner.0,
+        Some(ConcatSegment::Variable(span) | ConcatSegment::Primitive(span)) => span.outer.0,
+        _ => outer.0,
+    };
+    let inner_end = match segments.last() {
+        Some(ConcatSegment::String(span)) => span.inner.1,
+        Some(ConcatSegment::Variable(span) | ConcatSegment::Primitive(span)) => span.outer.1,
+        _ => outer.1,
+    };
+    let inner = (inner_start, inner_end);
+    let span = SpanShape { outer, inner };
+
+    // Extract vars (variables only, not primitives)
+    let vars: Vec<PromptVar> = segments
+        .iter()
+        .filter_map(|seg| match seg {
+            ConcatSegment::Variable(var_span) => Some(PromptVar {
+                span: var_span.clone(),
+            }),
+            _ => None,
+        })
+        .collect();
+
+    // Build content tokens from segments
+    let content = build_concat_content_tokens(&segments);
+
+    // Calculate enclosure
+    let enclosure_start = comments.get_any_leading_start(stmt_start).unwrap_or(stmt_start);
+    let enclosure = (enclosure_start, stmt_end);
+
+    Some(Prompt {
+        file: filename.to_string(),
+        span,
+        enclosure,
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint: SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        },
+    })
+}
+
+/// Extract concatenation segments from a binary expression
+fn extract_concat_segments(node: &Node, source: &str) -> Vec<ConcatSegment> {
+    if node.kind() == "binary_expression" {
+        // Check if it's a + operator
+        if let Some(operator_node) = node.child_by_field_name("operator") {
+            if let Ok(operator_text) = operator_node.utf8_text(source.as_bytes()) {
+                if operator_text == "+" {
+                    let mut segments = Vec::new();
+                    if let Some(left) = node.child_by_field_name("left") {
+                        segments.extend(extract_concat_segments(&left, source));
+                    }
+                    if let Some(right) = node.child_by_field_name("right") {
+                        segments.extend(extract_concat_segments(&right, source));
+                    }
+                    return segments;
+                }
+            }
+        }
+        return vec![];
+    }
+
+    match node.kind() {
+        "string_literal" | "text_block" => {
+            let span = span_shape_string_like(node, source);
+            vec![ConcatSegment::String(span)]
+        }
+        "identifier" | "method_invocation" | "field_access" | "array_access" => {
+            let outer = (node.start_byte() as u32, node.end_byte() as u32);
+            let inner = outer;
+            let outer_expanded = expand_to_operators(outer, source);
+            vec![ConcatSegment::Variable(SpanShape {
+                outer: outer_expanded,
+                inner,
+            })]
+        }
+        "decimal_integer_literal" | "hex_integer_literal" | "octal_integer_literal"
+        | "binary_integer_literal" | "decimal_floating_point_literal"
+        | "hex_floating_point_literal" | "true" | "false" => {
+            let outer = (node.start_byte() as u32, node.end_byte() as u32);
+            let inner = outer;
+            let outer_expanded = expand_to_operators(outer, source);
+            vec![ConcatSegment::Primitive(SpanShape {
+                outer: outer_expanded,
+                inner,
+            })]
+        }
+        // Objects, arrays, new expressions, etc. - mark as "other" to skip prompt detection
+        "object_creation_expression" | "array_creation_expression" | "array_initializer" => {
+            vec![ConcatSegment::Other]
+        }
+        _ => vec![],
+    }
+}
+
+/// Expand span to include surrounding operators and spaces
+fn expand_to_operators(span: (u32, u32), source: &str) -> (u32, u32) {
+    let (start, end) = span;
+    let mut new_start = start;
+    let mut new_end = end;
+
+    let code_bytes = source.as_bytes();
+
+    // Expand left to include " + "
+    let mut pos = start.saturating_sub(1) as usize;
+    while pos > 0 {
+        match code_bytes.get(pos) {
+            Some(b' ') | Some(b'\t') => pos -= 1,
+            Some(b'+') => {
+                new_start = pos as u32;
+                if pos > 0 && matches!(code_bytes.get(pos - 1), Some(b' ') | Some(b'\t')) {
+                    new_start = (pos - 1) as u32;
+                }
+                break;
+            }
+            _ => break,
+        }
+    }
+
+    // Expand right to include " + "
+    let mut pos = end as usize;
+    while pos < code_bytes.len() {
+        match code_bytes.get(pos) {
+            Some(b' ') | Some(b'\t') => pos += 1,
+            Some(b'+') => {
+                new_end = (pos + 1) as u32;
+                if pos + 1 < code_bytes.len()
+                    && matches!(code_bytes.get(pos + 1), Some(b' ') | Some(b'\t'))
+                {
+                    new_end = (pos + 2) as u32;
+                }
+                break;
+            }
+            _ => break,
+        }
+    }
+
+    (new_start, new_end)
+}
+
+/// Build content tokens from concatenation segments
+fn build_concat_content_tokens(segments: &[ConcatSegment]) -> Vec<PromptContentToken> {
+    segments
+        .iter()
+        .map(|seg| match seg {
+            ConcatSegment::String(span) => {
+                PromptContentToken::PromptContentTokenStr(PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: span.inner,
+                })
+            }
+            ConcatSegment::Variable(span) => {
+                PromptContentToken::PromptContentTokenVar(PromptContentTokenVar {
+                    r#type: PromptContentTokenVarTypeVar,
+                    span: span.inner,
+                })
+            }
+            ConcatSegment::Primitive(span) => {
+                PromptContentToken::PromptContentTokenStr(PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: span.inner,
+                })
+            }
+            ConcatSegment::Other => {
+                PromptContentToken::PromptContentTokenStr(PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: (0, 0),
+                })
+            }
+        })
+        .collect()
 }

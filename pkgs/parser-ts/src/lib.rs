@@ -11,6 +11,19 @@ use volumen_types::*;
 
 pub struct ParserTs {}
 
+/// Represents a segment in a string concatenation expression
+#[derive(Debug, Clone)]
+enum ConcatSegment {
+    /// String literal segment with its span
+    String(SpanShape),
+    /// Variable identifier segment with its span
+    Variable(SpanShape),
+    /// Primitive value (number, boolean) that should be stringified
+    Primitive(SpanShape),
+    /// Other expression types (objects, arrays, etc.) that we don't handle
+    Other,
+}
+
 impl VolumenParser for ParserTs {
     fn parse(source: &str, filename: &str) -> ParseResult {
         let allocator = Allocator::default();
@@ -304,6 +317,10 @@ impl<'a> PromptVisitor<'a> {
                         // The visitor will automatically handle it via enter_node
                     }
 
+                    ast::Expression::BinaryExpression(binary) => {
+                        self.process_binary_expression(&ident.name, binary);
+                    }
+
                     _ => {}
                 }
             }
@@ -350,6 +367,10 @@ impl<'a> PromptVisitor<'a> {
 
                     // Recursively process the nested assignment
                     self.process_assignment_expression(nested_assign.as_ref());
+                }
+
+                ast::Expression::BinaryExpression(binary) => {
+                    self.process_binary_expression(&ident.name, binary);
                 }
 
                 _ => {}
@@ -436,6 +457,269 @@ impl<'a> PromptVisitor<'a> {
             };
             self.prompts.push(prompt);
         }
+    }
+
+    fn process_binary_expression(&mut self, ident_name: &str, binary: &ast::BinaryExpression<'a>) {
+        // Check if this is a concatenation (+ operator)
+        if !matches!(binary.operator, ast::BinaryOperator::Addition) {
+            return;
+        }
+
+        let (has_prompt, annotations, enclosure) =
+            self.resolve_prompt_meta(ident_name, &binary.span);
+        if !has_prompt {
+            return;
+        }
+
+        // Extract segments from the binary expression tree
+        let segments = self.extract_concat_segments_from_binary(binary);
+        
+        // Check if we have any non-string/non-identifier segments (objects, arrays, etc.)
+        // In that case, don't treat this as a prompt
+        if segments.iter().any(|s| matches!(s, ConcatSegment::Other)) {
+            return;
+        }
+
+        if segments.is_empty() {
+            return;
+        }
+
+        // Build synthetic span for the concatenated result
+        // outer: entire expression "Hello, " + name + "!"
+        // inner: without outer quotes Hello, " + name + "!
+        let outer = (binary.span.start, binary.span.end);
+        let inner_start = if let Some(first_seg) = segments.first() {
+            match first_seg {
+                ConcatSegment::String(span) => span.inner.0,
+                ConcatSegment::Variable(span) | ConcatSegment::Primitive(span) => span.outer.0,
+                ConcatSegment::Other => binary.span.start,
+            }
+        } else {
+            binary.span.start
+        };
+        let inner_end = if let Some(last_seg) = segments.last() {
+            match last_seg {
+                ConcatSegment::String(span) => span.inner.1,
+                ConcatSegment::Variable(span) | ConcatSegment::Primitive(span) => span.outer.1,
+                ConcatSegment::Other => binary.span.end,
+            }
+        } else {
+            binary.span.end
+        };
+        let inner = (inner_start, inner_end);
+        let span = SpanShape { outer, inner };
+
+        // Extract vars (variables only, not primitives)
+        let vars: Vec<PromptVar> = segments
+            .iter()
+            .filter_map(|seg| match seg {
+                ConcatSegment::Variable(var_span) => Some(PromptVar { span: var_span.clone() }),
+                _ => None,
+            })
+            .collect();
+
+        // Build content tokens from segments
+        let content = self.build_concat_content_tokens(&segments);
+
+        let prompt = Prompt {
+            file: self.file.clone(),
+            span,
+            enclosure,
+            vars,
+            annotations,
+            content,
+            joint: SpanShape {
+                outer: (0, 0),
+                inner: (0, 0),
+            },
+        };
+        self.prompts.push(prompt);
+    }
+
+    fn extract_concat_segments_from_binary(&self, binary: &ast::BinaryExpression<'a>) -> Vec<ConcatSegment> {
+        let mut segments = self.extract_concat_segments(&binary.left);
+        segments.extend(self.extract_concat_segments(&binary.right));
+        segments
+    }
+
+    fn extract_concat_segments(&self, expr: &ast::Expression<'a>) -> Vec<ConcatSegment> {
+        match expr {
+            ast::Expression::BinaryExpression(binary) 
+                if matches!(binary.operator, ast::BinaryOperator::Addition) => {
+                self.extract_concat_segments_from_binary(binary)
+            }
+            ast::Expression::StringLiteral(string) => {
+                let span = self.span_shape_literal(&string.span);
+                vec![ConcatSegment::String(span)]
+            }
+            ast::Expression::Identifier(ident) => {
+                // For identifiers: outer includes " + name + ", inner is just "name"
+                let outer = self.span_outer(&ident.span);
+                let inner = outer; // Identifier has no delimiters
+                
+                // Expand outer to include surrounding operators and spaces
+                let outer_expanded = self.expand_to_operators(outer);
+                
+                vec![ConcatSegment::Variable(SpanShape {
+                    outer: outer_expanded,
+                    inner,
+                })]
+            }
+            ast::Expression::CallExpression(call) => {
+                // Treat function calls as variables: format(x) is a variable
+                let outer = self.span_outer(&call.span);
+                let inner = outer;
+                let outer_expanded = self.expand_to_operators(outer);
+                
+                vec![ConcatSegment::Variable(SpanShape {
+                    outer: outer_expanded,
+                    inner,
+                })]
+            }
+            ast::Expression::StaticMemberExpression(member) => {
+                // Treat member access as variables: obj.prop
+                let outer = self.span_outer(&member.span);
+                let inner = outer;
+                let outer_expanded = self.expand_to_operators(outer);
+                
+                vec![ConcatSegment::Variable(SpanShape {
+                    outer: outer_expanded,
+                    inner,
+                })]
+            }
+            ast::Expression::ComputedMemberExpression(member) => {
+                // Treat member access as variables: obj[key]
+                let outer = self.span_outer(&member.span);
+                let inner = outer;
+                let outer_expanded = self.expand_to_operators(outer);
+                
+                vec![ConcatSegment::Variable(SpanShape {
+                    outer: outer_expanded,
+                    inner,
+                })]
+            }
+            ast::Expression::PrivateFieldExpression(field) => {
+                // Treat private field access as variables: obj.#field
+                let outer = self.span_outer(&field.span);
+                let inner = outer;
+                let outer_expanded = self.expand_to_operators(outer);
+                
+                vec![ConcatSegment::Variable(SpanShape {
+                    outer: outer_expanded,
+                    inner,
+                })]
+            }
+            ast::Expression::NumericLiteral(num) => {
+                let outer = self.span_outer(&num.span);
+                let inner = outer;
+                let outer_expanded = self.expand_to_operators(outer);
+                vec![ConcatSegment::Primitive(SpanShape {
+                    outer: outer_expanded,
+                    inner,
+                })]
+            }
+            ast::Expression::BooleanLiteral(bool) => {
+                let outer = self.span_outer(&bool.span);
+                let inner = outer;
+                let outer_expanded = self.expand_to_operators(outer);
+                vec![ConcatSegment::Primitive(SpanShape {
+                    outer: outer_expanded,
+                    inner,
+                })]
+            }
+            // Objects, arrays, function calls, etc. - mark as "other" to skip prompt detection
+            ast::Expression::ObjectExpression(_)
+            | ast::Expression::ArrayExpression(_)
+            | ast::Expression::CallExpression(_)
+            | ast::Expression::NewExpression(_) => {
+                vec![ConcatSegment::Other]
+            }
+            _ => vec![],
+        }
+    }
+
+    fn expand_to_operators(&self, span: Span) -> Span {
+        let (start, end) = span;
+        let mut new_start = start;
+        let mut new_end = end;
+
+        // Expand left to include " + "
+        let code_bytes = self.code.as_bytes();
+        let mut pos = start.saturating_sub(1) as usize;
+        while pos > 0 {
+            let ch = code_bytes.get(pos);
+            match ch {
+                Some(b' ') | Some(b'\t') => {
+                    pos -= 1;
+                }
+                Some(b'+') => {
+                    new_start = pos as u32;
+                    // Also consume space before +
+                    if pos > 0 && matches!(code_bytes.get(pos - 1), Some(b' ') | Some(b'\t')) {
+                        new_start = (pos - 1) as u32;
+                    }
+                    break;
+                }
+                _ => break,
+            }
+        }
+
+        // Expand right to include " + "
+        let mut pos = end as usize;
+        while pos < code_bytes.len() {
+            let ch = code_bytes.get(pos);
+            match ch {
+                Some(b' ') | Some(b'\t') => {
+                    pos += 1;
+                }
+                Some(b'+') => {
+                    new_end = (pos + 1) as u32;
+                    // Also consume space after +
+                    if pos + 1 < code_bytes.len()
+                        && matches!(code_bytes.get(pos + 1), Some(b' ') | Some(b'\t'))
+                    {
+                        new_end = (pos + 2) as u32;
+                    }
+                    break;
+                }
+                _ => break,
+            }
+        }
+
+        (new_start, new_end)
+    }
+
+    fn build_concat_content_tokens(&self, segments: &[ConcatSegment]) -> Vec<PromptContentToken> {
+        segments
+            .iter()
+            .map(|seg| match seg {
+                ConcatSegment::String(span) => {
+                    PromptContentToken::PromptContentTokenStr(PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: span.inner,
+                    })
+                }
+                ConcatSegment::Variable(span) => {
+                    PromptContentToken::PromptContentTokenVar(PromptContentTokenVar {
+                        r#type: PromptContentTokenVarTypeVar,
+                        span: span.inner,
+                    })
+                }
+                ConcatSegment::Primitive(span) => {
+                    PromptContentToken::PromptContentTokenStr(PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: span.inner,
+                    })
+                }
+                ConcatSegment::Other => {
+                    // This shouldn't happen as we filter these out earlier
+                    PromptContentToken::PromptContentTokenStr(PromptContentTokenStr {
+                        r#type: PromptContentTokenStrTypeStr,
+                        span: (0, 0),
+                    })
+                }
+            })
+            .collect()
     }
 
     fn is_prompt(&self, ident_name: &str, has_stmt_prompt: bool) -> bool {

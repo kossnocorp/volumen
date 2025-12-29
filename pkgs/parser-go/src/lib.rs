@@ -209,8 +209,16 @@ fn process_short_var_declaration(
     let mut identifiers = Vec::new();
     extract_identifiers(&left, source, &mut identifiers);
 
+    // Unwrap expression_list if present (Go wraps right side in expression_list)
+    let actual_right = if right.kind() == "expression_list" {
+        // Get first child of expression_list
+        right.child(0).unwrap_or(right)
+    } else {
+        right
+    };
+
     // Process the right side - if it's a single string, match with first identifier
-    if is_string_like(&right) && !identifiers.is_empty() {
+    if is_string_like(&actual_right) && !identifiers.is_empty() {
         let ident_name = &identifiers[0];
         let is_prompt = is_prompt_variable(ident_name, has_prompt_annotation, scopes);
 
@@ -230,7 +238,7 @@ fn process_short_var_declaration(
             };
 
             create_prompt_from_string(
-                &right,
+                &actual_right,
                 source,
                 filename,
                 stmt_start,
@@ -239,6 +247,36 @@ fn process_short_var_declaration(
                 &final_annotations,
                 prompts,
             );
+        }
+    } else if actual_right.kind() == "binary_expression" && !identifiers.is_empty() {
+        let ident_name = &identifiers[0];
+        let is_prompt = is_prompt_variable(ident_name, has_prompt_annotation, scopes);
+
+        if is_prompt {
+            scopes.mark_prompt_ident(ident_name);
+
+            if has_prompt_annotation {
+                scopes.store_def_annotation(ident_name, all_annotations.clone());
+            }
+
+            let final_annotations = if !all_annotations.is_empty() {
+                all_annotations.clone()
+            } else {
+                scopes.get_def_annotation(ident_name).unwrap_or_default()
+            };
+
+            // Try to process as concatenation
+            if let Some(prompt) = process_concatenation(
+                &actual_right,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            }
         }
     }
 }
@@ -320,7 +358,7 @@ fn process_var_spec(
     // Determine if this is a prompt
     let is_prompt = is_prompt_variable(ident_name, has_prompt_annotation, scopes);
 
-    if is_prompt && is_string_like(&value_node) {
+    if is_prompt {
         scopes.mark_prompt_ident(ident_name);
 
         if has_prompt_annotation {
@@ -335,16 +373,31 @@ fn process_var_spec(
             scopes.get_def_annotation(ident_name).unwrap_or_default()
         };
 
-        create_prompt_from_string(
-            &value_node,
-            source,
-            filename,
-            stmt_start,
-            stmt_end,
-            comments,
-            &final_annotations,
-            prompts,
-        );
+        if is_string_like(&value_node) {
+            create_prompt_from_string(
+                &value_node,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+                prompts,
+            );
+        } else if value_node.kind() == "binary_expression" {
+            // Try to process as concatenation
+            if let Some(prompt) = process_concatenation(
+                &value_node,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            }
+        }
     }
 }
 
@@ -432,4 +485,179 @@ fn create_prompt_from_string(
             inner: (0, 0),
         },
     });
+}
+
+/// Represents a segment in a string concatenation expression
+#[derive(Debug, Clone)]
+enum ConcatSegment {
+    String(SpanShape),
+    Variable(SpanShape),
+    Primitive(SpanShape),
+    Other,
+}
+
+fn process_concatenation(
+    binary_node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    let operator_node = binary_node.child_by_field_name("operator")?;
+    let operator_text = operator_node.utf8_text(source.as_bytes()).ok()?;
+    if operator_text != "+" {
+        return None;
+    }
+
+    let segments = extract_concat_segments(binary_node, source);
+    if segments.iter().any(|s| matches!(s, ConcatSegment::Other)) {
+        return None;
+    }
+    if segments.is_empty() {
+        return None;
+    }
+
+    let outer = (binary_node.start_byte() as u32, binary_node.end_byte() as u32);
+    let inner_start = match segments.first() {
+        Some(ConcatSegment::String(span)) => span.inner.0,
+        Some(ConcatSegment::Variable(span) | ConcatSegment::Primitive(span)) => span.outer.0,
+        _ => outer.0,
+    };
+    let inner_end = match segments.last() {
+        Some(ConcatSegment::String(span)) => span.inner.1,
+        Some(ConcatSegment::Variable(span) | ConcatSegment::Primitive(span)) => span.outer.1,
+        _ => outer.1,
+    };
+    let span = SpanShape { outer, inner: (inner_start, inner_end) };
+
+    let vars: Vec<PromptVar> = segments
+        .iter()
+        .filter_map(|seg| match seg {
+            ConcatSegment::Variable(var_span) => Some(PromptVar { span: var_span.clone() }),
+            _ => None,
+        })
+        .collect();
+
+    let content = segments
+        .iter()
+        .map(|seg| match seg {
+            ConcatSegment::String(span) => PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: span.inner,
+                }
+            ),
+            ConcatSegment::Variable(span) => PromptContentToken::PromptContentTokenVar(
+                PromptContentTokenVar {
+                    r#type: PromptContentTokenVarTypeVar,
+                    span: span.inner,
+                }
+            ),
+            ConcatSegment::Primitive(span) => PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: span.inner,
+                }
+            ),
+            ConcatSegment::Other => PromptContentToken::PromptContentTokenStr(
+                PromptContentTokenStr {
+                    r#type: PromptContentTokenStrTypeStr,
+                    span: (0, 0),
+                }
+            ),
+        })
+        .collect();
+
+    let enclosure_start = comments.get_any_leading_start(stmt_start).unwrap_or(stmt_start);
+    Some(Prompt {
+        file: filename.to_string(),
+        span,
+        enclosure: (enclosure_start, stmt_end),
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint: SpanShape { outer: (0, 0), inner: (0, 0) },
+    })
+}
+
+fn extract_concat_segments(node: &Node, source: &str) -> Vec<ConcatSegment> {
+    if node.kind() == "binary_expression" {
+        if let Some(operator_node) = node.child_by_field_name("operator") {
+            if let Ok(operator_text) = operator_node.utf8_text(source.as_bytes()) {
+                if operator_text == "+" {
+                    let mut segments = Vec::new();
+                    if let Some(left) = node.child_by_field_name("left") {
+                        segments.extend(extract_concat_segments(&left, source));
+                    }
+                    if let Some(right) = node.child_by_field_name("right") {
+                        segments.extend(extract_concat_segments(&right, source));
+                    }
+                    return segments;
+                }
+            }
+        }
+        return vec![];
+    }
+
+    match node.kind() {
+        "interpreted_string_literal" | "raw_string_literal" => {
+            let span = span_shape_string_like(node, source);
+            vec![ConcatSegment::String(span)]
+        }
+        "identifier" | "call_expression" | "selector_expression" => {
+            let outer = (node.start_byte() as u32, node.end_byte() as u32);
+            let outer_expanded = expand_to_operators(outer, source);
+            vec![ConcatSegment::Variable(SpanShape { outer: outer_expanded, inner: outer })]
+        }
+        "int_literal" | "float_literal" | "true" | "false" => {
+            let outer = (node.start_byte() as u32, node.end_byte() as u32);
+            let outer_expanded = expand_to_operators(outer, source);
+            vec![ConcatSegment::Primitive(SpanShape { outer: outer_expanded, inner: outer })]
+        }
+        "slice_literal" | "composite_literal" => vec![ConcatSegment::Other],
+        _ => vec![],
+    }
+}
+
+fn expand_to_operators(span: (u32, u32), source: &str) -> (u32, u32) {
+    let (start, end) = span;
+    let mut new_start = start;
+    let mut new_end = end;
+    let code_bytes = source.as_bytes();
+
+    let mut pos = start.saturating_sub(1) as usize;
+    while pos > 0 {
+        match code_bytes.get(pos) {
+            Some(b' ') | Some(b'\t') => pos -= 1,
+            Some(b'+') => {
+                new_start = pos as u32;
+                if pos > 0 && matches!(code_bytes.get(pos - 1), Some(b' ') | Some(b'\t')) {
+                    new_start = (pos - 1) as u32;
+                }
+                break;
+            }
+            _ => break,
+        }
+    }
+
+    let mut pos = end as usize;
+    while pos < code_bytes.len() {
+        match code_bytes.get(pos) {
+            Some(b' ') | Some(b'\t') => pos += 1,
+            Some(b'+') => {
+                new_end = (pos + 1) as u32;
+                if pos + 1 < code_bytes.len()
+                    && matches!(code_bytes.get(pos + 1), Some(b' ') | Some(b'\t'))
+                {
+                    new_end = (pos + 2) as u32;
+                }
+                break;
+            }
+            _ => break,
+        }
+    }
+
+    (new_start, new_end)
 }
