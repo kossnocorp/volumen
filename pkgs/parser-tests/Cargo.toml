@@ -10,10 +10,8 @@ license = "MIT"
 volumen_types = { version = "0.3.3", path = "../types-crate" }
 volumen_parser_core = { version = "0.3.3", path = "../parser-core" }
 volumen_parser_py = { version = "0.3.3", path = "../parser-py" }
-volumen_parser_py_ruff = { version = "0.3.3", path = "../parser-py-ruff" }
 volumen_parser_py_tree_sitter = { version = "0.3.3", path = "../parser-py-tree-sitter" }
 volumen_parser_ts = { version = "0.3.3", path = "../parser-ts" }
-volumen_parser_ts_tree_sitter = { version = "0.3.3", path = "../parser-ts-tree-sitter" }
 volumen_parser_rb = { version = "0.3.3", path = "../parser-rb" }
 volumen_parser_php = { version = "0.3.3", path = "../parser-php" }
 volumen_parser_java = { version = "0.3.3", path = "../parser-java" }

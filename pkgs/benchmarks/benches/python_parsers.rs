@@ -160,18 +160,10 @@ fn bench_python_parsers(c: &mut Criterion) {
     group.throughput(Throughput::Bytes(SMALL_PYTHON.len() as u64));
 
     group.bench_with_input(
-        BenchmarkId::new("RustPython", "small"),
-        &SMALL_PYTHON,
-        |b, code| {
-            b.iter(|| volumen_parser_py::ParserPy::parse(black_box(code), "test.py"));
-        },
-    );
-
-    group.bench_with_input(
         BenchmarkId::new("Ruff", "small"),
         &SMALL_PYTHON,
         |b, code| {
-            b.iter(|| volumen_parser_py_ruff::ParserPy::parse(black_box(code), "test.py"));
+            b.iter(|| volumen_parser_py::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 
@@ -187,18 +179,10 @@ fn bench_python_parsers(c: &mut Criterion) {
     group.throughput(Throughput::Bytes(MEDIUM_PYTHON.len() as u64));
 
     group.bench_with_input(
-        BenchmarkId::new("RustPython", "medium"),
-        &MEDIUM_PYTHON,
-        |b, code| {
-            b.iter(|| volumen_parser_py::ParserPy::parse(black_box(code), "test.py"));
-        },
-    );
-
-    group.bench_with_input(
         BenchmarkId::new("Ruff", "medium"),
         &MEDIUM_PYTHON,
         |b, code| {
-            b.iter(|| volumen_parser_py_ruff::ParserPy::parse(black_box(code), "test.py"));
+            b.iter(|| volumen_parser_py::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 
@@ -214,18 +198,10 @@ fn bench_python_parsers(c: &mut Criterion) {
     group.throughput(Throughput::Bytes(LARGE_PYTHON.len() as u64));
 
     group.bench_with_input(
-        BenchmarkId::new("RustPython", "large"),
-        &LARGE_PYTHON,
-        |b, code| {
-            b.iter(|| volumen_parser_py::ParserPy::parse(black_box(code), "test.py"));
-        },
-    );
-
-    group.bench_with_input(
         BenchmarkId::new("Ruff", "large"),
         &LARGE_PYTHON,
         |b, code| {
-            b.iter(|| volumen_parser_py_ruff::ParserPy::parse(black_box(code), "test.py"));
+            b.iter(|| volumen_parser_py::ParserPy::parse(black_box(code), "test.py"));
         },
     );
 

@@ -40,11 +40,6 @@
       "medium": 188,
       "large": 658
     },
-    "RustPython": {
-      "small": 23,
-      "medium": 188,
-      "large": 658
-    },
     "Tree-sitter": {
       "small": 23,
       "medium": 188,
@@ -53,11 +48,6 @@
   },
   "typescript_parsers": {
     "Oxc": {
-      "small": 27,
-      "medium": 248,
-      "large": 797
-    },
-    "Tree-sitter": {
       "small": 27,
       "medium": 248,
       "large": 797

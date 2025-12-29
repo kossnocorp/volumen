@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use volumen_parser_core::VolumenParser;
 
 // Small code sample - basic prompt detection
@@ -193,66 +193,17 @@ export { AIAssistant, ConversationManager, createSpecializedPrompt };
 "#;
 
 fn bench_typescript_parsers(c: &mut Criterion) {
-    let mut group = c.benchmark_group("typescript_parsers");
+    c.bench_function("typescript_parsers/Oxc/small", |b| {
+        b.iter(|| volumen_parser_ts::ParserTs::parse(black_box(SMALL_TYPESCRIPT), "test.ts"));
+    });
 
-    // Small benchmark
-    group.throughput(Throughput::Bytes(SMALL_TYPESCRIPT.len() as u64));
+    c.bench_function("typescript_parsers/Oxc/medium", |b| {
+        b.iter(|| volumen_parser_ts::ParserTs::parse(black_box(MEDIUM_TYPESCRIPT), "test.ts"));
+    });
 
-    group.bench_with_input(
-        BenchmarkId::new("Oxc", "small"),
-        &SMALL_TYPESCRIPT,
-        |b, code| {
-            b.iter(|| volumen_parser_ts::ParserTs::parse(black_box(code), "test.ts"));
-        },
-    );
-
-    group.bench_with_input(
-        BenchmarkId::new("Tree-sitter", "small"),
-        &SMALL_TYPESCRIPT,
-        |b, code| {
-            b.iter(|| volumen_parser_ts_tree_sitter::ParserTs::parse(black_box(code), "test.ts"));
-        },
-    );
-
-    // Medium benchmark
-    group.throughput(Throughput::Bytes(MEDIUM_TYPESCRIPT.len() as u64));
-
-    group.bench_with_input(
-        BenchmarkId::new("Oxc", "medium"),
-        &MEDIUM_TYPESCRIPT,
-        |b, code| {
-            b.iter(|| volumen_parser_ts::ParserTs::parse(black_box(code), "test.ts"));
-        },
-    );
-
-    group.bench_with_input(
-        BenchmarkId::new("Tree-sitter", "medium"),
-        &MEDIUM_TYPESCRIPT,
-        |b, code| {
-            b.iter(|| volumen_parser_ts_tree_sitter::ParserTs::parse(black_box(code), "test.ts"));
-        },
-    );
-
-    // Large benchmark
-    group.throughput(Throughput::Bytes(LARGE_TYPESCRIPT.len() as u64));
-
-    group.bench_with_input(
-        BenchmarkId::new("Oxc", "large"),
-        &LARGE_TYPESCRIPT,
-        |b, code| {
-            b.iter(|| volumen_parser_ts::ParserTs::parse(black_box(code), "test.ts"));
-        },
-    );
-
-    group.bench_with_input(
-        BenchmarkId::new("Tree-sitter", "large"),
-        &LARGE_TYPESCRIPT,
-        |b, code| {
-            b.iter(|| volumen_parser_ts_tree_sitter::ParserTs::parse(black_box(code), "test.ts"));
-        },
-    );
-
-    group.finish();
+    c.bench_function("typescript_parsers/Oxc/large", |b| {
+        b.iter(|| volumen_parser_ts::ParserTs::parse(black_box(LARGE_TYPESCRIPT), "test.ts"));
+    });
 }
 
 criterion_group!(benches, bench_typescript_parsers);

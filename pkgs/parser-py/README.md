@@ -1,3 +1,3 @@
-# volumen_parser_py
+# volumen_parser_py_ruff
 
-Volumen Python parser. See [the repo](https://github.com/kossnocorp/volumen) for more information.
+Volumen Python (Ruff-based implementation) parser. See [the repo](https://github.com/kossnocorp/volumen) for more information.

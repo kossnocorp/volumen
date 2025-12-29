@@ -4,12 +4,10 @@ use volumen_parser_cs::ParserCs;
 use volumen_parser_go::ParserGo;
 use volumen_parser_java::ParserJava;
 use volumen_parser_php::ParserPhp;
-use volumen_parser_py::ParserPy as ParserPyRustPython;
-use volumen_parser_py_ruff::ParserPy as ParserPyRuff;
+use volumen_parser_py::ParserPy as ParserPyRuff;
 use volumen_parser_py_tree_sitter::ParserPy as ParserPyTreeSitter;
 use volumen_parser_rb::ParserRb;
 use volumen_parser_ts::ParserTs as ParserTsOxc;
-use volumen_parser_ts_tree_sitter::ParserTs as ParserTsTreeSitter;
 use volumen_types::{ParseResult, Prompt, PromptContentToken};
 
 type Parsers = [(&'static str, Parse)];
@@ -18,11 +16,9 @@ type Parse = fn(&str, &str) -> ParseResult;
 
 static TS_PARSERS: &Parsers = &[
     ("ParserTsOxc", ParserTsOxc::parse),
-    ("ParserTsTreeSitter", ParserTsTreeSitter::parse),
 ];
 
 static PY_PARSERS: &Parsers = &[
-    ("ParserPyRustPython", ParserPyRustPython::parse),
     ("ParserPyRuff", ParserPyRuff::parse),
     ("ParserPyTreeSitter", ParserPyTreeSitter::parse),
 ];
