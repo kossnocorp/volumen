@@ -293,8 +293,17 @@ impl<'a> PyPromptVisitor<'a> {
                     }
                 }
                 ast::Expr::Call(call_expr) => {
-                    // Handle format method: "Hello {}".format(name)
-                    if let Some(prompt) = self.process_format_call(ident, call_expr) {
+                    // First check if it's a join call: "\n".join([...])
+                    if let Some(prompt) = self.process_join_call(ident, call_expr) {
+                        self.prompts.push(prompt);
+                    // Otherwise check if it's a format method: "Hello {}".format(name)
+                    } else if let Some(prompt) = self.process_format_call(ident, call_expr) {
+                        self.prompts.push(prompt);
+                    }
+                }
+                ast::Expr::List(list_expr) => {
+                    // Handle array: ["Hello ", user, "!"]
+                    if let Some(prompt) = self.process_array(ident, list_expr) {
                         self.prompts.push(prompt);
                     }
                 }
@@ -934,5 +943,211 @@ impl<'a> PyPromptVisitor<'a> {
         }
         
         placeholders
+    }
+
+    /// Process an array/list assignment: ["Hello ", user, "!"]
+    fn process_array(&mut self, ident: &str, list: &ast::ExprList) -> Option<Prompt> {
+        // Check if this should be treated as a prompt
+        let in_prompt_ident = self
+            .prompt_idents_stack
+            .iter()
+            .rev()
+            .any(|s| s.contains(ident));
+        let annotations: Vec<PromptAnnotation> = self
+            .stmt_annotations_stack
+            .last()
+            .cloned()
+            .unwrap_or_default();
+        
+        if !in_prompt_ident && annotations.is_empty() && !ident.to_lowercase().contains("prompt") {
+            return None;
+        }
+
+        // Extract array elements
+        let mut vars = Vec::new();
+        let mut content = Vec::new();
+        let mut var_idx = 0u32;
+
+        for element in &list.elts {
+            match element {
+                ast::Expr::StringLiteral(string) => {
+                    // String literal
+                    let span = self.span_shape_string_like(string.range);
+                    content.push(PromptContentToken::PromptContentTokenStr(
+                        PromptContentTokenStr {
+                            r#type: PromptContentTokenStrTypeStr,
+                            span: span.inner,
+                        },
+                    ));
+                }
+                _ => {
+                    // Variables and other expressions
+                    let elem_range = element.range();
+                    vars.push(PromptVar {
+                        span: SpanShape {
+                            outer: self.span(elem_range),
+                            inner: self.span(elem_range),
+                        },
+                    });
+                    content.push(PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: self.span(elem_range),
+                            index: var_idx,
+                        },
+                    ));
+                    var_idx += 1;
+                }
+            }
+        }
+
+        // Build span: outer is entire array including brackets, inner is content without brackets
+        let list_range = list.range();
+        let outer = self.span(list_range);
+        let inner = (outer.0 + 1, outer.1.saturating_sub(1));
+        let span = SpanShape { outer, inner };
+
+        // Calculate enclosure
+        let stmt_range = self.stmt_range_stack.last().copied().unwrap_or(list_range);
+        let leading_start = self
+            .stmt_leading_start_stack
+            .last()
+            .copied()
+            .flatten()
+            .unwrap_or(self.span(stmt_range).0);
+        let enclosure = (leading_start, self.span(stmt_range).1);
+
+        Some(Prompt {
+            file: self.file.clone(),
+            span,
+            enclosure,
+            vars,
+            annotations,
+            content,
+            joint: SpanShape {
+                outer: (0, 0),
+                inner: (0, 0),
+            },
+        })
+    }
+
+    /// Process a join call: "\n".join(["Hello", user, "!"])
+    fn process_join_call(&mut self, ident: &str, call: &ast::ExprCall) -> Option<Prompt> {
+        // Check if this is a .join() method call
+        let attr = call.func.as_attribute_expr()?;
+        if attr.attr.as_str() != "join" {
+            return None;
+        }
+
+        // The value should be a string literal (separator)
+        let sep_str = attr.value.as_string_literal_expr()?;
+        
+        // First argument should be a list
+        let list_arg = call.arguments.args.first()?;
+        let list = list_arg.as_list_expr()?;
+
+        // Check if this should be treated as a prompt
+        let in_prompt_ident = self
+            .prompt_idents_stack
+            .iter()
+            .rev()
+            .any(|s| s.contains(ident));
+        let annotations: Vec<PromptAnnotation> = self
+            .stmt_annotations_stack
+            .last()
+            .cloned()
+            .unwrap_or_default();
+        
+        if !in_prompt_ident && annotations.is_empty() && !ident.to_lowercase().contains("prompt") {
+            return None;
+        }
+
+        // Extract separator span
+        let joint = self.span_shape_string_like(sep_str.range);
+
+        // Extract array elements
+        let mut vars = Vec::new();
+        let mut content = Vec::new();
+        let mut var_idx = 0u32;
+        let mut first = true;
+
+        for element in &list.elts {
+            match element {
+                ast::Expr::StringLiteral(string) => {
+                    // Insert joint token between elements (not before first)
+                    if !first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                        content.push(PromptContentToken::PromptContentTokenJoint(
+                            PromptContentTokenJoint {
+                                r#type: PromptContentTokenJointTypeJoint,
+                            },
+                        ));
+                    }
+                    first = false;
+                    // String literal
+                    let span = self.span_shape_string_like(string.range);
+                    content.push(PromptContentToken::PromptContentTokenStr(
+                        PromptContentTokenStr {
+                            r#type: PromptContentTokenStrTypeStr,
+                            span: span.inner,
+                        },
+                    ));
+                }
+                _ => {
+                    // Insert joint token between elements (not before first)
+                    if !first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                        content.push(PromptContentToken::PromptContentTokenJoint(
+                            PromptContentTokenJoint {
+                                r#type: PromptContentTokenJointTypeJoint,
+                            },
+                        ));
+                    }
+                    first = false;
+                    // Variables and other expressions
+                    let elem_range = element.range();
+                    vars.push(PromptVar {
+                        span: SpanShape {
+                            outer: self.span(elem_range),
+                            inner: self.span(elem_range),
+                        },
+                    });
+                    content.push(PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: self.span(elem_range),
+                            index: var_idx,
+                        },
+                    ));
+                    var_idx += 1;
+                }
+            }
+        }
+
+        // Build span: outer is entire call expression, inner is array content without brackets
+        let call_range = call.range();
+        let list_range = list.range();
+        let outer = self.span(call_range);
+        let list_outer = self.span(list_range);
+        let inner = (list_outer.0 + 1, list_outer.1.saturating_sub(1));
+        let span = SpanShape { outer, inner };
+
+        // Calculate enclosure
+        let stmt_range = self.stmt_range_stack.last().copied().unwrap_or(call_range);
+        let leading_start = self
+            .stmt_leading_start_stack
+            .last()
+            .copied()
+            .flatten()
+            .unwrap_or(self.span(stmt_range).0);
+        let enclosure = (leading_start, self.span(stmt_range).1);
+
+        Some(Prompt {
+            file: self.file.clone(),
+            span,
+            enclosure,
+            vars,
+            annotations,
+            content,
+            joint,
+        })
     }
 }

@@ -13,7 +13,7 @@
 | `07_syntax_{{lang}}.rs`           | +++  | +++  | +++  | +++   | ++!  | +++  | +++    |
 | `08_concat_{{lang}}.rs`           | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 | `09_fn_{{lang}}.rs`               | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
-| `10_array_{{lang}}.rs`            | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
+| `10_array_{{lang}}.rs`            | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 
 **Legend**:
 
@@ -179,8 +179,5 @@ All implementations correctly parse format strings, extract placeholders, map ar
 
 | Test Lang:     | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
 | -------------- | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `join_method`  | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
-| `array_simple` | ++!  | ++!  | ++!  | ++!   | ++!  | ++!  | ++!    |
-
-- All languages: snapshots are empty (`@""`); prompts/interpolations/annotations are not captured for join or array cases.
-- `ts`/`py` baselines also miss prompt data, so other languages inherit the gap.
+| `join_method`  | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `array_simple` | +++  | +++  | +++  | +++   | +++  | +++  | +++    |

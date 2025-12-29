@@ -329,8 +329,39 @@ fn process_identifier_assignment(
                 scopes.get_def_annotation(ident_name).unwrap_or_default()
             };
 
-            // Try to process as sprintf/printf
-            if let Some(prompt) = process_sprintf_call(
+            // Try to process as implode first
+            if let Some(prompt) = process_implode_call(
+                right,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            // Then try sprintf/printf
+            } else if let Some(prompt) = process_sprintf_call(
+                right,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            }
+        } else if right.kind() == "array_creation_expression" {
+            // Get annotations
+            let final_annotations = if !annotations.is_empty() {
+                annotations.to_vec()
+            } else {
+                scopes.get_def_annotation(ident_name).unwrap_or_default()
+            };
+
+            // Try to process as array
+            if let Some(prompt) = process_array(
                 right,
                 source,
                 filename,
@@ -972,4 +1003,301 @@ fn parse_printf_placeholders(format_str: &str) -> Vec<(usize, usize)> {
     }
     
     placeholders
+}
+
+/// Process an array: ["Hello ", $user, "!"]
+#[allow(clippy::too_many_arguments)]
+fn process_array(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // For PHP, the array_creation_expression might have the structure:
+    // array_creation_expression -> [ -> array_initializer -> elements
+    // We need to find the array_initializer or iterate deeply
+    
+    // Helper function to recursively extract strings and variables
+    fn extract_elements(
+        node: &Node,
+        source: &str,
+        vars: &mut Vec<PromptVar>,
+        content: &mut Vec<PromptContentToken>,
+        var_idx: &mut u32,
+    ) {
+        let mut cursor = node.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                match child.kind() {
+                    "string" | "encapsed_string" => {
+                        let span = span_shape_string_like(&child, source);
+                        content.push(PromptContentToken::PromptContentTokenStr(
+                            PromptContentTokenStr {
+                                r#type: PromptContentTokenStrTypeStr,
+                                span: span.inner,
+                            },
+                        ));
+                    }
+                    "variable_name" | "simple_variable" => {
+                        let outer = (child.start_byte() as u32, child.end_byte() as u32);
+                        vars.push(PromptVar {
+                            span: SpanShape {
+                                outer,
+                                inner: outer,
+                            },
+                        });
+                        content.push(PromptContentToken::PromptContentTokenVar(
+                            PromptContentTokenVar {
+                                r#type: PromptContentTokenVarTypeVar,
+                                span: outer,
+                                index: *var_idx,
+                            },
+                        ));
+                        *var_idx += 1;
+                    }
+                    "function_call_expression" | "member_call_expression" => {
+                        let outer = (child.start_byte() as u32, child.end_byte() as u32);
+                        vars.push(PromptVar {
+                            span: SpanShape {
+                                outer,
+                                inner: outer,
+                            },
+                        });
+                        content.push(PromptContentToken::PromptContentTokenVar(
+                            PromptContentTokenVar {
+                                r#type: PromptContentTokenVarTypeVar,
+                                span: outer,
+                                index: *var_idx,
+                            },
+                        ));
+                        *var_idx += 1;
+                    }
+                    "[" | "]" | "," | "array" | "(" | ")" => {
+                        // Skip delimiters
+                    }
+                    _ => {
+                        // Recurse into other nodes (like array_element_initializer)
+                        extract_elements(&child, source, vars, content, var_idx);
+                    }
+                }
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+    }
+
+    let mut vars = Vec::new();
+    let mut content = Vec::new();
+    let mut var_idx = 0u32;
+
+    extract_elements(node, source, &mut vars, &mut content, &mut var_idx);
+
+    let outer = (node.start_byte() as u32, node.end_byte() as u32);
+    let inner = (outer.0 + 1, outer.1.saturating_sub(1));
+    let span = SpanShape { outer, inner };
+
+    let enclosure_start = comments
+        .get_any_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+    let enclosure = (enclosure_start, stmt_end);
+
+    Some(Prompt {
+        file: filename.to_string(),
+        span,
+        enclosure,
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint: SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        },
+    })
+}
+
+/// Process an implode call: implode("\n", ["Hello", $user, "!"])
+#[allow(clippy::too_many_arguments)]
+fn process_implode_call(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // Get function name (try both "function" and "name" fields)
+    let name_node = node.child_by_field_name("function")
+        .or_else(|| node.child_by_field_name("name"))?;
+    let func_text = name_node.utf8_text(source.as_bytes()).ok()?;
+    if func_text != "implode" && func_text != "join" {
+        return None;
+    }
+
+    // Get arguments
+    let args = node.child_by_field_name("arguments")?;
+
+    // Extract separator (first arg) and array (second arg)
+    let mut sep_node = None;
+    let mut array_node = None;
+    let mut arg_count = 0;
+
+    let mut cursor = args.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            
+            // PHP tree-sitter wraps arguments in "argument" nodes
+            // We need to look inside them
+            if child.kind() == "argument" {
+                // Look at the first child of the argument node
+                let mut arg_cursor = child.walk();
+                if arg_cursor.goto_first_child() {
+                    let arg_value = arg_cursor.node();
+                    if arg_value.kind() == "string" || arg_value.kind() == "encapsed_string" {
+                        if arg_count == 0 {
+                            sep_node = Some(arg_value);
+                        }
+                        arg_count += 1;
+                    } else if arg_value.kind() == "array_creation_expression" {
+                        if arg_count == 1 {
+                            array_node = Some(arg_value);
+                        }
+                        arg_count += 1;
+                    }
+                }
+            } else if child.kind() == "string" || child.kind() == "encapsed_string" {
+                // Direct string (fallback)
+                if arg_count == 0 {
+                    sep_node = Some(child);
+                }
+                arg_count += 1;
+            } else if child.kind() == "array_creation_expression" {
+                // Direct array (fallback)
+                if arg_count == 1 {
+                    array_node = Some(child);
+                }
+                arg_count += 1;
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    let array = array_node?;
+    let joint = if let Some(sep) = sep_node {
+        span_shape_string_like(&sep, source)
+    } else {
+        SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        }
+    };
+
+    // Extract array elements using recursive helper
+    fn extract_elements_with_joints(
+        node: &Node,
+        source: &str,
+        vars: &mut Vec<PromptVar>,
+        content: &mut Vec<PromptContentToken>,
+        var_idx: &mut u32,
+        joint: &SpanShape,
+        first: &mut bool,
+    ) {
+        let mut cursor = node.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                match child.kind() {
+                    "string" | "encapsed_string" => {
+                        // Insert joint before this element (not before first)
+                        if !*first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                            content.push(PromptContentToken::PromptContentTokenJoint(
+                                PromptContentTokenJoint {
+                                    r#type: PromptContentTokenJointTypeJoint,
+                                },
+                            ));
+                        }
+                        *first = false;
+                        let span = span_shape_string_like(&child, source);
+                        content.push(PromptContentToken::PromptContentTokenStr(
+                            PromptContentTokenStr {
+                                r#type: PromptContentTokenStrTypeStr,
+                                span: span.inner,
+                            },
+                        ));
+                    }
+                    "variable_name" | "simple_variable" => {
+                        // Insert joint before this element (not before first)
+                        if !*first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                            content.push(PromptContentToken::PromptContentTokenJoint(
+                                PromptContentTokenJoint {
+                                    r#type: PromptContentTokenJointTypeJoint,
+                                },
+                            ));
+                        }
+                        *first = false;
+                        let outer = (child.start_byte() as u32, child.end_byte() as u32);
+                        vars.push(PromptVar {
+                            span: SpanShape {
+                                outer,
+                                inner: outer,
+                            },
+                        });
+                        content.push(PromptContentToken::PromptContentTokenVar(
+                            PromptContentTokenVar {
+                                r#type: PromptContentTokenVarTypeVar,
+                                span: outer,
+                                index: *var_idx,
+                            },
+                        ));
+                        *var_idx += 1;
+                    }
+                    "[" | "]" | "," | "array" | "(" | ")" => {
+                        // Skip delimiters
+                    }
+                    _ => {
+                        // Recurse into other nodes
+                        extract_elements_with_joints(&child, source, vars, content, var_idx, joint, first);
+                    }
+                }
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+    }
+
+    let mut vars = Vec::new();
+    let mut content = Vec::new();
+    let mut var_idx = 0u32;
+    let mut first = true;
+
+    extract_elements_with_joints(&array, source, &mut vars, &mut content, &mut var_idx, &joint, &mut first);
+
+    let outer = (node.start_byte() as u32, node.end_byte() as u32);
+    let array_span = (array.start_byte() as u32, array.end_byte() as u32);
+    let inner = (array_span.0 + 1, array_span.1.saturating_sub(1));
+    let span = SpanShape { outer, inner };
+
+    let enclosure_start = comments
+        .get_any_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+    let enclosure = (enclosure_start, stmt_end);
+
+    Some(Prompt {
+        file: filename.to_string(),
+        span,
+        enclosure,
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint,
+    })
 }

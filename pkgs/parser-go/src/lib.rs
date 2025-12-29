@@ -295,8 +295,49 @@ fn process_short_var_declaration(
                 scopes.get_def_annotation(ident_name).unwrap_or_default()
             };
 
-            // Try to process as fmt.Sprintf
-            if let Some(prompt) = process_sprintf_call(
+            // Try strings.Join first
+            if let Some(prompt) = process_strings_join(
+                &actual_right,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            // Then try fmt.Sprintf
+            } else if let Some(prompt) = process_sprintf_call(
+                &actual_right,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            }
+        }
+    } else if (actual_right.kind() == "composite_literal" || actual_right.kind() == "slice_literal") && !identifiers.is_empty() {
+        let ident_name = &identifiers[0];
+        let is_prompt = is_prompt_variable(ident_name, has_prompt_annotation, scopes);
+
+        if is_prompt {
+            scopes.mark_prompt_ident(ident_name);
+
+            if has_prompt_annotation {
+                scopes.store_def_annotation(ident_name, all_annotations.clone());
+            }
+
+            let final_annotations = if !all_annotations.is_empty() {
+                all_annotations.clone()
+            } else {
+                scopes.get_def_annotation(ident_name).unwrap_or_default()
+            };
+
+            // Try to process as array
+            if let Some(prompt) = process_array(
                 &actual_right,
                 source,
                 filename,
@@ -858,4 +899,343 @@ fn parse_printf_placeholders(format_str: &str) -> Vec<(usize, usize)> {
     }
     
     placeholders
+}
+
+/// Process array/slice: []string{"Hello ", user, "!"}
+#[allow(clippy::too_many_arguments)]
+fn process_array(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // Extract array elements using recursive helper (like strings.Join)
+    fn extract_elements(
+        node: &Node,
+        source: &str,
+        vars: &mut Vec<PromptVar>,
+        content: &mut Vec<PromptContentToken>,
+        var_idx: &mut u32,
+    ) {
+        let mut cursor = node.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                match child.kind() {
+                    "interpreted_string_literal" | "raw_string_literal" => {
+                        let span = span_shape_string_like(&child, source);
+                        content.push(PromptContentToken::PromptContentTokenStr(
+                            PromptContentTokenStr {
+                                r#type: PromptContentTokenStrTypeStr,
+                                span: span.inner,
+                            },
+                        ));
+                    }
+                    "identifier" => {
+                        let outer = (child.start_byte() as u32, child.end_byte() as u32);
+                        vars.push(PromptVar {
+                            span: SpanShape { outer, inner: outer },
+                        });
+                        content.push(PromptContentToken::PromptContentTokenVar(
+                            PromptContentTokenVar {
+                                r#type: PromptContentTokenVarTypeVar,
+                                span: outer,
+                                index: *var_idx,
+                            },
+                        ));
+                        *var_idx += 1;
+                    }
+                    "call_expression" => {
+                        let outer = (child.start_byte() as u32, child.end_byte() as u32);
+                        vars.push(PromptVar {
+                            span: SpanShape { outer, inner: outer },
+                        });
+                        content.push(PromptContentToken::PromptContentTokenVar(
+                            PromptContentTokenVar {
+                                r#type: PromptContentTokenVarTypeVar,
+                                span: outer,
+                                index: *var_idx,
+                            },
+                        ));
+                        *var_idx += 1;
+                    }
+                    "{" | "}" | "," => {
+                        // Skip delimiters
+                    }
+                    _ => {
+                        // Recurse into other nodes (like literal_value, composite_literal, etc.)
+                        extract_elements(&child, source, vars, content, var_idx);
+                    }
+                }
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+    }
+
+    let mut vars = Vec::new();
+    let mut content = Vec::new();
+    let mut var_idx = 0u32;
+
+    extract_elements(node, source, &mut vars, &mut content, &mut var_idx);
+
+    let outer = (node.start_byte() as u32, node.end_byte() as u32);
+    
+    // Find literal_value for inner span calculation
+    let mut literal_start = None;
+    let mut literal_end = None;
+    let mut cursor = node.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            if child.kind() == "literal_value" {
+                literal_start = Some(child.start_byte() as u32);
+                literal_end = Some(child.end_byte() as u32);
+                break;
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+    
+    let inner_start = literal_start.map(|s| s + 1).unwrap_or(outer.0 + 1);
+    let inner_end = literal_end.map(|e| e - 1).unwrap_or(outer.1 - 1);
+    let span = SpanShape {
+        outer,
+        inner: (inner_start, inner_end),
+    };
+
+    let enclosure_start = comments
+        .get_any_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+
+    Some(Prompt {
+        file: filename.to_string(),
+        span,
+        enclosure: (enclosure_start, stmt_end),
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint: SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        },
+    })
+}
+
+/// Process strings.Join: strings.Join([]string{"Hello", user, "!"}, "\n")
+#[allow(clippy::too_many_arguments)]
+fn process_strings_join(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // Check if it's a selector_expression (package.function)
+    let mut func_node = None;
+    let mut cursor = node.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            if child.kind() == "selector_expression" {
+                func_node = Some(child);
+                break;
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    if let Some(func) = func_node {
+        // Check package.function is strings.Join
+        let func_text = func.utf8_text(source.as_bytes()).ok()?;
+        if func_text != "strings.Join" {
+            return None;
+        }
+    } else {
+        return None;
+    }
+
+    // Find arguments
+    let mut args_node = None;
+    let mut cursor = node.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            if child.kind() == "argument_list" {
+                args_node = Some(child);
+                break;
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    let args = args_node?;
+
+    // Extract array (first arg) and separator (second arg)
+    let mut array_node = None;
+    let mut sep_node = None;
+    let mut arg_idx = 0;
+
+    let mut cursor = args.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            if child.kind() == "composite_literal" || child.kind() == "slice_literal" {
+                if arg_idx == 0 {
+                    array_node = Some(child);
+                }
+                arg_idx += 1;
+            } else if child.kind() == "interpreted_string_literal" || child.kind() == "raw_string_literal" {
+                if arg_idx == 1 {
+                    sep_node = Some(child);
+                }
+                arg_idx += 1;
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    let array = array_node?;
+    let joint = if let Some(sep) = sep_node {
+        span_shape_string_like(&sep, source)
+    } else {
+        SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        }
+    };
+
+    // Extract array elements using recursive helper (like PHP)
+    fn extract_elements_with_joints(
+        node: &Node,
+        source: &str,
+        vars: &mut Vec<PromptVar>,
+        content: &mut Vec<PromptContentToken>,
+        var_idx: &mut u32,
+        joint: &SpanShape,
+        first: &mut bool,
+    ) {
+        let mut cursor = node.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                match child.kind() {
+                    "interpreted_string_literal" | "raw_string_literal" => {
+                        // Insert joint before this element (not before first)
+                        if !*first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                            content.push(PromptContentToken::PromptContentTokenJoint(
+                                PromptContentTokenJoint {
+                                    r#type: PromptContentTokenJointTypeJoint,
+                                },
+                            ));
+                        }
+                        *first = false;
+                        let span = span_shape_string_like(&child, source);
+                        content.push(PromptContentToken::PromptContentTokenStr(
+                            PromptContentTokenStr {
+                                r#type: PromptContentTokenStrTypeStr,
+                                span: span.inner,
+                            },
+                        ));
+                    }
+                    "identifier" => {
+                        // Insert joint before this element (not before first)
+                        if !*first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                            content.push(PromptContentToken::PromptContentTokenJoint(
+                                PromptContentTokenJoint {
+                                    r#type: PromptContentTokenJointTypeJoint,
+                                },
+                            ));
+                        }
+                        *first = false;
+                        let outer = (child.start_byte() as u32, child.end_byte() as u32);
+                        vars.push(PromptVar {
+                            span: SpanShape { outer, inner: outer },
+                        });
+                        content.push(PromptContentToken::PromptContentTokenVar(
+                            PromptContentTokenVar {
+                                r#type: PromptContentTokenVarTypeVar,
+                                span: outer,
+                                index: *var_idx,
+                            },
+                        ));
+                        *var_idx += 1;
+                    }
+                    "{" | "}" | "," => {
+                        // Skip delimiters
+                    }
+                    _ => {
+                        // Recurse into other nodes (like literal_value, composite_literal, etc.)
+                        extract_elements_with_joints(&child, source, vars, content, var_idx, joint, first);
+                    }
+                }
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+    }
+
+    let mut vars = Vec::new();
+    let mut content = Vec::new();
+    let mut var_idx = 0u32;
+    let mut first = true;
+
+    extract_elements_with_joints(&array, source, &mut vars, &mut content, &mut var_idx, &joint, &mut first);
+
+    let outer = (node.start_byte() as u32, node.end_byte() as u32);
+    let array_span = (array.start_byte() as u32, array.end_byte() as u32);
+    
+    // Find literal_value for inner span calculation
+    let mut literal_start = None;
+    let mut literal_end = None;
+    let mut cursor = array.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            if child.kind() == "literal_value" {
+                literal_start = Some(child.start_byte() as u32);
+                literal_end = Some(child.end_byte() as u32);
+                break;
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+    
+    let inner_start = literal_start.map(|s| s + 1).unwrap_or(array_span.0 + 1);
+    let inner_end = literal_end.map(|e| e - 1).unwrap_or(array_span.1 - 1);
+    let span = SpanShape {
+        outer,
+        inner: (inner_start, inner_end),
+    };
+
+    let enclosure_start = comments
+        .get_any_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+
+    Some(Prompt {
+        file: filename.to_string(),
+        span,
+        enclosure: (enclosure_start, stmt_end),
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint,
+    })
 }

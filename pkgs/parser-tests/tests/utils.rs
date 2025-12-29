@@ -14,9 +14,7 @@ type Parsers = [(&'static str, Parse)];
 
 type Parse = fn(&str, &str) -> ParseResult;
 
-static TS_PARSERS: &Parsers = &[
-    ("ParserTsOxc", ParserTsOxc::parse),
-];
+static TS_PARSERS: &Parsers = &[("ParserTsOxc", ParserTsOxc::parse)];
 
 static PY_PARSERS: &Parsers = &[
     ("ParserPyRuff", ParserPyRuff::parse),
@@ -122,10 +120,10 @@ impl ParseTest {
                                     let joint_content = &lang.source[prompt.joint.inner.0 as usize..prompt.joint.inner.1 as usize];
                                     let parts: Vec<String> = prompt.content
                                         .iter()
-                                        .map(|token| {
+                                        .filter_map(|token| {
                                             match token {
                                                 PromptContentToken::PromptContentTokenStr(str_token) => {
-                                                    lang.source[str_token.span.0 as usize..str_token.span.1 as usize].to_string()
+                                                    Some(lang.source[str_token.span.0 as usize..str_token.span.1 as usize].to_string())
                                                 }
                                                 PromptContentToken::PromptContentTokenVar(var_token) => {
                                                     // Find the index of this var in prompt.vars by matching span
@@ -133,17 +131,17 @@ impl ParseTest {
                                                         .iter()
                                                         .position(|v| v.span.outer == var_token.span)
                                                         .unwrap_or(0);
-                                                    format!("{{{}}}", var_index)
+                                                    Some(format!("{{{}}}", var_index))
                                                 }
                                                 PromptContentToken::PromptContentTokenJoint(_) => {
-                                                    // Should not appear in this step (joint tokens are for array.join())
-                                                    String::new()
+                                                    // Skip joint tokens - they're handled by .join() below
+                                                    None
                                                 }
                                             }
                                         })
                                         .collect();
 
-                                    parts.join(joint_content)  // Will be "" for now
+                                    parts.join(joint_content)
                                 })
                                 .collect();
 

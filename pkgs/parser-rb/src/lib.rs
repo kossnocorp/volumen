@@ -429,6 +429,44 @@ fn process_identifier_assignment(
                     }
                 }
             }
+        } else if right.kind() == "array" {
+            let final_annotations = if !annotations.is_empty() {
+                annotations.to_vec()
+            } else {
+                scopes.get_def_annotation(ident_name).unwrap_or_default()
+            };
+            
+            // Handle array: ["Hello ", user, "!"]
+            if let Some(prompt) = process_array(
+                right,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            }
+        } else if right.kind() == "call" || right.kind() == "method_call" {
+            let final_annotations = if !annotations.is_empty() {
+                annotations.to_vec()
+            } else {
+                scopes.get_def_annotation(ident_name).unwrap_or_default()
+            };
+            
+            // Handle join call: ["Hello", user, "!"].join("\n")
+            if let Some(prompt) = process_join_call(
+                right,
+                source,
+                filename,
+                stmt_start,
+                stmt_end,
+                comments,
+                &final_annotations,
+            ) {
+                prompts.push(prompt);
+            }
         }
     }
 }
@@ -1259,4 +1297,261 @@ fn parse_printf_placeholders(format_str: &str) -> Vec<(usize, usize)> {
     }
     
     placeholders
+}
+
+/// Process an array: ["Hello ", user, "!"]
+#[allow(clippy::too_many_arguments)]
+fn process_array(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // Extract array elements
+    let mut vars = Vec::new();
+    let mut content = Vec::new();
+    let mut var_idx = 0u32;
+
+    let mut cursor = node.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+            match child.kind() {
+                "string" | "string_content" => {
+                    // String literal
+                    let span = span_shape_string_like(&child, source);
+                    content.push(PromptContentToken::PromptContentTokenStr(
+                        PromptContentTokenStr {
+                            r#type: PromptContentTokenStrTypeStr,
+                            span: span.inner,
+                        },
+                    ));
+                }
+                "identifier" => {
+                    // Variable
+                    let outer = (child.start_byte() as u32, child.end_byte() as u32);
+                    let inner = outer;
+                    vars.push(PromptVar {
+                        span: SpanShape { outer, inner },
+                    });
+                    content.push(PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: outer,
+                            index: var_idx,
+                        },
+                    ));
+                    var_idx += 1;
+                }
+                "call" | "method_call" => {
+                    // Function/method call - treat as variable
+                    let outer = (child.start_byte() as u32, child.end_byte() as u32);
+                    let inner = outer;
+                    vars.push(PromptVar {
+                        span: SpanShape { outer, inner },
+                    });
+                    content.push(PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: outer,
+                            index: var_idx,
+                        },
+                    ));
+                    var_idx += 1;
+                }
+                "[" | "]" | "," => {
+                    // Skip delimiters
+                }
+                _ => {}
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    // Build span
+    let outer = (node.start_byte() as u32, node.end_byte() as u32);
+    let inner = (outer.0 + 1, outer.1.saturating_sub(1));
+    let span = SpanShape { outer, inner };
+
+    // Calculate enclosure
+    let enclosure_start = comments
+        .get_any_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+    let enclosure = (enclosure_start, stmt_end);
+
+    Some(Prompt {
+        file: filename.to_string(),
+        span,
+        enclosure,
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint: SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        },
+    })
+}
+
+/// Process a join call: ["Hello", user, "!"].join("\n")
+#[allow(clippy::too_many_arguments)]
+fn process_join_call(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    stmt_start: u32,
+    stmt_end: u32,
+    comments: &CommentTracker,
+    annotations: &[PromptAnnotation],
+) -> Option<Prompt> {
+    // Check if method name is "join"
+    let method_node = node.child_by_field_name("method")?;
+    let method_name = method_node.utf8_text(source.as_bytes()).ok()?;
+    if method_name != "join" {
+        return None;
+    }
+
+    // Get the receiver (array)
+    let receiver = node.child_by_field_name("receiver")?;
+    if receiver.kind() != "array" {
+        return None;
+    }
+
+    // Extract separator from arguments (if any)
+    let mut joint = SpanShape {
+        outer: (0, 0),
+        inner: (0, 0),
+    };
+
+    if let Some(args_node) = node.child_by_field_name("arguments") {
+        let mut cursor = args_node.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                if child.kind() == "string" || child.kind() == "string_content" {
+                    joint = span_shape_string_like(&child, source);
+                    break;
+                }
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+    }
+
+    // Extract array elements
+    let mut vars = Vec::new();
+    let mut content = Vec::new();
+    let mut var_idx = 0u32;
+    let mut first = true;
+
+    let mut cursor = receiver.walk();
+    if cursor.goto_first_child() {
+        loop {
+            let child = cursor.node();
+
+            match child.kind() {
+                "string" | "string_content" => {
+                    // Insert joint token between elements (not before first)
+                    if !first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                        content.push(PromptContentToken::PromptContentTokenJoint(
+                            PromptContentTokenJoint {
+                                r#type: PromptContentTokenJointTypeJoint,
+                            },
+                        ));
+                    }
+                    first = false;
+                    let span = span_shape_string_like(&child, source);
+                    content.push(PromptContentToken::PromptContentTokenStr(
+                        PromptContentTokenStr {
+                            r#type: PromptContentTokenStrTypeStr,
+                            span: span.inner,
+                        },
+                    ));
+                }
+                "identifier" => {
+                    // Insert joint token between elements (not before first)
+                    if !first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                        content.push(PromptContentToken::PromptContentTokenJoint(
+                            PromptContentTokenJoint {
+                                r#type: PromptContentTokenJointTypeJoint,
+                            },
+                        ));
+                    }
+                    first = false;
+                    let outer = (child.start_byte() as u32, child.end_byte() as u32);
+                    let inner = outer;
+                    vars.push(PromptVar {
+                        span: SpanShape { outer, inner },
+                    });
+                    content.push(PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: outer,
+                            index: var_idx,
+                        },
+                    ));
+                    var_idx += 1;
+                }
+                "call" | "method_call" => {
+                    // Insert joint token between elements (not before first)
+                    if !first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                        content.push(PromptContentToken::PromptContentTokenJoint(
+                            PromptContentTokenJoint {
+                                r#type: PromptContentTokenJointTypeJoint,
+                            },
+                        ));
+                    }
+                    first = false;
+                    let outer = (child.start_byte() as u32, child.end_byte() as u32);
+                    let inner = outer;
+                    vars.push(PromptVar {
+                        span: SpanShape { outer, inner },
+                    });
+                    content.push(PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: outer,
+                            index: var_idx,
+                        },
+                    ));
+                    var_idx += 1;
+                }
+                "[" | "]" | "," => {
+                    // Skip delimiters
+                }
+                _ => {}
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    // Build span
+    let outer = (node.start_byte() as u32, node.end_byte() as u32);
+    let receiver_span = (receiver.start_byte() as u32, receiver.end_byte() as u32);
+    let inner = (receiver_span.0 + 1, receiver_span.1.saturating_sub(1));
+    let span = SpanShape { outer, inner };
+
+    // Calculate enclosure
+    let enclosure_start = comments
+        .get_any_leading_start(stmt_start)
+        .unwrap_or(stmt_start);
+    let enclosure = (enclosure_start, stmt_end);
+
+    Some(Prompt {
+        file: filename.to_string(),
+        span,
+        enclosure,
+        vars,
+        annotations: annotations.to_vec(),
+        content,
+        joint,
+    })
 }

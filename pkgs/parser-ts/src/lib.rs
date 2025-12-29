@@ -322,6 +322,14 @@ impl<'a> PromptVisitor<'a> {
                         self.process_binary_expression(&ident.name, binary);
                     }
 
+                    ast::Expression::ArrayExpression(array) => {
+                        self.process_array_expression(&ident.name, array);
+                    }
+
+                    ast::Expression::CallExpression(call) => {
+                        self.process_call_expression(&ident.name, call);
+                    }
+
                     _ => {}
                 }
             }
@@ -372,6 +380,14 @@ impl<'a> PromptVisitor<'a> {
 
                 ast::Expression::BinaryExpression(binary) => {
                     self.process_binary_expression(&ident.name, binary);
+                }
+
+                ast::Expression::ArrayExpression(array) => {
+                    self.process_array_expression(&ident.name, array);
+                }
+
+                ast::Expression::CallExpression(call) => {
+                    self.process_call_expression(&ident.name, call);
                 }
 
                 _ => {}
@@ -533,6 +549,243 @@ impl<'a> PromptVisitor<'a> {
                 outer: (0, 0),
                 inner: (0, 0),
             },
+        };
+        self.prompts.push(prompt);
+    }
+
+    fn process_array_expression(&mut self, ident_name: &str, array: &ast::ArrayExpression<'a>) {
+        let (has_prompt, annotations, enclosure) =
+            self.resolve_prompt_meta(ident_name, &array.span);
+        if !has_prompt {
+            return;
+        }
+
+        // Extract array elements
+        let mut vars = Vec::new();
+        let mut content = Vec::new();
+        let mut var_idx = 0u32;
+
+        let array_start = array.span.start;
+        let array_end = array.span.end;
+
+        for element in &array.elements {
+            match element {
+                ast::ArrayExpressionElement::SpreadElement(_) => {
+                    // Skip spread elements - can't determine content at parse time
+                    continue;
+                }
+                ast::ArrayExpressionElement::Elision(_) => {
+                    // Skip elisions (holes in sparse arrays)
+                    continue;
+                }
+                ast::ArrayExpressionElement::StringLiteral(string) => {
+                    // String literal - add as string token
+                    let span = self.span_shape_literal(&string.span);
+                    content.push(PromptContentToken::PromptContentTokenStr(
+                        PromptContentTokenStr {
+                            r#type: PromptContentTokenStrTypeStr,
+                            span: span.inner,
+                        },
+                    ));
+                }
+                ast::ArrayExpressionElement::Identifier(ident) => {
+                    // Variable - add as var token
+                    let outer = self.span_outer(&ident.span);
+                    let inner = outer;
+                    vars.push(PromptVar {
+                        span: SpanShape { outer, inner },
+                    });
+                    content.push(PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: outer,
+                            index: var_idx,
+                        },
+                    ));
+                    var_idx += 1;
+                }
+                _ => {
+                    // Other expression types (function calls, member access, etc.) - treat as variables
+                    let expr_span = element.span();
+                    let outer = self.span_outer(&expr_span);
+                    let inner = outer;
+                    vars.push(PromptVar {
+                        span: SpanShape { outer, inner },
+                    });
+                    content.push(PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: outer,
+                            index: var_idx,
+                        },
+                    ));
+                    var_idx += 1;
+                }
+            }
+        }
+
+        // Build span: outer is entire array including brackets, inner is content without brackets
+        let outer = (array_start, array_end);
+        let inner = (array_start + 1, array_end.saturating_sub(1));
+        let span = SpanShape { outer, inner };
+
+        let prompt = Prompt {
+            file: self.file.clone(),
+            span,
+            enclosure,
+            vars,
+            annotations,
+            content,
+            joint: SpanShape {
+                outer: (0, 0),
+                inner: (0, 0),
+            },
+        };
+        self.prompts.push(prompt);
+    }
+
+    fn process_call_expression(&mut self, ident_name: &str, call: &ast::CallExpression<'a>) {
+        // Check if this is an array.join() call
+        if let ast::Expression::StaticMemberExpression(member) = &call.callee {
+            if member.property.name == "join" {
+                // This is a .join() call - check if the object is an array
+                if let ast::Expression::ArrayExpression(array) = &member.object {
+                    self.process_array_join(ident_name, array, call);
+                    return;
+                }
+            }
+        }
+
+        // Not an array.join() call - ignore
+    }
+
+    fn process_array_join(
+        &mut self,
+        ident_name: &str,
+        array: &ast::ArrayExpression<'a>,
+        call: &ast::CallExpression<'a>,
+    ) {
+        let (has_prompt, annotations, enclosure) =
+            self.resolve_prompt_meta(ident_name, &call.span);
+        if !has_prompt {
+            return;
+        }
+
+        // Extract separator from first argument (default to empty string)
+        let mut joint = SpanShape {
+            outer: (0, 0),
+            inner: (0, 0),
+        };
+
+        if let Some(arg) = call.arguments.first() {
+            if let ast::Argument::StringLiteral(sep) = arg {
+                let sep_span = self.span_shape_literal(&sep.span);
+                joint = sep_span;
+            }
+        }
+
+        // Extract array elements
+        let mut vars = Vec::new();
+        let mut content = Vec::new();
+        let mut var_idx = 0u32;
+        let mut first = true;
+
+        for element in &array.elements {
+            match element {
+                ast::ArrayExpressionElement::SpreadElement(_) => {
+                    // Skip spread elements
+                    continue;
+                }
+                ast::ArrayExpressionElement::Elision(_) => {
+                    // Skip elisions
+                    continue;
+                }
+                ast::ArrayExpressionElement::StringLiteral(string) => {
+                    // Insert joint token between elements
+                    if !first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                        content.push(PromptContentToken::PromptContentTokenJoint(
+                            PromptContentTokenJoint {
+                                r#type: PromptContentTokenJointTypeJoint,
+                            },
+                        ));
+                    }
+                    first = false;
+                    // String literal - add as string token
+                    let span = self.span_shape_literal(&string.span);
+                    content.push(PromptContentToken::PromptContentTokenStr(
+                        PromptContentTokenStr {
+                            r#type: PromptContentTokenStrTypeStr,
+                            span: span.inner,
+                        },
+                    ));
+                }
+                ast::ArrayExpressionElement::Identifier(ident) => {
+                    // Insert joint token between elements
+                    if !first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                        content.push(PromptContentToken::PromptContentTokenJoint(
+                            PromptContentTokenJoint {
+                                r#type: PromptContentTokenJointTypeJoint,
+                            },
+                        ));
+                    }
+                    first = false;
+                    // Variable - add as var token
+                    let outer = self.span_outer(&ident.span);
+                    let inner = outer;
+                    vars.push(PromptVar {
+                        span: SpanShape { outer, inner },
+                    });
+                    content.push(PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: outer,
+                            index: var_idx,
+                        },
+                    ));
+                    var_idx += 1;
+                }
+                _ => {
+                    // Insert joint token between elements
+                    if !first && (joint.outer.0 != 0 || joint.outer.1 != 0) {
+                        content.push(PromptContentToken::PromptContentTokenJoint(
+                            PromptContentTokenJoint {
+                                r#type: PromptContentTokenJointTypeJoint,
+                            },
+                        ));
+                    }
+                    first = false;
+                    // Other expression types - treat as variables
+                    let expr_span = element.span();
+                    let outer = self.span_outer(&expr_span);
+                    let inner = outer;
+                    vars.push(PromptVar {
+                        span: SpanShape { outer, inner },
+                    });
+                    content.push(PromptContentToken::PromptContentTokenVar(
+                        PromptContentTokenVar {
+                            r#type: PromptContentTokenVarTypeVar,
+                            span: outer,
+                            index: var_idx,
+                        },
+                    ));
+                    var_idx += 1;
+                }
+            }
+        }
+
+        // Build span: outer is entire call expression, inner is the array content without brackets
+        let outer = (call.span.start, call.span.end);
+        let inner = (array.span.start + 1, array.span.end.saturating_sub(1));
+        let span = SpanShape { outer, inner };
+
+        let prompt = Prompt {
+            file: self.file.clone(),
+            span,
+            enclosure,
+            vars,
+            annotations,
+            content,
+            joint,
         };
         self.prompts.push(prompt);
     }
