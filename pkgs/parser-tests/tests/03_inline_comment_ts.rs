@@ -31,6 +31,7 @@ fn simple() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (41, 48),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -253,6 +254,7 @@ fn dirty() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (50, 57),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",

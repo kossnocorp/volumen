@@ -45,6 +45,7 @@ PromptContentTokenStr = {
 PromptContentTokenVar = {
   type: "var"
   span: ./span/Span
+  index: u32
 }
 
 PromptContentTokenJoint = {

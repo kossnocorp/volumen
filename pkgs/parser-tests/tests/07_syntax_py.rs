@@ -153,6 +153,7 @@ fn multiline_fstr() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (28, 34),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -161,6 +162,7 @@ fn multiline_fstr() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (64, 70),
+                          index: 1,
                         ),
                         PromptContentTokenStr(
                           type: "str",

@@ -83,6 +83,7 @@ fn parse_py_value() {
                     PromptContentToken::PromptContentTokenVar(PromptContentTokenVar {
                         r#type: PromptContentTokenVarTypeVar,
                         span: (24, 30),
+                        index: 0,
                     }),
                     PromptContentToken::PromptContentTokenStr(PromptContentTokenStr {
                         r#type: PromptContentTokenStrTypeStr,

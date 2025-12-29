@@ -45,6 +45,7 @@ export interface PromptContentTokenStr {
 export interface PromptContentTokenVar {
   type: "var";
   span: import("./span.js").Span;
+  index: number;
 }
 
 export interface PromptContentTokenJoint {

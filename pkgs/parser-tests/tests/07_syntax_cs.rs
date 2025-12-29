@@ -145,6 +145,7 @@ fn interpolated_verbatim() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (39, 45),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -153,6 +154,7 @@ fn interpolated_verbatim() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (58, 64),
+                          index: 1,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -266,6 +268,7 @@ fn multiline() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (34, 40),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -274,6 +277,7 @@ fn multiline() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (71, 77),
+                          index: 1,
                         ),
                         PromptContentTokenStr(
                           type: "str",

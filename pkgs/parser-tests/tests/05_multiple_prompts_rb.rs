@@ -34,6 +34,7 @@ fn multiple() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (22, 29),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -69,6 +70,7 @@ fn multiple() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (62, 74),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",

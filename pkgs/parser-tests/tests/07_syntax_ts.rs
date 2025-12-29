@@ -66,6 +66,7 @@ fn jsx() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (37, 45),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -174,6 +175,7 @@ fn ts() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (44, 52),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -283,6 +285,7 @@ fn tsx() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (44, 52),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -391,6 +394,7 @@ fn multiline() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (32, 39),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -399,6 +403,7 @@ fn multiline() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (69, 76),
+                          index: 1,
                         ),
                         PromptContentTokenStr(
                           type: "str",

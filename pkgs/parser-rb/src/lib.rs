@@ -568,7 +568,7 @@ fn build_content_tokens(
     let mut tokens = Vec::new();
     let mut pos = span.inner.0;
 
-    for var in vars {
+    for (var_idx, var) in vars.iter().enumerate() {
         // Add str token before variable (if any content)
         if pos < var.span.outer.0 {
             tokens.push(PromptContentToken::PromptContentTokenStr(
@@ -584,6 +584,7 @@ fn build_content_tokens(
             PromptContentTokenVar {
                 r#type: PromptContentTokenVarTypeVar,
                 span: var.span.outer,
+                index: var_idx as u32,
             },
         ));
 
@@ -638,7 +639,8 @@ fn build_heredoc_tokens(
         // Check if there are any variables in this line
         let line_vars: Vec<_> = vars
             .iter()
-            .filter(|v| {
+            .enumerate()
+            .filter(|(_, v)| {
                 v.span.outer.0 >= token_start as u32 && v.span.outer.1 <= token_end as u32
             })
             .collect();
@@ -656,7 +658,7 @@ fn build_heredoc_tokens(
         } else {
             // Has variables - create interleaved tokens
             let mut pos = token_start as u32;
-            for var in line_vars {
+            for (var_idx, var) in line_vars {
                 // Add str token before variable (if any content)
                 if pos < var.span.outer.0 {
                     tokens.push(PromptContentToken::PromptContentTokenStr(
@@ -672,6 +674,7 @@ fn build_heredoc_tokens(
                     PromptContentTokenVar {
                         r#type: PromptContentTokenVarTypeVar,
                         span: var.span.outer,
+                        index: var_idx as u32,
                     },
                 ));
                 
@@ -884,6 +887,7 @@ fn process_concatenation(
     // Build vars and content tokens
     let mut vars = Vec::new();
     let mut content = Vec::new();
+    let mut var_idx = 0u32;
 
     for segment in &segments {
         match segment {
@@ -913,10 +917,12 @@ fn process_concatenation(
                     PromptContentTokenVar {
                         r#type: PromptContentTokenVarTypeVar,
                         span: var.span.inner,
+                        index: var_idx,
                     },
                 ));
 
                 vars.push(var);
+                var_idx += 1;
             }
             ConcatSegment::Other => {}
         }

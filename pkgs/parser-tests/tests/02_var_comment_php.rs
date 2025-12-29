@@ -174,6 +174,7 @@ fn assigned() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (39, 47),
+                          index: 0,
                         ),
                       ],
                       joint: SpanShape(

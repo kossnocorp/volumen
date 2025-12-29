@@ -119,6 +119,7 @@ fn assigned() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (47, 54),
+                          index: 0,
                         ),
                       ],
                       joint: SpanShape(
@@ -222,6 +223,7 @@ fn assigned_late_comment() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (47, 54),
+                          index: 0,
                         ),
                       ],
                       joint: SpanShape(
@@ -326,6 +328,7 @@ fn reassigned() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (88, 95),
+                          index: 0,
                         ),
                       ],
                       joint: SpanShape(

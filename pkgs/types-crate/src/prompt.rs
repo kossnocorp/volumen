@@ -61,6 +61,7 @@ pub struct PromptContentTokenStrTypeStr;
 pub struct PromptContentTokenVar {
     pub r#type: PromptContentTokenVarTypeVar,
     pub span: super::span::Span,
+    pub index: u32,
 }
 
 #[literal("var")]

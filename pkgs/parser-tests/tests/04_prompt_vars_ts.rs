@@ -31,6 +31,7 @@ fn single_var() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (29, 36),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -120,6 +121,7 @@ fn multiple_vars() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (27, 34),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -128,6 +130,7 @@ fn multiple_vars() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (64, 71),
+                          index: 1,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -227,6 +230,7 @@ fn exp() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (27, 39),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -235,6 +239,7 @@ fn exp() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (69, 90),
+                          index: 1,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -334,6 +339,7 @@ fn exp_complex() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (33, 71),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",

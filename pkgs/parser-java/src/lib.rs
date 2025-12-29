@@ -701,6 +701,7 @@ fn expand_to_operators(span: (u32, u32), source: &str) -> (u32, u32) {
 
 /// Build content tokens from concatenation segments
 fn build_concat_content_tokens(segments: &[ConcatSegment]) -> Vec<PromptContentToken> {
+    let mut var_idx = 0u32;
     segments
         .iter()
         .map(|seg| match seg {
@@ -711,10 +712,13 @@ fn build_concat_content_tokens(segments: &[ConcatSegment]) -> Vec<PromptContentT
                 })
             }
             ConcatSegment::Variable(span) => {
-                PromptContentToken::PromptContentTokenVar(PromptContentTokenVar {
+                let token = PromptContentToken::PromptContentTokenVar(PromptContentTokenVar {
                     r#type: PromptContentTokenVarTypeVar,
                     span: span.inner,
-                })
+                    index: var_idx,
+                });
+                var_idx += 1;
+                token
             }
             ConcatSegment::Primitive(span) => {
                 PromptContentToken::PromptContentTokenStr(PromptContentTokenStr {

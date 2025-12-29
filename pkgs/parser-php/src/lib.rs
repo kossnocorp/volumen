@@ -506,7 +506,7 @@ fn build_content_tokens(span: &SpanShape, vars: &[PromptVar]) -> Vec<PromptConte
     let mut tokens = Vec::new();
     let mut pos = span.inner.0;
 
-    for var in vars {
+    for (var_idx, var) in vars.iter().enumerate() {
         // Add str token before variable (if any content)
         if pos < var.span.outer.0 {
             tokens.push(PromptContentToken::PromptContentTokenStr(
@@ -522,6 +522,7 @@ fn build_content_tokens(span: &SpanShape, vars: &[PromptVar]) -> Vec<PromptConte
             PromptContentTokenVar {
                 r#type: PromptContentTokenVarTypeVar,
                 span: var.span.outer,
+                index: var_idx as u32,
             },
         ));
 
@@ -646,6 +647,7 @@ fn process_concatenation(
         })
         .collect();
 
+    let mut var_idx = 0u32;
     let content = segments
         .iter()
         .map(|seg| match seg {
@@ -655,12 +657,17 @@ fn process_concatenation(
                     span: span.inner,
                 }
             ),
-            ConcatSegment::Variable(span) => PromptContentToken::PromptContentTokenVar(
-                PromptContentTokenVar {
-                    r#type: PromptContentTokenVarTypeVar,
-                    span: span.inner,
-                }
-            ),
+            ConcatSegment::Variable(span) => {
+                let token = PromptContentToken::PromptContentTokenVar(
+                    PromptContentTokenVar {
+                        r#type: PromptContentTokenVarTypeVar,
+                        span: span.inner,
+                        index: var_idx,
+                    }
+                );
+                var_idx += 1;
+                token
+            },
             ConcatSegment::Primitive(span) => PromptContentToken::PromptContentTokenStr(
                 PromptContentTokenStr {
                     r#type: PromptContentTokenStrTypeStr,

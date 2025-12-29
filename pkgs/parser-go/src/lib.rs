@@ -540,6 +540,7 @@ fn process_concatenation(
         })
         .collect();
 
+    let mut var_idx = 0u32;
     let content = segments
         .iter()
         .map(|seg| match seg {
@@ -549,12 +550,17 @@ fn process_concatenation(
                     span: span.inner,
                 }
             ),
-            ConcatSegment::Variable(span) => PromptContentToken::PromptContentTokenVar(
-                PromptContentTokenVar {
-                    r#type: PromptContentTokenVarTypeVar,
-                    span: span.inner,
-                }
-            ),
+            ConcatSegment::Variable(span) => {
+                let token = PromptContentToken::PromptContentTokenVar(
+                    PromptContentTokenVar {
+                        r#type: PromptContentTokenVarTypeVar,
+                        span: span.inner,
+                        index: var_idx,
+                    }
+                );
+                var_idx += 1;
+                token
+            },
             ConcatSegment::Primitive(span) => PromptContentToken::PromptContentTokenStr(
                 PromptContentTokenStr {
                     r#type: PromptContentTokenStrTypeStr,

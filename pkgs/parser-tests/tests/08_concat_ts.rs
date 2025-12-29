@@ -32,6 +32,7 @@ fn concat() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (40, 44),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -285,6 +286,7 @@ fn concat_with_function_calls() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (38, 50),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",

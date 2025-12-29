@@ -249,6 +249,7 @@ fn nested() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (99, 106),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",

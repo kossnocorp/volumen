@@ -504,6 +504,7 @@ fn percent_q_upper() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (37, 44),
+                          index: 0,
                         ),
                       ],
                       joint: SpanShape(
@@ -605,6 +606,7 @@ fn percent_q_pipe() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (36, 43),
+                          index: 0,
                         ),
                       ],
                       joint: SpanShape(
@@ -704,6 +706,7 @@ fn percent_q_angle() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (38, 45),
+                          index: 0,
                         ),
                       ],
                       joint: SpanShape(

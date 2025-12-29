@@ -156,7 +156,7 @@ impl<'a> PyPromptVisitor<'a> {
         let mut tokens = Vec::new();
         let mut pos = span.inner.0;
 
-        for var in vars {
+        for (var_idx, var) in vars.iter().enumerate() {
             // Add str token before variable (if any content)
             if pos < var.span.outer.0 {
                 tokens.push(PromptContentToken::PromptContentTokenStr(
@@ -172,6 +172,7 @@ impl<'a> PyPromptVisitor<'a> {
                 PromptContentTokenVar {
                     r#type: PromptContentTokenVarTypeVar,
                     span: var.span.outer,
+                    index: var_idx as u32,
                 },
             ));
 
@@ -603,6 +604,7 @@ impl<'a> PyPromptVisitor<'a> {
         // Build vars and content tokens
         let mut vars = Vec::new();
         let mut content = Vec::new();
+        let mut var_idx = 0u32;
 
         for segment in &segments {
             match segment {
@@ -632,10 +634,12 @@ impl<'a> PyPromptVisitor<'a> {
                         PromptContentTokenVar {
                             r#type: PromptContentTokenVarTypeVar,
                             span: var.span.inner,
+                            index: var_idx,
                         },
                     ));
 
                     vars.push(var);
+                    var_idx += 1;
                 }
                 ConcatSegment::Other => {}
             }

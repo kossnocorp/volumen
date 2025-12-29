@@ -159,6 +159,7 @@ fn heredoc_interpolated() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (40, 47),
+                          index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
@@ -167,6 +168,7 @@ fn heredoc_interpolated() {
                         PromptContentTokenVar(
                           type: "var",
                           span: (77, 84),
+                          index: 1,
                         ),
                         PromptContentTokenStr(
                           type: "str",
