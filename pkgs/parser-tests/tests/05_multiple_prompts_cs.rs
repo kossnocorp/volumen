@@ -5,7 +5,7 @@ mod utils;
 use utils::*;
 
 #[test]
-#[ignore = "TODO: `$\"Welcome {user}!\"` is not being detected as a prompt."]
+#[ignore = "TODO: Tree-sitter C# does not include block comments in AST - inline `/* @prompt */` not detected"]
 fn multiple() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"

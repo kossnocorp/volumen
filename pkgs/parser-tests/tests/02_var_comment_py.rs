@@ -688,7 +688,7 @@ fn mixed_reassign() {
                   prompts: [
                     Prompt(
                       file: "prompts.py",
-                      enclosure: (56, 81),
+                      enclosure: (69, 81),
                       span: SpanShape(
                         outer: (77, 81),
                         inner: (78, 80),
@@ -708,8 +708,8 @@ fn mixed_reassign() {
                         PromptAnnotation(
                           spans: [
                             SpanShape(
-                              outer: (56, 68),
-                              inner: (57, 68),
+                              outer: (0, 13),
+                              inner: (1, 13),
                             ),
                           ],
                         ),
@@ -721,16 +721,16 @@ fn mixed_reassign() {
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r##"
+                assert_json_snapshot!(prompt_source_cuts, @r#"
                 [
                   {
-                    "enclosure": "# @prompting\nhello = \"Hi\"",
+                    "enclosure": "hello = \"Hi\"",
                     "outer": "\"Hi\"",
                     "inner": "Hi",
                     "vars": []
                   }
                 ]
-                "##);
+                "#);
             }),
 
             interpolate: Box::new(|interpolations| {

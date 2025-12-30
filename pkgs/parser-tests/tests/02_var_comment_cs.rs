@@ -254,7 +254,6 @@ fn doc() {
 }
 
 #[test]
-#[ignore = "TODO: `Assigned value` must detect as a prompt as the var declaration has the `// @prompt` annotation."]
 fn assigned() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"
@@ -285,7 +284,6 @@ fn assigned() {
 }
 
 #[test]
-#[ignore = "TODO: `Assigned value` must detect as a prompt as the var declaration has the `// @prompt` annotation."]
 fn assigned_late_comment() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"
@@ -316,7 +314,6 @@ fn assigned_late_comment() {
 }
 
 #[test]
-#[ignore = "TODO: It must detect both prompts, the second one is not being detected. Also, add this test to `py`, `rb`, `php`, `go`, and `java`."]
 fn reassigned_strings() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"
@@ -359,6 +356,35 @@ fn reassigned_strings() {
                         ),
                       ],
                     ),
+                    Prompt(
+                      file: "Prompts.cs",
+                      enclosure: (40, 61),
+                      span: SpanShape(
+                        outer: (53, 61),
+                        inner: (54, 60),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (54, 60),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (0, 10),
+                              inner: (2, 10),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
                 )
                 "#);
@@ -371,6 +397,12 @@ fn reassigned_strings() {
                     "outer": "\"First\"",
                     "inner": "First",
                     "vars": []
+                  },
+                  {
+                    "enclosure": "reassigned = \"Second\"",
+                    "outer": "\"Second\"",
+                    "inner": "Second",
+                    "vars": []
                   }
                 ]
                 "#);
@@ -378,13 +410,22 @@ fn reassigned_strings() {
             interpolate: Box::new(|interp| {
                 assert_json_snapshot!(interp, @r#"
                 [
-                  "First"
+                  "First",
+                  "Second"
                 ]
                 "#);
             }),
             annotations: Box::new(|annot| {
                 assert_json_snapshot!(annot, @r#"
                 [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ],
                   [
                     [
                       {
@@ -482,18 +523,72 @@ fn mixed_nested() {
                 assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
-                  prompts: [],
+                  prompts: [
+                    Prompt(
+                      file: "Prompts.cs",
+                      enclosure: (126, 136),
+                      span: SpanShape(
+                        outer: (131, 136),
+                        inner: (132, 135),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (132, 135),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (85, 95),
+                              inner: (87, 95),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 )
                 "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"[]");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "hi = \"Hi!\"",
+                    "outer": "\"Hi!\"",
+                    "inner": "Hi!",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"[]");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Hi!"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"[]");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );
@@ -628,7 +723,6 @@ fn mixed_none() {
 }
 
 #[test]
-#[ignore = "TODO: `Hi` must be detected as a prompt since the variable declaration has the `// @prompt` annotation."]
 fn mixed_assign() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"
@@ -833,30 +927,127 @@ fn dirty() {
 }
 
 #[test]
-#[ignore = "TODO: This is not multi test, see pkgs/parser-tests/tests/02_var_comment_ts.rs. It is destructuring (same, use TS as reference). Also, chained is missing. Is it correct?"]
 fn multi() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"
             // @prompt
-            (string hello, string world) = ("Hello", "World");
+            string hello = "Hello", world = "World";
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
                 assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
-                  prompts: [],
+                  prompts: [
+                    Prompt(
+                      file: "Prompts.cs",
+                      enclosure: (0, 51),
+                      span: SpanShape(
+                        outer: (26, 33),
+                        inner: (27, 32),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (27, 32),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (0, 10),
+                              inner: (2, 10),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "Prompts.cs",
+                      enclosure: (0, 51),
+                      span: SpanShape(
+                        outer: (43, 50),
+                        inner: (44, 49),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (44, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (0, 10),
+                              inner: (2, 10),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 )
                 "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"[]");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "// @prompt\nstring hello = \"Hello\", world = \"World\";",
+                    "outer": "\"Hello\"",
+                    "inner": "Hello",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\nstring hello = \"Hello\", world = \"World\";",
+                    "outer": "\"World\"",
+                    "inner": "World",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"[]");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Hello",
+                  "World"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"[]");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ],
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );

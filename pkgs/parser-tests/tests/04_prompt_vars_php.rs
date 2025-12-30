@@ -205,7 +205,6 @@ fn multiple_vars() {
     );
 }
 
-#[ignore = "TODO: Here, the interpolation incorrectly produce `{0}->name}!` instead of `{0}`. The var outer span is also off."]
 #[test]
 fn exp() {
     ParseTest::test(
@@ -221,46 +220,50 @@ fn exp() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 97),
                       span: SpanShape(
-                        outer: Span(
-                          start: 21,
-                          end: 97,
-                        ),
-                        inner: Span(
-                          start: 22,
-                          end: 96,
-                        ),
+                        outer: (21, 97),
+                        inner: (22, 96),
                       ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 97,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (22, 29),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (29, 42),
+                          index: 0,
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (42, 72),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (72, 95),
+                          index: 1,
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (95, 96),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"Hello, {$user->name}! How is the weather today in {$user->location->city}?\"",
                       vars: [
                         PromptVar(
-                          exp: "{$user",
                           span: SpanShape(
-                            outer: Span(
-                              start: 29,
-                              end: 35,
-                            ),
-                            inner: Span(
-                              start: 30,
-                              end: 35,
-                            ),
+                            outer: (29, 42),
+                            inner: (30, 41),
                           ),
                         ),
                         PromptVar(
-                          exp: "{$user",
                           span: SpanShape(
-                            outer: Span(
-                              start: 72,
-                              end: 78,
-                            ),
-                            inner: Span(
-                              start: 73,
-                              end: 78,
-                            ),
+                            outer: (72, 95),
+                            inner: (73, 94),
                           ),
                         ),
                       ],
@@ -280,12 +283,12 @@ fn exp() {
                     "inner": "Hello, {$user->name}! How is the weather today in {$user->location->city}?",
                     "vars": [
                       {
-                        "outer": "{$user",
-                        "inner": "$user"
+                        "outer": "{$user->name}",
+                        "inner": "$user->name"
                       },
                       {
-                        "outer": "{$user",
-                        "inner": "$user"
+                        "outer": "{$user->location->city}",
+                        "inner": "$user->location->city"
                       }
                     ]
                   }
@@ -296,7 +299,7 @@ fn exp() {
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
-                  "Hello, {0}->name}! How is the weather today in {1}->location->city}?"
+                  "Hello, {0}! How is the weather today in {1}?"
                 ]
                 "#);
             }),
@@ -312,7 +315,6 @@ fn exp() {
     );
 }
 
-#[ignore = "TODO: Same problem as `exp` test above: wrong var spans resulting in incorrect interpolation."]
 #[test]
 fn exp_complex() {
     ParseTest::test(
@@ -340,12 +342,12 @@ fn exp_complex() {
                         ),
                         PromptContentTokenVar(
                           type: "var",
-                          span: (35, 42),
+                          span: (35, 73),
                           index: 0,
                         ),
                         PromptContentTokenStr(
                           type: "str",
-                          span: (42, 76),
+                          span: (73, 76),
                         ),
                       ],
                       joint: SpanShape(
@@ -355,8 +357,8 @@ fn exp_complex() {
                       vars: [
                         PromptVar(
                           span: SpanShape(
-                            outer: (35, 42),
-                            inner: (36, 42),
+                            outer: (35, 73),
+                            inner: (36, 72),
                           ),
                         ),
                       ],
@@ -376,8 +378,8 @@ fn exp_complex() {
                     "inner": "This item is {$price > 100 ? 'expensive' : 'cheap'}...",
                     "vars": [
                       {
-                        "outer": "{$price",
-                        "inner": "$price"
+                        "outer": "{$price > 100 ? 'expensive' : 'cheap'}",
+                        "inner": "$price > 100 ? 'expensive' : 'cheap'"
                       }
                     ]
                   }
@@ -388,7 +390,7 @@ fn exp_complex() {
             interpolate: Box::new(|interpolations| {
                 assert_json_snapshot!(interpolations, @r#"
                 [
-                  "This item is {0} > 100 ? 'expensive' : 'cheap'}..."
+                  "This item is {0}..."
                 ]
                 "#);
             }),

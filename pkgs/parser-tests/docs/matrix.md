@@ -4,13 +4,13 @@
 
 | Test Lang:                        | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
 | --------------------------------- | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `01_var_name_{{lang}}.rs`         | +++  | +++  | +++  | +++   | ++   | ++   | +++    |
-| `02_var_comment_{{lang}}.rs`      | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
-| `03_inline_comment_{{lang}}.rs`   | +++  | +++  | +++  | +++   | ++   | ++   | +++    |
-| `04_prompt_vars_{{lang}}.rs`      | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
-| `05_multiple_prompts_{{lang}}.rs` | +++  | +++  | +++  | ++    | ++   | ++   | +++    |
+| `01_var_name_{{lang}}.rs`         | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `02_var_comment_{{lang}}.rs`      | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `03_inline_comment_{{lang}}.rs`   | +++  | +++  | +++  | +++   | +++  | ++   | +++    |
+| `04_prompt_vars_{{lang}}.rs`      | +++  | +++  | +++  | +++   | ++   | +++  | ++     |
+| `05_multiple_prompts_{{lang}}.rs` | +++  | +++  | +++  | +++   | +++  | ++   | +++    |
 | `06_annotations_{{lang}}.rs`      | ++?  | ++?  | ++?  | ++?   | ++?  | ++?  | ++?    |
-| `07_syntax_{{lang}}.rs`           | +++  | +++  | +++  | +++   | ++!  | +++  | +++    |
+| `07_syntax_{{lang}}.rs`           | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 | `08_concat_{{lang}}.rs`           | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 | `09_fn_{{lang}}.rs`               | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 | `10_array_{{lang}}.rs`            | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
@@ -52,33 +52,33 @@ Additional legend:
 
 | Test Lang: | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
 | ---------- | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `simple`   | +++  | +++  | +++  | +++   | ++   | ++   | +++    |
-| `nested`   | +++  | +++  | +++  | +++   | ++   | ++   | +++    |
+| `simple`   | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `nested`   | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 
 ### `02_var_comment_{{lang}}.rs`
 
 | Test Lang:              | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
 | ----------------------- | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `simple`                | +++  | +++  | ++   | +++   | ++   | +++  | ++     |
-| `inline`                | +++  | -    | -    | ++    | ++   | ++   | ++     |
-| `doc`                   | +++  | -    | -    | ++    | -    | ++   | ++     |
-| `assigned`              | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
-| `assigned_late_comment` | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
-| `reassigned`            | +++  | +++  | +++  | +++   | ~    | ~    | ++     |
-| `reassigned_strings`    | -    | -    | -    | -     | +    | +    | -      |
-| `inexact`               | +++  | +++  | ++   | +++!  | ++   | ++   | ++     |
-| `mixed`                 | +++  | +++  | +++! | ++    | ++   | ++   | ++     |
-| `mixed_nested`          | +++  | +++  | ++   | ++    | ~    | ~    | ++     |
-| `mixed_nested_strings`  | -    | -    | -    | -     | +    | +    | -      |
-| `mixed_none`            | +++  | +++  | ++   | ++    | ++   | ++   | ++     |
-| `mixed_assign`          | +++  | +++  | ++   | ++    | ++   | ++   | ++     |
+| `simple`                | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `inline`                | +++  | -    | -    | +++   | +++  | +++  | +++    |
+| `doc`                   | +++  | -    | -    | +++   | -    | +++  | +++    |
+| `assigned`              | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `assigned_late_comment` | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `reassigned`            | +++  | +++  | +++  | +++   | ~    | ~    | +++    |
+| `reassigned_strings`    | -    | -    | -    | -     | +++  | +++  | -      |
+| `inexact`               | +++  | +++  | +++  | +++!  | +++  | +++  | +++    |
+| `mixed`                 | +++  | +++  | +++! | +++   | +++  | +++  | +++    |
+| `mixed_nested`          | +++  | +++  | +++  | +++   | ~    | +++  | +++    |
+| `mixed_nested_strings`  | -    | -    | -    | -     | +++  | +++  | -      |
+| `mixed_none`            | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `mixed_assign`          | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 | `mixed_reassign`        | +++! | +++! | +++  | +++   | -    | -    | -      |
 | `mixed_reassign_inline` | +++! | -    | -    | -     | -    | -    | -      |
-| `spaced`                | +++  | +++  | +++! | ++    | ++   | ++   | ++     |
-| `dirty`                 | +++  | +++  | ++   | ++    | ++   | ++   | ++     |
-| `multi`                 | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
+| `spaced`                | +++  | +++  | +++! | +++   | +++  | +++  | +++    |
+| `dirty`                 | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
+| `multi`                 | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 | `destructuring`         | +++  | +++  | +++  | +++   | -    | -    | -      |
-| `chained`               | +++  | +++  | +++! | +++!  | -    | -    | -      |
+| `chained`               | +++  | +++  | +++  | +++   | -    | -    | -      |
 
 **Known Issues**:
 
@@ -90,10 +90,10 @@ Additional legend:
 
 | Test Lang: | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
 | ---------- | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `simple`   | +++  | ~    | ~    | +++   | +++! | +++! | +++    |
-| `doc`      | +++  | ~    | ~    | +++   | -    | +++! | +++    |
+| `simple`   | +++  | ~    | ~    | +++   | +++  | ~    | +++    |
+| `xmldoc`   | -    | -    | -    | -     | -    | ~    | -      |
 | `inexact`  | +++  | ~    | ~    | +++   | +++  | +++  | +++    |
-| `dirty`    | +++  | ~    | ~    | +++   | +++! | +++! | +++    |
+| `dirty`    | +++  | ~    | ~    | +++   | +++  | ~    | +++    |
 
 ### `04_prompt_vars_{{lang}}.rs`
 
@@ -101,18 +101,16 @@ Additional legend:
 | --------------- | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
 | `single_var`    | +++  | +++  | +++  | +++   | ~    | +++  | ~      |
 | `multiple_vars` | +++  | +++  | +++  | +++   | ~    | +++  | ~      |
-| `exp`           | +++  | +++  | +++  | +++!  | ~    | +++  | ~      |
-| `exp_complex`   | +++  | +++  | +++  | +++!  | ~    | +++  | ~      |
+| `exp`           | +++  | +++  | +++  | +++   | ~    | +++  | ~      |
+| `exp_complex`   | +++  | +++  | +++  | +++   | ~    | +++  | ~      |
 
 ### `05_multiple_prompts_{{lang}}.rs`
 
 | Test Lang: | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
 | ---------- | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `multiple` | +++  | +++  | +++  | ++    | ++!  | ++   | ++!    |
+| `multiple` | +++  | +++  | +++  | +++   | +++  | ~    | +++    |
 
-- `go`: parser returns no prompts even with annotated strings.
-- `java`: prompts captured but no vars because inputs lack interpolation.
-- `php`/`cs`: snapshots are empty or pending.
+- `cs`: Tree-sitter C# does not include block comments (`/* */`, `/** */`) as nodes in the AST, so inline `@prompt` annotations are not detected. Line comments (`//`, `///`) work correctly.
 
 ### `06_annotations_{{lang}}.rs`
 
@@ -140,7 +138,6 @@ Right now, we're not sure how annotations must behave in all languages, there're
 - `rb`: All heredoc tests now correctly handle whitespace stripping for squiggly heredocs (`<<~TEXT`) ✅
 - `php`: Heredoc span calculation fixed - `outer`/`inner` now correctly separated, markers excluded from inner ✅
 - `java`: Text blocks now correctly strip incidental whitespace based on minimum indentation ✅
-- `go`: Snapshots are empty (`@""`) and only cover a plain raw string; there is no interpolated variant.
 - `cs`: Matches TS/PY for verbatim and interpolated strings with annotations - no whitespace stripping issues (verbatim strings preserve all whitespace by design).
 - `ts`: Template literals preserve all whitespace (correct behavior) - no issues.
 - `py`: Triple-quoted strings preserve all whitespace (correct behavior) - no issues.

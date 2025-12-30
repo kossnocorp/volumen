@@ -200,74 +200,56 @@ pub fn get_heredoc_info(node: &Node, source: &str) -> Option<HeredocInfo> {
 /// Extract variables from interpolated string expressions (e.g., "Hello {$user}").
 /// PHP uses various node types for string interpolation:
 /// - Simple variables: {$var}
-/// - Complex expressions: {$obj->prop} or {$arr['key']}
+/// - Complex expressions: {$obj->prop} or {$arr['key']} or {$price > 100 ? 'expensive' : 'cheap'}
 pub fn extract_interpolation_vars(node: &Node, source: &str) -> Vec<PromptVar> {
     let mut vars = Vec::new();
-
-    fn walk_node(node: &Node, source: &str, vars: &mut Vec<PromptVar>) {
-        let kind = node.kind();
-
-        // PHP tree-sitter uses different node types for interpolation
-        // Common types: "variable_name", "simple_variable", "encapsed_variable", "complex_variable"
-        if kind == "simple_variable" || kind == "complex_variable" || kind == "variable_name" {
-            // For simple variables like {$user}, the entire node is the variable
-            let outer_start = node.start_byte() as u32;
-            let outer_end = node.end_byte() as u32;
-
-            // Check if this is surrounded by braces
-            let exp = source[outer_start as usize..outer_end as usize].to_string();
-
-            // For PHP, we need to check the context to see if it's in braces
-            // The parent or surrounding context might have the braces
-            let (actual_outer_start, actual_outer_end) = if outer_start > 0
-                && source.as_bytes().get((outer_start - 1) as usize) == Some(&b'{')
-            {
-                // This is a braced variable like {$var}
-                let start = outer_start - 1;
-                let end = if source.as_bytes().get(outer_end as usize) == Some(&b'}') {
-                    outer_end + 1
-                } else {
-                    outer_end
-                };
-                (start, end)
-            } else {
-                (outer_start, outer_end)
-            };
-
-            let full_exp =
-                source[actual_outer_start as usize..actual_outer_end as usize].to_string();
-            let inner_start = if actual_outer_start < outer_start {
-                outer_start
-            } else {
-                actual_outer_start
-            };
-            let inner_end = if actual_outer_end > outer_end {
-                outer_end
-            } else {
-                actual_outer_end
-            };
-
-            vars.push(PromptVar {
-                span: SpanShape {
-                    outer: (actual_outer_start, actual_outer_end),
-                    inner: (inner_start, inner_end),
-                },
-            });
-        }
-
-        // Recursively walk children
-        let mut cursor = node.walk();
-        if cursor.goto_first_child() {
-            loop {
-                walk_node(&cursor.node(), source, vars);
-                if !cursor.goto_next_sibling() {
-                    break;
+    let string_start = node.start_byte();
+    let string_end = node.end_byte();
+    
+    // Scan through the string content looking for {$...} patterns
+    // This handles all complex expressions by finding the brace pairs
+    let bytes = source.as_bytes();
+    let mut i = string_start;
+    
+    while i < string_end {
+        // Look for opening brace followed by $
+        if i + 1 < string_end && bytes[i] == b'{' && bytes[i + 1] == b'$' {
+            // Find the matching closing brace
+            let mut depth = 1;
+            let mut j = i + 1;
+            
+            while j < string_end && depth > 0 {
+                match bytes[j] {
+                    b'{' => depth += 1,
+                    b'}' => depth -= 1,
+                    _ => {}
                 }
+                j += 1;
             }
+            
+            if depth == 0 {
+                // Found a complete {$...} expression
+                let outer_start = i as u32;
+                let outer_end = j as u32;
+                let inner_start = (i + 1) as u32;  // Skip the opening {
+                let inner_end = (j - 1) as u32;     // Skip the closing }
+                
+                vars.push(PromptVar {
+                    span: SpanShape {
+                        outer: (outer_start, outer_end),
+                        inner: (inner_start, inner_end),
+                    },
+                });
+                
+                i = j;
+            } else {
+                i += 1;
+            }
+        } else {
+            i += 1;
         }
     }
-
-    walk_node(node, source, &mut vars);
+    
     vars
 }
 

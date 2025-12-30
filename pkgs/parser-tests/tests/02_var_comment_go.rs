@@ -171,7 +171,6 @@ fn inline() {
 }
 
 #[test]
-#[ignore = "TODO: `Assigned value` must be detected as prompt."]
 fn assigned() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
@@ -181,23 +180,28 @@ fn assigned() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @"[]");
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @"[]");
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @"[]");
             }),
         },
     );
 }
 
 #[test]
-#[ignore = "TODO: `Assigned again` must be detected as prompt."]
+#[test]
 fn assigned_late_comment() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
@@ -228,7 +232,7 @@ fn assigned_late_comment() {
 }
 
 #[test]
-#[ignore = "TODO: Both `First` and `Second` must be detected as prompts."]
+#[test]
 fn reassigned_strings() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
@@ -271,6 +275,35 @@ fn reassigned_strings() {
                         ),
                       ],
                     ),
+                    Prompt(
+                      file: "prompts.go",
+                      enclosure: (33, 54),
+                      span: SpanShape(
+                        outer: (46, 54),
+                        inner: (47, 53),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (47, 53),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (0, 10),
+                              inner: (2, 10),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
                 )
                 "#);
@@ -283,6 +316,12 @@ fn reassigned_strings() {
                     "outer": "\"First\"",
                     "inner": "First",
                     "vars": []
+                  },
+                  {
+                    "enclosure": "reassigned = \"Second\"",
+                    "outer": "\"Second\"",
+                    "inner": "Second",
+                    "vars": []
                   }
                 ]
                 "#);
@@ -290,13 +329,22 @@ fn reassigned_strings() {
             interpolate: Box::new(|interp| {
                 assert_json_snapshot!(interp, @r#"
                 [
-                  "First"
+                  "First",
+                  "Second"
                 ]
                 "#);
             }),
             annotations: Box::new(|annot| {
                 assert_json_snapshot!(annot, @r#"
                 [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ],
                   [
                     [
                       {
@@ -372,7 +420,7 @@ fn mixed() {
 }
 
 #[test]
-#[ignore = "TODO: Both \"42\" and \"Hi!\" must be detected as prompts."]
+#[test]
 fn mixed_nested_strings() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
@@ -424,6 +472,35 @@ fn mixed_nested_strings() {
                         ),
                       ],
                     ),
+                    Prompt(
+                      file: "prompts.go",
+                      enclosure: (110, 120),
+                      span: SpanShape(
+                        outer: (115, 120),
+                        inner: (116, 119),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (116, 119),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (79, 89),
+                              inner: (81, 89),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
                 )
                 "#);
@@ -436,6 +513,12 @@ fn mixed_nested_strings() {
                     "outer": "\"42\"",
                     "inner": "42",
                     "vars": []
+                  },
+                  {
+                    "enclosure": "hi = \"Hi!\"",
+                    "outer": "\"Hi!\"",
+                    "inner": "Hi!",
+                    "vars": []
                   }
                 ]
                 "#);
@@ -443,13 +526,22 @@ fn mixed_nested_strings() {
             interpolate: Box::new(|interp| {
                 assert_json_snapshot!(interp, @r#"
                 [
-                  "42"
+                  "42",
+                  "Hi!"
                 ]
                 "#);
             }),
             annotations: Box::new(|annot| {
                 assert_json_snapshot!(annot, @r#"
                 [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ],
                   [
                     [
                       {
@@ -466,7 +558,7 @@ fn mixed_nested_strings() {
 }
 
 #[test]
-#[ignore = "TODO: `Hi` is not detected as prompt."]
+#[test]
 fn mixed_assign() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"
@@ -704,7 +796,7 @@ fn dirty() {
 }
 
 #[test]
-#[ignore = "TODO: `World` is not detected as prompt."]
+#[test]
 fn multi() {
     ParseTest::test(
         &ParseTestLang::go(indoc! {r#"

@@ -165,6 +165,12 @@ fn traverse_node(
         return;
     }
 
+    // Handle assignment expressions
+    if kind == "assignment_expression" {
+        process_assignment(node, source, filename, comments, scopes, prompts);
+        return;
+    }
+
     // Recursively process children
     let mut cursor = node.walk();
     if cursor.goto_first_child() {
@@ -265,6 +271,66 @@ fn process_field_declaration(
             }
             if !cursor.goto_next_sibling() {
                 break;
+            }
+        }
+    }
+}
+
+/// Process an assignment expression.
+fn process_assignment(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    comments: &CommentTracker,
+    scopes: &mut ScopeTracker,
+    prompts: &mut Vec<Prompt>,
+) {
+    let stmt_start = node.start_byte() as u32;
+    let stmt_end = node.end_byte() as u32;
+
+    // Collect annotations
+    let leading_annotations = comments.collect_adjacent_leading(stmt_start);
+    let inline_annotations = comments.collect_inline_prompt(stmt_start, stmt_end);
+    let mut all_annotations = leading_annotations.clone();
+    all_annotations.extend(inline_annotations);
+
+    // Get left and right sides
+    let left = match node.child_by_field_name("left") {
+        Some(n) => n,
+        None => return,
+    };
+
+    let right = match node.child_by_field_name("right") {
+        Some(n) => n,
+        None => return,
+    };
+
+    // Only handle simple identifier assignments
+    if left.kind() == "identifier" {
+        let ident_name = left.utf8_text(source.as_bytes()).unwrap_or("");
+        
+        // Check if this identifier is marked as a prompt variable
+        if scopes.is_prompt_ident(ident_name) {
+            // Check if right side is a string
+            if is_string_like(&right) {
+                // Get annotations (from current statement or from definition)
+                let final_annotations = if !all_annotations.is_empty() {
+                    all_annotations
+                } else {
+                    scopes.get_def_annotation(ident_name).unwrap_or_default()
+                };
+
+                // Create prompt from the string
+                create_prompt_from_string(
+                    &right,
+                    source,
+                    filename,
+                    stmt_start,
+                    stmt_end,
+                    comments,
+                    &final_annotations,
+                    prompts,
+                );
             }
         }
     }

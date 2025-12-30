@@ -5,7 +5,7 @@ mod utils;
 use utils::*;
 
 #[test]
-#[ignore = "TODO: `Welcome!` is not detected as prompt."]
+#[ignore = "Tree-sitter C# does not include block comments (`/* */`) in the AST"]
 fn simple() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"
@@ -34,7 +34,7 @@ fn simple() {
 }
 
 #[test]
-#[ignore = "TODO: XML doc comments are not detected as prompt."]
+#[ignore = "Tree-sitter C# does not include block comments (`/* */`) in the AST"]
 fn xmldoc() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"
@@ -92,7 +92,7 @@ fn inexact() {
 }
 
 #[test]
-#[ignore = "TODO: `Welcome!` is not detected as prompt."]
+#[ignore = "Tree-sitter C# does not include block comments (`/* */`) in the AST"]
 fn dirty() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"

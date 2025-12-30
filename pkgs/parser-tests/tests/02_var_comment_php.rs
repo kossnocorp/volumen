@@ -1261,7 +1261,6 @@ fn destructuring() {
 }
 
 #[test]
-#[ignore = "TODO: Both $hello and $world should be captured as prompts"]
 fn chained() {
     ParseTest::test(
         &ParseTestLang::php(indoc! {r#"
@@ -1274,21 +1273,119 @@ fn chained() {
                 assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
-                  prompts: [],
+                  prompts: [
+                    Prompt(
+                      file: "prompts.php",
+                      enclosure: (6, 39),
+                      span: SpanShape(
+                        outer: (35, 39),
+                        inner: (36, 38),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (36, 38),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (6, 16),
+                              inner: (8, 16),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Prompt(
+                      file: "prompts.php",
+                      enclosure: (6, 39),
+                      span: SpanShape(
+                        outer: (35, 39),
+                        inner: (36, 38),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (36, 38),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (6, 16),
+                              inner: (8, 16),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 )
                 "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @"[]");
+                assert_json_snapshot!(prompt_source_cuts, @r#"
+                [
+                  {
+                    "enclosure": "// @prompt\n$hello = $world = \"Hi\"",
+                    "outer": "\"Hi\"",
+                    "inner": "Hi",
+                    "vars": []
+                  },
+                  {
+                    "enclosure": "// @prompt\n$hello = $world = \"Hi\"",
+                    "outer": "\"Hi\"",
+                    "inner": "Hi",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
 
             interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @"[]");
+                assert_json_snapshot!(interpolations, @r#"
+                [
+                  "Hi",
+                  "Hi"
+                ]
+                "#);
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @"[]");
+                assert_json_snapshot!(annotations, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ],
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );
@@ -1400,57 +1497,59 @@ fn multi() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 54),
                       span: SpanShape(
-                        outer: Span(
-                          start: 37,
-                          end: 44,
-                        ),
-                        inner: Span(
-                          start: 38,
-                          end: 43,
-                        ),
+                        outer: (37, 44),
+                        inner: (38, 43),
                       ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 54,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (38, 43),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"Hello\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 6,
-                            end: 16,
-                          ),
-                          exp: "// @prompt",
+                          spans: [
+                            SpanShape(
+                              outer: (6, 16),
+                              inner: (8, 16),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 54),
                       span: SpanShape(
-                        outer: Span(
-                          start: 46,
-                          end: 53,
-                        ),
-                        inner: Span(
-                          start: 47,
-                          end: 52,
-                        ),
+                        outer: (46, 53),
+                        inner: (47, 52),
                       ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 54,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (47, 52),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"World\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 6,
-                            end: 16,
-                          ),
-                          exp: "// @prompt",
+                          spans: [
+                            SpanShape(
+                              outer: (6, 16),
+                              inner: (8, 16),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -1491,10 +1590,20 @@ fn multi() {
                 assert_json_snapshot!(annotations, @r#"
                 [
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ],
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "#);

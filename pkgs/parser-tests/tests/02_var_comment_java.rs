@@ -256,7 +256,6 @@ fn doc() {
 }
 
 #[test]
-#[ignore = "TODO: `Hello` is not detected as prompt."]
 fn assigned() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
@@ -287,7 +286,6 @@ fn assigned() {
 }
 
 #[test]
-#[ignore = "TODO: `Assigned again` is not detected as prompt."]
 fn assigned_late_comment() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
@@ -318,7 +316,6 @@ fn assigned_late_comment() {
 }
 
 #[test]
-#[ignore = "TODO: Both `First` and `Second` must be detected as prompts."]
 fn reassigned() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
@@ -361,6 +358,35 @@ fn reassigned() {
                         ),
                       ],
                     ),
+                    Prompt(
+                      file: "Prompts.java",
+                      enclosure: (40, 61),
+                      span: SpanShape(
+                        outer: (53, 61),
+                        inner: (54, 60),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (54, 60),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (0, 10),
+                              inner: (2, 10),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
                 )
                 "#);
@@ -373,6 +399,12 @@ fn reassigned() {
                     "outer": "\"First\"",
                     "inner": "First",
                     "vars": []
+                  },
+                  {
+                    "enclosure": "reassigned = \"Second\"",
+                    "outer": "\"Second\"",
+                    "inner": "Second",
+                    "vars": []
                   }
                 ]
                 "#);
@@ -380,13 +412,22 @@ fn reassigned() {
             interpolate: Box::new(|interp| {
                 assert_json_snapshot!(interp, @r#"
                 [
-                  "First"
+                  "First",
+                  "Second"
                 ]
                 "#);
             }),
             annotations: Box::new(|annot| {
                 assert_json_snapshot!(annot, @r#"
                 [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ],
                   [
                     [
                       {
@@ -462,7 +503,6 @@ fn mixed() {
 }
 
 #[test]
-#[ignore = "TODO: `Hi!` must be detected as prompt."]
 fn mixed_nested() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"
@@ -485,18 +525,72 @@ fn mixed_nested() {
                 assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
-                  prompts: [],
+                  prompts: [
+                    Prompt(
+                      file: "Prompts.java",
+                      enclosure: (126, 136),
+                      span: SpanShape(
+                        outer: (131, 136),
+                        inner: (132, 135),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (132, 135),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (85, 95),
+                              inner: (87, 95),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 )
                 "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"[]");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "hi = \"Hi!\"",
+                    "outer": "\"Hi!\"",
+                    "inner": "Hi!",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"[]");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Hi!"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"[]");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );
@@ -536,7 +630,6 @@ fn mixed_none() {
 }
 
 #[test]
-#[ignore = "TODO: `Hi` must be detected as prompt."]
 fn mixed_assign() {
     ParseTest::test(
         &ParseTestLang::java(indoc! {r#"

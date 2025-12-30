@@ -181,6 +181,12 @@ fn traverse_node(
         return;
     }
 
+    // Handle assignment expressions
+    if kind == "assignment_expression" {
+        process_assignment(node, source, filename, comments, scopes, prompts);
+        return;
+    }
+
     // Recursively process children
     let mut cursor = node.walk();
     if cursor.goto_first_child() {
@@ -308,6 +314,73 @@ fn process_field_declaration(
             }
         }
     }
+}
+
+/// Process an assignment expression.
+fn process_assignment(
+    node: &Node,
+    source: &str,
+    filename: &str,
+    comments: &CommentTracker,
+    scopes: &mut ScopeTracker,
+    prompts: &mut Vec<Prompt>,
+) {
+    let stmt_start = node.start_byte() as u32;
+    let stmt_end = node.end_byte() as u32;
+
+    // Get left side (should be an identifier)
+    let left_node = match node.child_by_field_name("left") {
+        Some(n) => n,
+        None => return,
+    };
+
+    // Extract identifier name from left side
+    let ident_name = if left_node.kind() == "identifier" {
+        left_node.utf8_text(source.as_bytes()).unwrap_or("")
+    } else {
+        return;
+    };
+
+    // Check if this identifier is a prompt variable
+    if !scopes.is_prompt_ident(ident_name) {
+        return;
+    }
+
+    // Get right side (value being assigned)
+    let right_node = match node.child_by_field_name("right") {
+        Some(n) => n,
+        None => return,
+    };
+
+    // Check if right side is a string
+    if !is_string_like(&right_node) {
+        return;
+    }
+
+    // Collect annotations for this assignment
+    let leading_annotations = comments.collect_adjacent_leading(stmt_start);
+    let inline_annotations = comments.collect_inline_prompt(stmt_start, stmt_end);
+    let mut all_annotations = leading_annotations.clone();
+    all_annotations.extend(inline_annotations);
+
+    // Use annotations from this statement, or fall back to definition annotations
+    let final_annotations = if !all_annotations.is_empty() {
+        all_annotations
+    } else {
+        scopes.get_def_annotation(ident_name).unwrap_or_default()
+    };
+
+    // Create prompt from the string value
+    create_prompt_from_string(
+        &right_node,
+        source,
+        filename,
+        stmt_start,
+        stmt_end,
+        comments,
+        &final_annotations,
+        prompts,
+    );
 }
 
 /// Process a variable_declarator node.

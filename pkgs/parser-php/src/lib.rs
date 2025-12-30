@@ -278,8 +278,57 @@ fn process_identifier_assignment(
             scopes.store_def_annotation(ident_name, annotations.to_vec());
         }
 
+        // Check if it's a chained assignment ($a = $b = "value")
+        if right.kind() == "assignment_expression" {
+            // Get the left side of the chained assignment to mark it as prompt too
+            if let Some(chained_left) = right.child_by_field_name("left") {
+                let chained_ident = chained_left.utf8_text(source.as_bytes()).unwrap_or("");
+                scopes.mark_prompt_ident(chained_ident);
+                
+                // Store definition annotations for the chained variable too
+                if has_prompt_annotation {
+                    scopes.store_def_annotation(chained_ident, annotations.to_vec());
+                }
+            }
+            
+            // Get the actual value (rightmost in the chain)
+            if let Some(chained_right) = right.child_by_field_name("right") {
+                // Recursively process the chained assignment to create prompts for all variables
+                process_identifier_assignment(
+                    ident_name,
+                    &chained_right,
+                    has_prompt_annotation,
+                    annotations,
+                    stmt_start,
+                    stmt_end,
+                    source,
+                    filename,
+                    comments,
+                    scopes,
+                    prompts,
+                );
+                
+                // Also process the middle variable(s) in the chain
+                if let Some(chained_left) = right.child_by_field_name("left") {
+                    let chained_ident = chained_left.utf8_text(source.as_bytes()).unwrap_or("");
+                    process_identifier_assignment(
+                        chained_ident,
+                        &chained_right,
+                        has_prompt_annotation,
+                        annotations,
+                        stmt_start,
+                        stmt_end,
+                        source,
+                        filename,
+                        comments,
+                        scopes,
+                        prompts,
+                    );
+                }
+            }
+        } 
         // Check if it's a string or binary expression
-        if is_string_like(right) {
+        else if is_string_like(right) {
             // Annotations from comment tracker are already validated to contain @prompt
             // Get annotations (from current statement or from definition)
             let final_annotations = if !annotations.is_empty() {
