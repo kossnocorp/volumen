@@ -4,7 +4,6 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
-#[ignore]
 #[test]
 fn multiple() {
     ParseTest::test(
@@ -25,105 +24,108 @@ fn multiple() {
                   prompts: [
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (0, 35),
                       span: SpanShape(
-                        outer: Span(
-                          start: 20,
-                          end: 34,
-                        ),
-                        inner: Span(
-                          start: 21,
-                          end: 33,
-                        ),
+                        outer: (20, 34),
+                        inner: (21, 33),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 35,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (21, 33),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"Hello, name!\"",
                       vars: [],
                       annotations: [],
                     ),
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (36, 79),
                       span: SpanShape(
-                        outer: Span(
-                          start: 68,
-                          end: 78,
-                        ),
-                        inner: Span(
-                          start: 69,
-                          end: 77,
-                        ),
+                        outer: (68, 78),
+                        inner: (69, 77),
                       ),
-                      enclosure: Span(
-                        start: 36,
-                        end: 79,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (69, 77),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"Welcome!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 54,
-                            end: 67,
-                          ),
-                          exp: "/* @prompt */",
+                          spans: [
+                            SpanShape(
+                              outer: (54, 67),
+                              inner: (56, 65),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (80, 120),
                       span: SpanShape(
-                        outer: Span(
-                          start: 109,
-                          end: 119,
-                        ),
-                        inner: Span(
-                          start: 110,
-                          end: 118,
-                        ),
+                        outer: (109, 119),
+                        inner: (110, 118),
                       ),
-                      enclosure: Span(
-                        start: 80,
-                        end: 120,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (110, 118),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"Goodbye!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 80,
-                            end: 90,
-                          ),
-                          exp: "// @prompt",
+                          spans: [
+                            SpanShape(
+                              outer: (80, 90),
+                              inner: (82, 90),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                     Prompt(
                       file: "Prompts.java",
+                      enclosure: (121, 178),
                       span: SpanShape(
-                        outer: Span(
-                          start: 152,
-                          end: 177,
-                        ),
-                        inner: Span(
-                          start: 153,
-                          end: 176,
-                        ),
+                        outer: (152, 177),
+                        inner: (153, 176),
                       ),
-                      enclosure: Span(
-                        start: 121,
-                        end: 178,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (153, 176),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"You are an AI assistant\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 121,
-                            end: 135,
-                          ),
-                          exp: "/** @prompt */",
+                          spans: [
+                            SpanShape(
+                              outer: (121, 135),
+                              inner: (124, 133),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -176,13 +178,28 @@ fn multiple() {
                 [
                   [],
                   [
-                    "/* @prompt */"
+                    [
+                      {
+                        "outer": "/* @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
                   ],
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ],
                   [
-                    "/** @prompt */"
+                    [
+                      {
+                        "outer": "/** @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
                   ]
                 ]
                 "#);

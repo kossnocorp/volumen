@@ -205,7 +205,7 @@ fn multiple_vars() {
     );
 }
 
-#[ignore]
+#[ignore = "TODO: Here, the interpolation incorrectly produce `{0}->name}!` instead of `{0}`. The var outer span is also off."]
 #[test]
 fn exp() {
     ParseTest::test(
@@ -312,7 +312,7 @@ fn exp() {
     );
 }
 
-#[ignore]
+#[ignore = "TODO: Same problem as `exp` test above: wrong var spans resulting in incorrect interpolation."]
 #[test]
 fn exp_complex() {
     ParseTest::test(
@@ -328,33 +328,35 @@ fn exp_complex() {
                   prompts: [
                     Prompt(
                       file: "prompts.php",
+                      enclosure: (6, 77),
                       span: SpanShape(
-                        outer: Span(
-                          start: 21,
-                          end: 77,
-                        ),
-                        inner: Span(
-                          start: 22,
-                          end: 76,
-                        ),
+                        outer: (21, 77),
+                        inner: (22, 76),
                       ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 77,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (22, 35),
+                        ),
+                        PromptContentTokenVar(
+                          type: "var",
+                          span: (35, 42),
+                          index: 0,
+                        ),
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (42, 76),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"This item is {$price > 100 ? \'expensive\' : \'cheap\'}...\"",
                       vars: [
                         PromptVar(
-                          exp: "{$price",
                           span: SpanShape(
-                            outer: Span(
-                              start: 35,
-                              end: 42,
-                            ),
-                            inner: Span(
-                              start: 36,
-                              end: 42,
-                            ),
+                            outer: (35, 42),
+                            inner: (36, 42),
                           ),
                         ),
                       ],

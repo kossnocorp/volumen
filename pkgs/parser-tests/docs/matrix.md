@@ -9,7 +9,7 @@
 | `03_inline_comment_{{lang}}.rs`   | +++  | +++  | +++  | +++   | ++   | ++   | +++    |
 | `04_prompt_vars_{{lang}}.rs`      | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
 | `05_multiple_prompts_{{lang}}.rs` | +++  | +++  | +++  | ++    | ++   | ++   | +++    |
-| `06_annotations_{{lang}}.rs`      | +++  | ++   | +++  | ++!   | ++!  | ++!  | ++!    |
+| `06_annotations_{{lang}}.rs`      | ++?  | ++?  | ++?  | ++?   | ++?  | ++?  | ++?    |
 | `07_syntax_{{lang}}.rs`           | +++  | +++  | +++  | +++   | ++!  | +++  | +++    |
 | `08_concat_{{lang}}.rs`           | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
 | `09_fn_{{lang}}.rs`               | +++  | +++  | +++  | +++   | +++  | +++  | +++    |
@@ -21,6 +21,7 @@
 - `+`: Test file exists
 - `++`: All tests exist (but snapshots are incorrect or empty `@""`)
 - `+++`: All test snapshots are correct, or the tests are not applicable (i.e., `03_inline_comment_py.rs` for `py`)
+- `?`: Behavior is not defined yet.
 
 **Languages**:
 
@@ -63,10 +64,12 @@ Additional legend:
 | `doc`                   | +++  | -    | -    | ++    | -    | ++   | ++     |
 | `assigned`              | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
 | `assigned_late_comment` | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
-| `reassigned`            | +++  | +++  | +++  | +++   | ++   | ++   | ++     |
+| `reassigned`            | +++  | +++  | +++  | +++   | ~    | ~    | ++     |
+| `reassigned_strings`    | -    | -    | -    | -     | +    | +    | -      |
 | `inexact`               | +++  | +++  | ++   | +++!  | ++   | ++   | ++     |
 | `mixed`                 | +++  | +++  | +++! | ++    | ++   | ++   | ++     |
-| `mixed_nested`          | +++  | +++  | ++   | ++    | ++   | ++   | ++     |
+| `mixed_nested`          | +++  | +++  | ++   | ++    | ~    | ~    | ++     |
+| `mixed_nested_strings`  | -    | -    | -    | -     | +    | +    | -      |
 | `mixed_none`            | +++  | +++  | ++   | ++    | ++   | ++   | ++     |
 | `mixed_assign`          | +++  | +++  | ++   | ++    | ++   | ++   | ++     |
 | `mixed_reassign`        | +++! | +++! | +++  | +++   | -    | -    | -      |
@@ -81,6 +84,7 @@ Additional legend:
 
 - `ts` `mixed_reassign` and `mixed_reassign_inline`: After removing the `exp` field from `PromptAnnotation`, the parsers need to be updated to collect ALL adjacent comments (not just `@prompt` ones) for reassignments and inline prompt cases. Currently ignored.
 - `py` `mixed_reassign`: Same issue as TypeScript - needs parser refactoring to properly collect line comments for reassignments.
+- `reassigned_strings` + `mixed_nested_strings`: New tests, needs to be added for `py`, `rb`, `php`, `go`, `java` - currently only exists for `cs`.
 
 ### `03_inline_comment_{{lang}}.rs`
 
@@ -114,18 +118,11 @@ Additional legend:
 
 | Test Lang:         | `ts` | `py` | `rb` | `php` | `go` | `cs` | `java` |
 | ------------------ | ---- | ---- | ---- | ----- | ---- | ---- | ------ |
-| `multiple`         | +++! | -    | -    | ++!   | ++!  | ++!  | ++!    |
-| `multiline`        | +++! | +++  | +++  | ++!   | ++!  | ++!  | ++!    |
-| `multiline_nested` | +++  | +++  | +++  | +++   | ++!  | +++  | +++    |
+| `multiple`         | ++?  | ++?  | ++?  | ++?   | ++?  | ++?  | ++?    |
+| `multiline`        | ++?  | ++?  | ++?  | ++?   | ++?  | ++?  | ++?    |
+| `multiline_nested` | ++?  | ++?  | ++?  | ++?   | ++?  | ++?  | ++?    |
 
-- `py` and `rb` omit the `multiple` test case.
-- `php` and `java` capture only `/* @prompt */` for `multiple` and `multiline`, missing preceding comment or block annotations seen in `ts`.
-- `go` snapshots are empty for all tests; no prompt data captured.
-- `cs` snapshots are empty for `multiple` and `multiline`.
-
-**Known Issues**:
-
-- `ts` `multiple` and `multiline`: After removing the `exp` field from `PromptAnnotation`, when there's an inline `/* @prompt */` comment, the parser should also collect ALL adjacent leading comments (even those without `@prompt` like `// Hello, world` or block comments). This is needed for future extensibility (e.g., `@eval` directives). Currently ignored pending parser refactoring.
+Right now, we're not sure how annotations must behave in all languages, there're many edge cases to consider (especially around mutable variables and mixing comments,) and since it's not a critical feature, we've marked all tests as `++?` until we can define the expected behavior more clearly.
 
 ### `07_syntax_{{lang}}.rs`
 

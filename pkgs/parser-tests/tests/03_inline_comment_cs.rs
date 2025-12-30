@@ -4,8 +4,8 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
-#[ignore]
 #[test]
+#[ignore = "TODO: `Welcome!` is not detected as prompt."]
 fn simple() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"
@@ -33,8 +33,8 @@ fn simple() {
     );
 }
 
-#[ignore]
 #[test]
+#[ignore = "TODO: XML doc comments are not detected as prompt."]
 fn xmldoc() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"
@@ -91,8 +91,8 @@ fn inexact() {
     );
 }
 
-#[ignore]
 #[test]
+#[ignore = "TODO: `Welcome!` is not detected as prompt."]
 fn dirty() {
     ParseTest::test(
         &ParseTestLang::cs(indoc! {r#"

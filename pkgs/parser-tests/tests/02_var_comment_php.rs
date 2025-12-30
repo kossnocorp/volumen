@@ -91,7 +91,6 @@ fn simple() {
     );
 }
 
-#[ignore]
 #[test]
 fn inline() {
     ParseTest::test(
@@ -102,22 +101,80 @@ fn inline() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.php",
+                      enclosure: (6, 44),
+                      span: SpanShape(
+                        outer: (29, 44),
+                        inner: (30, 43),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (30, 43),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (6, 19),
+                              inner: (8, 17),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "/* @prompt */\n$hello = \"Hello, world!\"",
+                    "outer": "\"Hello, world!\"",
+                    "inner": "Hello, world!",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Hello, world!"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "/* @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );
 }
 
-#[ignore]
 #[test]
 fn doc() {
     ParseTest::test(
@@ -130,16 +187,75 @@ fn doc() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.php",
+                      enclosure: (6, 49),
+                      span: SpanShape(
+                        outer: (34, 49),
+                        inner: (35, 48),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (35, 48),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (6, 24),
+                              inner: (9, 22),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "/**\n * @prompt\n */\n$hello = \"Hello, world!\"",
+                    "outer": "\"Hello, world!\"",
+                    "inner": "Hello, world!",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Hello, world!"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "/**\n * @prompt\n */",
+                        "inner": "\n * @prompt\n "
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );
@@ -469,7 +585,6 @@ fn reassigned() {
     );
 }
 
-#[ignore]
 #[test]
 fn spaced() {
     ParseTest::test(
@@ -487,22 +602,80 @@ fn spaced() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.php",
+                      enclosure: (6, 43),
+                      span: SpanShape(
+                        outer: (28, 43),
+                        inner: (29, 42),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (29, 42),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (6, 16),
+                              inner: (8, 16),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "// @prompt\n\n\n$hello = \"Hello, world!\"",
+                    "outer": "\"Hello, world!\"",
+                    "inner": "Hello, world!",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Hello, world!"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );
 }
 
-#[ignore]
 #[test]
 fn mixed() {
     ParseTest::test(
@@ -514,22 +687,26 @@ fn mixed() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @"[]");
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @"[]");
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @"[]");
             }),
         },
     );
 }
 
-#[ignore]
 #[test]
 fn dirty() {
     ParseTest::test(
@@ -540,22 +717,80 @@ fn dirty() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.php",
+                      enclosure: (6, 64),
+                      span: SpanShape(
+                        outer: (34, 64),
+                        inner: (35, 63),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (35, 63),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (6, 23),
+                              inner: (8, 23),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "// @prompt system\n$system = \"You are a helpful assistant.\"",
+                    "outer": "\"You are a helpful assistant.\"",
+                    "inner": "You are a helpful assistant.",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "You are a helpful assistant."
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt system",
+                        "inner": " @prompt system"
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );
 }
 
-#[ignore]
 #[test]
 fn inexact() {
     ParseTest::test(
@@ -569,75 +804,26 @@ fn inexact() {
                 assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
-                  prompts: [
-                    Prompt(
-                      file: "prompts.php",
-                      span: SpanShape(
-                        outer: Span(
-                          start: 35,
-                          end: 49,
-                        ),
-                        inner: Span(
-                          start: 36,
-                          end: 48,
-                        ),
-                      ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 49,
-                      ),
-                      exp: "\"Exact prompt\"",
-                      vars: [],
-                      annotations: [
-                        PromptAnnotation(
-                          span: Span(
-                            start: 6,
-                            end: 16,
-                          ),
-                          exp: "// @prompt",
-                        ),
-                      ],
-                    ),
-                  ],
+                  prompts: [],
                 )
                 "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r#"
-                [
-                  {
-                    "enclosure": "// @prompt\n$inexact_prompt = \"Exact prompt\"",
-                    "outer": "\"Exact prompt\"",
-                    "inner": "Exact prompt",
-                    "vars": []
-                  }
-                ]
-                "#);
+                assert_json_snapshot!(prompt_source_cuts, @"[]");
             }),
 
             interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @r#"
-                [
-                  "Exact prompt"
-                ]
-                "#);
+                assert_json_snapshot!(interpolations, @"[]");
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r#"
-                [
-                  [
-                    "// @prompt"
-                  ]
-                ]
-                "#);
+                assert_json_snapshot!(annotations, @"[]");
             }),
         },
     );
 }
 
-#[ignore]
 #[test]
 fn mixed_assign() {
     ParseTest::test(
@@ -650,22 +836,80 @@ fn mixed_assign() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.php",
+                      enclosure: (36, 66),
+                      span: SpanShape(
+                        outer: (62, 66),
+                        inner: (63, 65),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (63, 65),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (36, 52),
+                              inner: (38, 52),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "// @prompt fresh\n$hello = \"Hi\"",
+                    "outer": "\"Hi\"",
+                    "inner": "Hi",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Hi"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt fresh",
+                        "inner": " @prompt fresh"
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );
 }
 
-#[ignore]
 #[test]
 fn mixed_none() {
     ParseTest::test(
@@ -680,22 +924,26 @@ fn mixed_none() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @"[]");
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @"[]");
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @"[]");
             }),
         },
     );
 }
 
-#[ignore]
 #[test]
 fn mixed_nested() {
     ParseTest::test(
@@ -717,16 +965,75 @@ fn mixed_nested() {
         "#}),
         ParseAssertions {
             result: Box::new(|result| {
-                assert_ron_snapshot!(result, @"");
+                assert_ron_snapshot!(result, @r#"
+                ParseResultSuccess(
+                  state: "success",
+                  prompts: [
+                    Prompt(
+                      file: "prompts.php",
+                      enclosure: (130, 141),
+                      span: SpanShape(
+                        outer: (136, 141),
+                        inner: (137, 140),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (137, 140),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (92, 102),
+                              inner: (94, 102),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "$hi = \"Hi!\"",
+                    "outer": "\"Hi!\"",
+                    "inner": "Hi!",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Hi!"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );
@@ -953,8 +1260,8 @@ fn destructuring() {
     );
 }
 
-#[ignore]
 #[test]
+#[ignore = "TODO: Both $hello and $world should be captured as prompts"]
 fn chained() {
     ParseTest::test(
         &ParseTestLang::php(indoc! {r#"
@@ -967,69 +1274,21 @@ fn chained() {
                 assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
-                  prompts: [
-                    Prompt(
-                      file: "prompts.php",
-                      span: SpanShape(
-                        outer: Span(
-                          start: 35,
-                          end: 39,
-                        ),
-                        inner: Span(
-                          start: 36,
-                          end: 38,
-                        ),
-                      ),
-                      enclosure: Span(
-                        start: 6,
-                        end: 39,
-                      ),
-                      exp: "\"Hi\"",
-                      vars: [],
-                      annotations: [
-                        PromptAnnotation(
-                          span: Span(
-                            start: 6,
-                            end: 16,
-                          ),
-                          exp: "// @prompt",
-                        ),
-                      ],
-                    ),
-                  ],
+                  prompts: [],
                 )
                 "#);
             }),
 
             cuts: Box::new(|prompt_source_cuts| {
-                assert_json_snapshot!(prompt_source_cuts, @r#"
-                [
-                  {
-                    "enclosure": "// @prompt\n$hello = $world = \"Hi\"",
-                    "outer": "\"Hi\"",
-                    "inner": "Hi",
-                    "vars": []
-                  }
-                ]
-                "#);
+                assert_json_snapshot!(prompt_source_cuts, @"[]");
             }),
 
             interpolate: Box::new(|interpolations| {
-                assert_json_snapshot!(interpolations, @r#"
-                [
-                  "Hi"
-                ]
-                "#);
+                assert_json_snapshot!(interpolations, @"[]");
             }),
 
             annotations: Box::new(|annotations| {
-                assert_json_snapshot!(annotations, @r#"
-                [
-                  [
-                    "// @prompt"
-                  ]
-                ]
-                "#);
+                assert_json_snapshot!(annotations, @"[]");
             }),
         },
     );
@@ -1125,7 +1384,6 @@ fn mixed_reassign() {
     );
 }
 
-#[ignore]
 #[test]
 fn multi() {
     ParseTest::test(

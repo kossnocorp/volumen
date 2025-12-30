@@ -4,7 +4,6 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
-#[ignore]
 #[test]
 fn simple() {
     ParseTest::test(
@@ -16,18 +15,72 @@ fn simple() {
                 assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
-                  prompts: [],
+                  prompts: [
+                    Prompt(
+                      file: "prompts.go",
+                      enclosure: (0, 36),
+                      span: SpanShape(
+                        outer: (26, 36),
+                        inner: (27, 35),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (27, 35),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (12, 25),
+                              inner: (14, 23),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 )
                 "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"[]");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "greeting := /* @prompt */ \"Welcome!\"",
+                    "outer": "\"Welcome!\"",
+                    "inner": "Welcome!",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"[]");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Welcome!"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"[]");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "/* @prompt */",
+                        "inner": " @prompt "
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );
@@ -62,7 +115,6 @@ fn inexact() {
     );
 }
 
-#[ignore]
 #[test]
 fn dirty() {
     ParseTest::test(
@@ -74,18 +126,72 @@ fn dirty() {
                 assert_ron_snapshot!(result, @r#"
                 ParseResultSuccess(
                   state: "success",
-                  prompts: [],
+                  prompts: [
+                    Prompt(
+                      file: "prompts.go",
+                      enclosure: (0, 45),
+                      span: SpanShape(
+                        outer: (35, 45),
+                        inner: (36, 44),
+                      ),
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (36, 44),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
+                      ),
+                      vars: [],
+                      annotations: [
+                        PromptAnnotation(
+                          spans: [
+                            SpanShape(
+                              outer: (12, 34),
+                              inner: (14, 32),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 )
                 "#);
             }),
             cuts: Box::new(|cuts| {
-                assert_json_snapshot!(cuts, @"[]");
+                assert_json_snapshot!(cuts, @r#"
+                [
+                  {
+                    "enclosure": "greeting := /* @prompt greeting */ \"Welcome!\"",
+                    "outer": "\"Welcome!\"",
+                    "inner": "Welcome!",
+                    "vars": []
+                  }
+                ]
+                "#);
             }),
             interpolate: Box::new(|interp| {
-                assert_json_snapshot!(interp, @"[]");
+                assert_json_snapshot!(interp, @r#"
+                [
+                  "Welcome!"
+                ]
+                "#);
             }),
             annotations: Box::new(|annot| {
-                assert_json_snapshot!(annot, @"[]");
+                assert_json_snapshot!(annot, @r#"
+                [
+                  [
+                    [
+                      {
+                        "outer": "/* @prompt greeting */",
+                        "inner": " @prompt greeting "
+                      }
+                    ]
+                  ]
+                ]
+                "#);
             }),
         },
     );

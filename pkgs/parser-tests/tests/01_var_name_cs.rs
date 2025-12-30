@@ -4,7 +4,6 @@ use insta::{assert_json_snapshot, assert_ron_snapshot};
 mod utils;
 use utils::*;
 
-#[ignore]
 #[test]
 fn simple() {
     ParseTest::test(
@@ -19,21 +18,21 @@ fn simple() {
                   prompts: [
                     Prompt(
                       file: "Prompts.cs",
+                      enclosure: (0, 51),
                       span: SpanShape(
-                        outer: Span(
-                          start: 20,
-                          end: 50,
-                        ),
-                        inner: Span(
-                          start: 21,
-                          end: 49,
-                        ),
+                        outer: (20, 50),
+                        inner: (21, 49),
                       ),
-                      enclosure: Span(
-                        start: 0,
-                        end: 51,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (21, 49),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"You are a helpful assistant.\"",
                       vars: [],
                       annotations: [],
                     ),
@@ -71,7 +70,6 @@ fn simple() {
     );
 }
 
-#[ignore]
 #[test]
 fn nested() {
     ParseTest::test(
@@ -93,49 +91,50 @@ fn nested() {
                   prompts: [
                     Prompt(
                       file: "Prompts.cs",
+                      enclosure: (41, 78),
                       span: SpanShape(
-                        outer: Span(
-                          start: 62,
-                          end: 77,
-                        ),
-                        inner: Span(
-                          start: 63,
-                          end: 76,
-                        ),
+                        outer: (62, 77),
+                        inner: (63, 76),
                       ),
-                      enclosure: Span(
-                        start: 41,
-                        end: 78,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (63, 76),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"Hello, world!\"",
                       vars: [],
                       annotations: [],
                     ),
                     Prompt(
                       file: "Prompts.cs",
+                      enclosure: (88, 133),
                       span: SpanShape(
-                        outer: Span(
-                          start: 127,
-                          end: 132,
-                        ),
-                        inner: Span(
-                          start: 128,
-                          end: 131,
-                        ),
+                        outer: (127, 132),
+                        inner: (128, 131),
                       ),
-                      enclosure: Span(
-                        start: 88,
-                        end: 133,
+                      content: [
+                        PromptContentTokenStr(
+                          type: "str",
+                          span: (128, 131),
+                        ),
+                      ],
+                      joint: SpanShape(
+                        outer: (0, 0),
+                        inner: (0, 0),
                       ),
-                      exp: "\"Hi!\"",
                       vars: [],
                       annotations: [
                         PromptAnnotation(
-                          span: Span(
-                            start: 88,
-                            end: 98,
-                          ),
-                          exp: "// @prompt",
+                          spans: [
+                            SpanShape(
+                              outer: (88, 98),
+                              inner: (90, 98),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -174,7 +173,12 @@ fn nested() {
                 [
                   [],
                   [
-                    "// @prompt"
+                    [
+                      {
+                        "outer": "// @prompt",
+                        "inner": " @prompt"
+                      }
+                    ]
                   ]
                 ]
                 "#);
